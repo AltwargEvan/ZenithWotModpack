@@ -7,7 +7,7 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "ZenithWotModpack",
+    "productName": "Zenith Modpack",
     "version": "0.0.0"
   },
   "tauri": {
@@ -37,7 +37,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "ZenithWotModpack",
+        "title": "Zenith Modpack",
         "width": 800,
         "height": 600
       }

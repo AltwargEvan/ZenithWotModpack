@@ -4,7 +4,7 @@
 
 /* tailwind root style */
 :root {
-  @apply bg-secondary-500;
+  @apply bg-secondary-600;
 }
 
 :root {
