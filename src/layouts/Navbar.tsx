@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const NavLink = ({ to, children }: { to: string; children: ReactNode }) => {
   return (
-    <div className="hover:cursor-pointer hover:bg-secondary-200 px-2 py-1">
+    <div className="hover:cursor-pointer hover:bg-secondary-200 px-2 py-1 rounded">
       <Link to={to}>{children}</Link>
     </div>
   );
