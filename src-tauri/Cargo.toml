@@ -1,5 +1,5 @@
 [package]
-name = "ZenithWotModpack"
+name = "zenith_wot_modpack"
 version = "0.0.0"
 description = "A Tauri App"
 authors = ["you"]
