@@ -33,6 +33,11 @@ export default {
           600: "#1b1721",
         },
       },
+      // fonts are linked from google in index.html
+      fontFamily: {
+        oswald: ["Oswald", "sans-serif"],
+        cinzel: ["Cinzel Decorative", "cursive"],
+      },
     },
   },
   plugins: [],
