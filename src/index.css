@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* tailwind root style */
-:root {
-  @apply bg-secondary-600;
-}
-
 :root {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
