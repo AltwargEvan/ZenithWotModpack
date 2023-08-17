@@ -18,6 +18,8 @@ const Navbar = () => {
       <hr className="py-1" />
       <NavLink to="/mods">Mods</NavLink>
       <NavLink to="/settings">Settings</NavLink>
+      <NavLink to="/about">About</NavLink>
+      <NavLink to="/contact">Contact</NavLink>
     </div>
   );
 };
