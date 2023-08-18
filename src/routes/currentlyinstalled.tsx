@@ -1,24 +1,25 @@
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { invoke } from "@tauri-apps/api/tauri";
+import Button from "../components/Button";
+import FileDirInput from "../components/FileDirInput";
 
 type Inputs = {
-  modid: number;
-  gamedir: string;
+  mod_id: number;
+  game_dir: string;
 };
 
 const CurrentlyInstalledPage = () => {
   const { data, mutate } = useMutation({
     mutationKey: ["hello"],
-    mutationFn: async (data: { gamedir: string; modid: number }) => {
-      return await invoke("installmod", data);
+    mutationFn: async (data: { _game_dir: string; _mod_id: number }) => {
+      return await invoke("install_mod", data);
     },
   });
 
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<Inputs>();
 
@@ -35,11 +36,17 @@ const CurrentlyInstalledPage = () => {
       <hr className="border-secondary-100 p-2"></hr>
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-1">
         <label>Game Directory</label>
-        <input
-          defaultValue="test"
-          {...register("gamedir")}
+        <FileDirInput
+          {...register("game_dir")}
           className="w-full text-black p-1"
         />
+        <label>Mod Id</label>
+        <input
+          defaultValue={6391}
+          {...register("mod_id")}
+          className="w-full text-black p-1"
+        />
+        <Button>Install</Button>
       </form>
       <div>Data: {JSON.stringify(data)}</div>
     </div>
