@@ -28,12 +28,14 @@ const Navbar = () => {
           <span className="font-cinzel text-3xl font-bold">ZeNitH</span>
         </div>
         <hr className="py-1" />
-        <NavLink to="/mods">Mods</NavLink>
+        <NavLink to="/mods">All Mods</NavLink>
+        <NavLink to="/currentlyinstalled">Currently Installed</NavLink>
         <NavLink to="/settings">Settings</NavLink>
+      </div>
+      <div>
         <NavLink to="/about">About</NavLink>
         <NavLink to="/contact">Contact</NavLink>
       </div>
-      <div>Profiles</div>
     </div>
   );
 };
