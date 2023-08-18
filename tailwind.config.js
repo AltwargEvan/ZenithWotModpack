@@ -6,6 +6,7 @@ export default {
       // color theme generated with https://colorffy.com/dark-theme-generator
       // primary - #673ab7
       // secondary - #121212
+      // mix intensity 0.3
       // numbers 100-600 are backwards from site because it fits how tailwind does shit
       colors: {
         primary: {
@@ -25,12 +26,12 @@ export default {
           600: "#121212",
         },
         tertiary: {
-          100: "#908e94",
-          200: "#77747b",
-          300: "#5e5b63",
-          400: "#46434c",
-          500: "#302c36",
-          600: "#1b1721",
+          100: "#9b93a4",
+          200: "#837a8e",
+          300: "#6c6279",
+          400: "#564a65",
+          500: "#413451",
+          600: "#2c1f3e",
         },
       },
       // fonts are linked from google in index.html

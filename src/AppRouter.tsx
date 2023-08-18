@@ -1,14 +1,11 @@
 import {
-  Outlet,
   RouterProvider,
-  Link,
   Router,
   Route,
   RootRoute,
   createHashHistory,
 } from "@tanstack/react-router";
 import Root from "./routes/root";
-import ErrorPage from "./routes/error";
 import AboutPage from "./routes/about";
 import ContactPage from "./routes/contact";
 import ModsPage from "./routes/mods";

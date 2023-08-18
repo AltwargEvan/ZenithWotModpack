@@ -10,8 +10,10 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@tanstack/react-query": "^4.32.6",
     "@tanstack/react-router": "beta",
     "@tauri-apps/api": "^1.4.0",
+    "axios": "^1.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^1.14.0"
