@@ -1,3 +1,5 @@
+import { ModList } from "../data/modlist";
+
 const ModFilterPill = ({ value }: { value: string }) => {
   return (
     <div className="m-1 h-9 flex justify-center items-center  bg-secondary-300 rounded-lg  hover:bg-secondary-200">
@@ -43,9 +45,23 @@ const ModsPage = () => {
         <ModFilterPill value="Damage Panels" />
         <ModFilterPill value="User Interface" />
         <ModFilterPill value="Quality Of Life" />
-        <ModFilterPill value="Currently Installed" />
+        {/* the intent is that this button will open up a modal that shows the current 
+        user profiles and when selected it will show the mods that are part of it */}
+        {/* we also want a option to download streamer configs */}
+        <ModFilterPill value="Select A Profile" />
       </div>
-      <div>mods here</div>
+      <div className="grid lg:grid-cols-5 grid-cols-3 mt-5">
+        {ModList.map((mod) => {
+          return (
+            <div className="bg-secondary-400 h-48 m-1 flex justify-center items-center">
+              <div className="grid text-center">
+                <span>Id:{mod.id}</span>
+                <span>Name: {mod.name}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
