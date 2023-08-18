@@ -37,9 +37,9 @@ impl WotModification {
 
     pub fn downloaded_mod_file_root<'a>(
         &'a mut self,
-        downloaded_mod_file_root: String,
+        downloaded_mod_file_root: &str,
     ) -> &'a mut WotModification {
-        self.download_link = Some(downloaded_mod_file_root);
+        self.download_link = Some(downloaded_mod_file_root.to_string());
         self
     }
 

@@ -12,7 +12,7 @@ type Inputs = {
 const CurrentlyInstalledPage = () => {
   const { data, mutate } = useMutation({
     mutationKey: ["hello"],
-    mutationFn: async (data: { _game_dir: string; _mod_id: number }) => {
+    mutationFn: async (data: { game_dir: string; mod_id: number }) => {
       return await invoke("install_mod", data);
     },
   });
@@ -24,7 +24,6 @@ const CurrentlyInstalledPage = () => {
   } = useForm<Inputs>();
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
     mutate(data);
   };
 
