@@ -1,10 +1,21 @@
 import { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, ToPathOption, useNavigate } from "@tanstack/react-router";
 
-const NavLink = ({ to, children }: { to: string; children: ReactNode }) => {
+const NavLink = ({
+  to,
+  children,
+}: {
+  to: ToPathOption;
+  children: ReactNode;
+}) => {
+  const navigate = useNavigate();
+  function onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    e.preventDefault();
+    navigate({ to: to });
+  }
   return (
     <div className="hover:cursor-pointer hover:bg-secondary-200 px-2 py-1 rounded">
-      <Link to={to}>{children}</Link>
+      <div onClick={onClick}>{children}</div>
     </div>
   );
 };
