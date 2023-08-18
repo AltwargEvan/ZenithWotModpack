@@ -10,6 +10,7 @@ import AboutPage from "./routes/about";
 import ContactPage from "./routes/contact";
 import ModsPage from "./routes/mods";
 import SettingsPage from "./routes/settings";
+import CurrentlyInstalledPage from "./routes/currentlyinstalled";
 
 const rootRoute = new RootRoute({
   component: Root,
@@ -36,11 +37,18 @@ const settingsRoute = new Route({
   component: SettingsPage,
 });
 
+const currentlyinstalledRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/currentlyinstalled",
+  component: CurrentlyInstalledPage,
+});
+
 const routeTree = rootRoute.addChildren([
   aboutRoute,
   contactRoute,
   modsRoute,
   settingsRoute,
+  currentlyinstalledRoute,
 ]);
 
 const hashHistory = createHashHistory();
