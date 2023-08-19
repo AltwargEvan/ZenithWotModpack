@@ -3,16 +3,17 @@ import { useMutation } from "@tanstack/react-query";
 import { invoke } from "@tauri-apps/api/tauri";
 import Button from "../components/Button";
 import FileDirInput from "../components/FileDirInput";
+import React from "react";
 
 type Inputs = {
-  mod_id: number;
-  game_dir: string;
+  mod_id: string;
 };
 
 const CurrentlyInstalledPage = () => {
   const { data, mutate } = useMutation({
     mutationKey: ["hello"],
-    mutationFn: async (data: { game_dir: string; mod_id: number }) => {
+    mutationFn: async (data: { gameDir: string; modId: number }) => {
+      console.log("invoke data", data);
       return await invoke("install_mod", data);
     },
   });
@@ -24,8 +25,12 @@ const CurrentlyInstalledPage = () => {
   } = useForm<Inputs>();
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    mutate(data);
+    console.log("form data", data);
+    mutate({ gameDir: game_dir, modId: parseInt(data.mod_id) });
   };
+  const [game_dir, set_game_dir] = React.useState(
+    `C:\\Games\\World_of_Tanks_NA`
+  );
 
   return (
     <div className="flex p-4 flex-col w-full">
@@ -36,7 +41,8 @@ const CurrentlyInstalledPage = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-1">
         <label>Game Directory</label>
         <FileDirInput
-          {...register("game_dir")}
+          value={game_dir}
+          setValue={set_game_dir}
           className="w-full text-black p-1"
         />
         <label>Mod Id</label>

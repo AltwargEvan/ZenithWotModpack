@@ -2,11 +2,13 @@ import React from "react";
 import { open } from "@tauri-apps/api/dialog";
 import Button from "./Button";
 const FileDirInput = ({
+  value,
+  setValue,
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement>) => {
-  const [game_dir, set_game_dir] = React.useState(
-    `C:\\Games\\World_of_Tanks_NA`
-  );
+}: React.InputHTMLAttributes<HTMLInputElement> & {
+  value: string;
+  setValue: React.Dispatch<string>;
+}) => {
   const handleClick = async () => {
     try {
       const selectedPath = await open({
@@ -15,14 +17,14 @@ const FileDirInput = ({
         directory: true,
       });
       console.log(selectedPath);
-      if (typeof selectedPath === "string") set_game_dir(selectedPath);
+      if (typeof selectedPath === "string") setValue(selectedPath);
     } catch (err) {
       console.error(err);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    set_game_dir(e.currentTarget.value);
+    setValue(e.currentTarget.value);
   };
 
   return (
@@ -30,7 +32,7 @@ const FileDirInput = ({
       <input
         {...props}
         type="string"
-        value={game_dir}
+        value={value}
         onClick={handleClick}
         onChange={handleChange}
       />
