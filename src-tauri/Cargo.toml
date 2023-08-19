@@ -2,7 +2,7 @@
 name = "zenith_wot_modpack"
 version = "0.0.0"
 description = "A Tauri App"
-authors = ["you"]
+authors = ["Evan Altwarg"]
 license = ""
 repository = ""
 edition = "2021"
@@ -16,6 +16,9 @@ tauri-build = { version = "1.4", features = [] }
 tauri = { version = "1.4", features = [ "dialog-open", "shell-open"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+futures = "0.3.28"
+tempfile = "3.0.4"
+reqwest = "0.11.18"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
