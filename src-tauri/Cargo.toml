@@ -20,6 +20,7 @@ futures = "0.3.28"
 tempfile = "3.0.4"
 reqwest = "0.11.18"
 zip-extensions = "0.6.1"
+error-chain = "0.12.4"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
