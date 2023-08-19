@@ -1,3 +1,4 @@
+// https://rust-lang-nursery.github.io/rust-cookbook/web/clients/download.htmls
 use error_chain::error_chain;
 use std::fs::File;
 use std::io::copy;
