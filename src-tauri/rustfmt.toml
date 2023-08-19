@@ -1,0 +1,2 @@
+# https://github.com/rust-lang/rust-analyzer/issues/1959 auto formatting issue lmao 
+edition = "2018"
