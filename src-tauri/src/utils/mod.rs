@@ -1,2 +1,2 @@
 pub mod download_file;
-pub mod wot_modification;
+pub mod game_modification;

@@ -1,4 +1,4 @@
-use crate::utils::{download_file::download_file, wot_modification::WotModification};
+use crate::utils::{download_file::download_file, game_modification::GameModification};
 
 #[tauri::command]
 pub async fn install_mod(
@@ -9,7 +9,7 @@ pub async fn install_mod(
     let default_root = String::from("/");
     let mod_file_root_calc = mod_files_root.unwrap_or(default_root);
 
-    WotModification::builder()
+    GameModification::builder()
         .wargaming_mod_id(mod_id)
         .downloaded_mod_file_root(mod_file_root_calc)
         .download()

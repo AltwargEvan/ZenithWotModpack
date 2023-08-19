@@ -4,7 +4,7 @@
 use super::download_file::download_file;
 use std::fs::File;
 
-pub struct WotModification {
+pub struct GameModification {
     name: Option<String>,
     wargaming_mod_id: Option<usize>,
     download_link: Option<String>,
@@ -12,9 +12,9 @@ pub struct WotModification {
     downloaded_mod: Option<File>,
 }
 
-impl WotModification {
-    pub fn builder() -> WotModification {
-        WotModification {
+impl GameModification {
+    pub fn builder() -> GameModification {
+        GameModification {
             name: None,
             wargaming_mod_id: None,
             download_link: None,
@@ -23,18 +23,18 @@ impl WotModification {
         }
     }
 
-    pub fn name<'a>(&'a mut self, name: String) -> &'a mut WotModification {
+    pub fn name<'a>(&'a mut self, name: String) -> &'a mut GameModification {
         self.name = Some(name);
         self
     }
 
-    pub fn wargaming_mod_id<'a>(&'a mut self, id: usize) -> &'a mut WotModification {
+    pub fn wargaming_mod_id<'a>(&'a mut self, id: usize) -> &'a mut GameModification {
         self.wargaming_mod_id = Some(id);
         self.download_link = Some(format!("https://wgmods.net/api/mods/download/mod/{}/", id));
         self
     }
 
-    pub fn download_link<'a>(&'a mut self, download_link: String) -> &'a mut WotModification {
+    pub fn download_link<'a>(&'a mut self, download_link: String) -> &'a mut GameModification {
         self.download_link = Some(download_link);
         self
     }
@@ -42,12 +42,12 @@ impl WotModification {
     pub fn downloaded_mod_file_root<'a>(
         &'a mut self,
         downloaded_mod_file_root: String,
-    ) -> &'a mut WotModification {
+    ) -> &'a mut GameModification {
         self.download_link = Some(downloaded_mod_file_root.to_string());
         self
     }
 
-    pub async fn download<'a>(&'a mut self) -> &'a mut WotModification {
+    pub async fn download<'a>(&'a mut self) -> &'a mut GameModification {
         // let target = format!("https://www.rust-lang.org/logos/rust-logo-512x512.png");
         let target = self.download_link.clone();
         let res = download_file(target.expect("No Download Link Generated")).await;
