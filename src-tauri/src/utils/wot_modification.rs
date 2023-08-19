@@ -1,16 +1,19 @@
 // this uses the builder pattern. i love coding woooo
 // https://doc.rust-lang.org/1.0.0/style/ownership/builders.html
 
+use super::download_file::download_file;
+use std::fs::File;
+
 pub struct WotModification {
     name: Option<String>,
     wargaming_mod_id: Option<usize>,
     download_link: Option<String>,
     downloaded_mod_file_root: Option<String>,
-    downloaded_mod: Option<String>,
+    downloaded_mod: Option<File>,
 }
 
 impl WotModification {
-    pub fn new() -> WotModification {
+    pub fn builder() -> WotModification {
         WotModification {
             name: None,
             wargaming_mod_id: None,
@@ -27,6 +30,7 @@ impl WotModification {
 
     pub fn wargaming_mod_id<'a>(&'a mut self, id: usize) -> &'a mut WotModification {
         self.wargaming_mod_id = Some(id);
+        self.download_link = Some(format!("https://wgmods.net/api/mods/download/mod/{}/", id));
         self
     }
 
@@ -37,14 +41,16 @@ impl WotModification {
 
     pub fn downloaded_mod_file_root<'a>(
         &'a mut self,
-        downloaded_mod_file_root: &str,
+        downloaded_mod_file_root: String,
     ) -> &'a mut WotModification {
         self.download_link = Some(downloaded_mod_file_root.to_string());
         self
     }
 
-    pub fn download<'a>(&'a mut self) -> &'a mut WotModification {
-        // fetch mod
+    pub async fn download<'a>(&'a mut self) -> &'a mut WotModification {
+        // let target = format!("https://www.rust-lang.org/logos/rust-logo-512x512.png");
+        let target = self.download_link.clone();
+        let res = download_file(target.expect("No Download Link Generated")).await;
         self
     }
 
