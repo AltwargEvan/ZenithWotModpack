@@ -1,36 +1,35 @@
-import { SubmitHandler, useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { invoke } from "@tauri-apps/api/tauri";
 import Button from "../components/Button";
 import FileDirInput from "../components/FileDirInput";
 import React from "react";
-
-type Inputs = {
-  mod_id: string;
-};
+import { downloadMod } from "../api/wargaming/downloadMod";
+import { invoke } from "@tauri-apps/api";
 
 const CurrentlyInstalledPage = () => {
   const { data, mutate } = useMutation({
     mutationKey: ["hello"],
-    mutationFn: async (data: { gameDir: string; modId: number }) => {
-      console.log("invoke data", data);
-      return await invoke("install_mod", data);
+    mutationFn: async () => {
+      const modFileLocation = await downloadMod(modCdnId);
+      // console.log("Downloaded mod", modCdnId, "to location", modFileLocation);
+      if (modFileLocation.endsWith(".zip")) {
+        console.log("File detected as zip file. Unzipping to game dir");
+        const res = await invoke("unzip_file", {
+          filePath: modFileLocation,
+          targetDir: `${gameDir}\\mods`,
+        });
+        console.log(res);
+      }
     },
   });
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Inputs>();
-
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log("form data", data);
-    mutate({ gameDir: game_dir, modId: parseInt(data.mod_id) });
+  const onSubmit = () => {
+    mutate();
   };
-  const [game_dir, set_game_dir] = React.useState(
-    `C:\\Games\\World_of_Tanks_NA`
+
+  const [modCdnId, setModCdnId] = React.useState<string>(
+    "tomatogg-1.4.1_j4KLlAJ.zip"
   );
+  const [gameDir, setGameDir] = React.useState(`C:\\Games\\World_of_Tanks_NA`);
 
   return (
     <div className="flex p-4 flex-col w-full">
@@ -38,20 +37,20 @@ const CurrentlyInstalledPage = () => {
         <span className="text-3xl font-bold">Currently Installed</span>
       </div>
       <hr className="border-secondary-100 p-2"></hr>
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-1">
+      <form className="w-full space-y-1">
         <label>Game Directory</label>
         <FileDirInput
-          value={game_dir}
-          setValue={set_game_dir}
+          value={gameDir}
+          setValue={setGameDir}
           className="w-full text-black p-1"
         />
         <label>Mod Id</label>
         <input
-          defaultValue={6391}
-          {...register("mod_id")}
+          value={modCdnId}
+          onChange={(e) => setModCdnId(e.currentTarget.value)}
           className="w-full text-black p-1"
         />
-        <Button>Install</Button>
+        <Button onClick={onSubmit}>Install</Button>
       </form>
       <div>Data: {JSON.stringify(data)}</div>
     </div>

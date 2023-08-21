@@ -1,14 +1,17 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-
-mod utils;
+use tauri_plugin_log::LogTarget;
 mod api_handlers;
-use api_handlers::{greet::greet, install_mod::install_mod};
-
-
+mod utils;
+use api_handlers::{greet::greet, install_mod::install_mod, unzip_file::unzip_file};
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet,install_mod])
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .targets([LogTarget::LogDir, LogTarget::Stdout, LogTarget::Webview])
+                .build(),
+        )
+        .invoke_handler(tauri::generate_handler![greet, install_mod, unzip_file])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
