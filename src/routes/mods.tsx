@@ -1,13 +1,28 @@
-import { ModList } from "../data/modlist";
+import { useState } from "react";
+import { ModCategory, ModCategories, ModList } from "../data/modlist";
+import { twMerge } from "tailwind-merge";
 
-const ModFilterPill = ({ value }: { value: string }) => {
-  return (
-    <div className="m-1 h-9 flex justify-center items-center  bg-secondary-300 rounded-lg  hover:bg-secondary-200">
-      {value}
-    </div>
-  );
-};
 const ModsPage = () => {
+  const [category, setCategory] = useState<ModCategory | "All">("All");
+  const ModFilterPill = ({ value }: { value: ModCategory | "All" }) => {
+    const baseClass = "m-1 h-9 flex justify-center items-center  rounded-lg  ";
+    const className = twMerge(
+      baseClass,
+      value === category
+        ? "bg-primary-300 hover:bg-primary-200"
+        : "bg-secondary-300 hover:bg-secondary-200"
+    );
+    return (
+      <div
+        onClick={() => {
+          setCategory(value);
+        }}
+        className={className}
+      >
+        {value}
+      </div>
+    );
+  };
   return (
     <div className="flex p-4 flex-col w-full">
       <div className="w-full mb-4">
@@ -42,20 +57,21 @@ const ModsPage = () => {
       </div>
       <div className="grid lg:grid-cols-5 mt-3 grid-cols-3">
         <ModFilterPill value="All" />
-        <ModFilterPill value="Damage Panels" />
-        <ModFilterPill value="User Interface" />
-        <ModFilterPill value="Quality Of Life" />
+
+        {ModCategories.map((key) => (
+          <ModFilterPill value={key} key={key} />
+        ))}
         {/* the intent is that this button will open up a modal that shows the current 
         user profiles and when selected it will show the mods that are part of it */}
         {/* we also want a option to download streamer configs */}
-        <ModFilterPill value="Select A Profile" />
       </div>
-      <div className="grid lg:grid-cols-5 grid-cols-3 mt-5">
-        {ModList.map((mod) => {
+      <div className="grid lg:grid-cols-5 grid-cols-3 mt-5 overflow-y-scroll">
+        {ModList.filter(
+          (mod) => category === "All" || mod.category === category
+        ).map((mod) => {
           return (
-            <div className="bg-secondary-400 h-48 m-1 flex justify-center items-center">
+            <div className="bg-secondary-400 h-48 m-1  flex justify-center items-center rounded-lg">
               <div className="grid text-center">
-                <span>Id:{mod.id}</span>
                 <span>Name: {mod.name}</span>
               </div>
             </div>
