@@ -1,5 +1,5 @@
 import { fs, invoke } from "@tauri-apps/api";
-import { removeDir, exists, createDir, readDir } from "@tauri-apps/api/fs";
+import { removeDir, exists, createDir } from "@tauri-apps/api/fs";
 import { ResponseType, getClient } from "@tauri-apps/api/http";
 import { appCacheDir } from "@tauri-apps/api/path";
 import { Mod } from "./mod";
@@ -42,13 +42,3 @@ export async function clearAppModsCache() {
   const appCacheDirPath = await appCacheDir();
   await removeDir(`${appCacheDirPath}/mods`, { recursive: true });
 }
-
-export async function createAppModsCacheIfNotExists() {
-  const appCacheDirPath = await appCacheDir();
-  const dirExists = await exists(`${appCacheDirPath}/mods`);
-  if (!dirExists) {
-    createDir(`${appCacheDirPath}/mods`);
-  }
-}
-
-export async function simpleZipInstall(mod: Mod, gameDir: string) {}
