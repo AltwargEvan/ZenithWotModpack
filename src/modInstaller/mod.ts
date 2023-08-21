@@ -23,7 +23,7 @@ export class Mod {
   wgModsId?: number;
   category: ModCategory;
   downloadModsFolderPath: string;
-  private installScript: (gameDir: string) => Promise<void>;
+  private customInstallScript?: (gameDir: string) => Promise<void>;
 
   constructor(params: {
     name: string;
@@ -32,11 +32,7 @@ export class Mod {
     wgModsId?: number;
     category: ModCategory;
     downloadModsFolderPath: string;
-    installScript: (
-      mod: Mod,
-      gameDir: string,
-      downloadModsFolderPath: string
-    ) => Promise<void>;
+    customInstallScript?: (mod: Mod, gameDir: string) => Promise<void>;
   }) {
     this.name = params.name;
     this.downloadUrl = params.downloadUrl;
@@ -44,10 +40,17 @@ export class Mod {
     this.wgModsId = params.wgModsId;
     this.category = params.category;
     this.downloadModsFolderPath = params.downloadModsFolderPath;
-    this.installScript = async (gameDir: string) =>
-      params.installScript(this, gameDir, this.downloadModsFolderPath);
+    if (params.customInstallScript) {
+      // this is stupid. why do i need this. fuck this is dumb
+      const script = params.customInstallScript;
+      this.customInstallScript = async (gameDir: string) => {
+        // this isn't legal for some reason
+        // params.customInstallScript(this, gameDir);
+        script(this, gameDir);
+      };
+    }
   }
-  private modNameCleaned() {
+  public modNameCleaned() {
     return this.name.replace(/([^a-z0-9 ._-]+)/gi, "");
   }
 
@@ -89,13 +92,27 @@ export class Mod {
     if (!(await exists(modFolderInCache))) createDir(modFolderInCache);
 
     // Download Mod
-    const downloadDest = `${modFolderInCache}/${modNameCleaned}.${fileExtension}`;
+    const filename = `${modNameCleaned}.${fileExtension}`;
+    const downloadDest = `${modFolderInCache}/${filename}`;
     await downloadFile(this.downloadUrl, downloadDest);
 
+    // Create if not exists folder in mods/version/{modname}
     const gameModsFolder = `${gameDirectory}/mods`;
+    if (!(await exists(gameModsFolder))) createDir(gameModsFolder);
+    const gameVersionInModsFolderPath = `${gameModsFolder}/${GAME_VERSION}`;
+    if (!(await exists(gameVersionInModsFolderPath)))
+      createDir(gameVersionInModsFolderPath);
+    const modInGameVersionFolderPath = `${gameVersionInModsFolderPath}/${modNameCleaned}`;
+    if (!(await exists(modInGameVersionFolderPath)))
+      createDir(modInGameVersionFolderPath);
+
     switch (fileExtension) {
       case "wotmod":
-        await copyFile(downloadDest, `${gameModsFolder}/${modNameCleaned}`);
+        // copy file to destination
+        await copyFile(
+          downloadDest,
+          `${modInGameVersionFolderPath}/${filename}`
+        );
         break;
       case "zip":
         // unzip download into mods/modname

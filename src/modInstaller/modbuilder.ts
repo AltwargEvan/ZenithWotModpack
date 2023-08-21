@@ -7,11 +7,7 @@ export class ModBuilder {
   private _wgModsId?: number;
   private _category?: ModCategory;
   private _downloadModsFolderPath: string = "";
-  private _installScript?: (
-    mod: Mod,
-    gameDir: string,
-    downloadModsFolderPath: string
-  ) => Promise<void>;
+  private _customInstallScript?: (mod: Mod, gameDir: string) => Promise<void>;
 
   public name(name: string) {
     this._name = name;
@@ -42,14 +38,8 @@ export class ModBuilder {
     return this;
   }
 
-  public installScript(
-    fn: (
-      mod: Mod,
-      gameDir: string,
-      downloadModsFolderPath: string
-    ) => Promise<void>
-  ) {
-    this._installScript = fn;
+  public customInstallScript(fn: (mod: Mod, gameDir: string) => Promise<void>) {
+    this._customInstallScript = fn;
     return this;
   }
 
@@ -58,7 +48,6 @@ export class ModBuilder {
     if (!this._downloadUrl) throw new Error("Must Provide DownloadURL");
     if (!this._thumbnailUrl) throw new Error("Must Provided ThumbnailUrl");
     if (!this._category) throw new Error("Must Provided Category");
-    if (!this._installScript) throw new Error("Must Provided Install Script");
 
     const mod = new Mod({
       name: this._name,
@@ -66,7 +55,7 @@ export class ModBuilder {
       thumbnailUrl: this._thumbnailUrl,
       wgModsId: this._wgModsId,
       category: this._category,
-      installScript: this._installScript,
+      customInstallScript: this._customInstallScript,
       downloadModsFolderPath: this._downloadModsFolderPath,
     });
 

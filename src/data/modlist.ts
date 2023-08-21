@@ -1,8 +1,5 @@
-import { simpleZipInstall } from "../modInstaller/installUtils";
 import { Mod } from "../modInstaller/mod";
 import { ModBuilder } from "../modInstaller/modbuilder";
-
-const GAME_VERSION = "1.12.1.1";
 
 const TomatoGG = new ModBuilder()
   .category("Tools")
@@ -15,7 +12,18 @@ const TomatoGG = new ModBuilder()
     "https://wgmods.net/media/mod_files/%D0%91%D0%B5%D0%B7%D1%8B%D0%BC%D1%8F%D0%BD%D0%BD%D1%8B%D0%B9_kz4p13R.png.302x170_q85_crop_detail_replace_alpha-white.jpg"
   )
   .downloadModsFolderPath("manual-install")
-  .installScript(simpleZipInstall)
+  .build();
+
+const DispersionReticle = new ModBuilder()
+  .name("Dispersion Reticle (+ Server reticles & Reticle size)")
+  .downloadUrl(
+    "https://modp.wgcdn.co/media/mod_files/DispersionReticle_miflLiv.wotmod"
+  )
+  .wgModsId(5251)
+  .thumbnailUrl(
+    "https://wgmods.net/media/mod_files/logo_pcaF2q7.png.302x170_q85_crop_detail_replace_alpha-white.jpg"
+  )
+  .category("Reticle")
   .build();
 
 // const ReplayManager = {
@@ -40,17 +48,6 @@ const TomatoGG = new ModBuilder()
 //     "https://wgmods.net/media/mod_files/25_bPfRgjH.png.302x170_q85_crop_detail_replace_alpha-white.jpg",
 //   internalWotModsDirectoryLocation: `/mods/${GAME_VERSION}`,
 //   category: "Tools",
-// } satisfies Mod;
-
-// const DispersionReticle = {
-//   name: "Dispersion Reticle (+ Server reticles & Reticle size)",
-//   downloadUrl:
-//     "https://modp.wgcdn.co/media/mod_files/DispersionReticle_miflLiv.wotmod",
-//   wargamingId: 5251,
-//   type: "rawDotWotMod",
-//   thumbnailUrl:
-//     "https://wgmods.net/media/mod_files/logo_pcaF2q7.png.302x170_q85_crop_detail_replace_alpha-white.jpg",
-//   category: "Reticle",
 // } satisfies Mod;
 
 // const MarkOfExcellenceLebwa = {
@@ -83,4 +80,4 @@ const TomatoGG = new ModBuilder()
 // https://wotbaza.com/mods-wot/276-extended-zoom-mod-for-world-of-tanks from another site
 // https://wgmods.net/50/ PMOD. install is simple. large config file that is mostly what matters for why you would install
 
-export const ModList: Array<Mod> = [TomatoGG];
+export const ModList = [TomatoGG, DispersionReticle] as const;
