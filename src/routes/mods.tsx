@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { ModCategory, ModCategories, ModList } from "../data/modlist";
+import { ModList } from "../data/modlist";
 import { twMerge } from "tailwind-merge";
+import { ModCategories, ModCategory } from "../modInstaller/mod";
 
 const ModsPage = () => {
   const [category, setCategory] = useState<ModCategory | "All">("All");

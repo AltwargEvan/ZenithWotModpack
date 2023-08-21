@@ -1,29 +1,10 @@
-import { useMutation } from "@tanstack/react-query";
 import Button from "../components/Button";
 import FileDirInput from "../components/FileDirInput";
 import React from "react";
-import { downloadMod } from "../api/wargaming/downloadMod";
-import { invoke } from "@tauri-apps/api";
-
+import { ModList } from "../data/modlist";
 const CurrentlyInstalledPage = () => {
-  const { data, mutate } = useMutation({
-    mutationKey: ["hello"],
-    mutationFn: async () => {
-      const modFileLocation = await downloadMod(modCdnId);
-      // console.log("Downloaded mod", modCdnId, "to location", modFileLocation);
-      if (modFileLocation.endsWith(".zip")) {
-        console.log("File detected as zip file. Unzipping to game dir");
-        const res = await invoke("unzip_file", {
-          filePath: modFileLocation,
-          targetDir: `${gameDir}\\mods`,
-        });
-        console.log(res);
-      }
-    },
-  });
-
   const onSubmit = () => {
-    mutate();
+    ModList[0].install(gameDir);
   };
 
   const [modCdnId, setModCdnId] = React.useState<string>(
@@ -52,7 +33,6 @@ const CurrentlyInstalledPage = () => {
         />
         <Button onClick={onSubmit}>Install</Button>
       </form>
-      <div>Data: {JSON.stringify(data)}</div>
     </div>
   );
 };
