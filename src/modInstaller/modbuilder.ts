@@ -1,5 +1,5 @@
 import { Mod } from "./mod";
-import type { GameVersion } from "../utils/gameVersion";
+import { GameVersion } from "../utils/gameVersion";
 export class ModBuilder {
   private _name?: string;
   private _downloadUrl?: string;
@@ -7,6 +7,7 @@ export class ModBuilder {
   private _wgModsId?: number;
   private _category?: string;
   private _downloadModsFolderPath: string = "";
+  private _version?: GameVersion;
   private _customInstallScript?: (mod: Mod, gameDir: string) => Promise<void>;
 
   public name(name: string) {
@@ -14,11 +15,16 @@ export class ModBuilder {
     return this;
   }
 
-  public downloadUrl(downloadUrl: string, version: GameVersion) {
+  public downloadUrl(downloadUrl: string) {
     this._downloadUrl = downloadUrl;
     return this;
   }
 
+  public version(version: GameVersion | string) {
+    if (typeof version === "string") this._version = new GameVersion(version);
+    else this._version = version;
+    return this;
+  }
   public downloadModsFolderPath(path: string) {
     this._downloadModsFolderPath = path;
     return this;
@@ -28,7 +34,7 @@ export class ModBuilder {
     return this;
   }
 
-  public wgModsId(id: number) {
+  public wgModsId(id: number | undefined) {
     this._wgModsId = id;
     return this;
   }
@@ -57,6 +63,7 @@ export class ModBuilder {
       category: this._category,
       customInstallScript: this._customInstallScript,
       downloadModsFolderPath: this._downloadModsFolderPath,
+      version: this._version,
     });
 
     return mod;
