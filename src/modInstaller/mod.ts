@@ -9,19 +9,12 @@ import { appCacheDir } from "@tauri-apps/api/path";
 import { downloadFile, unzipFile } from "./installUtils";
 import { CURRENT_GAME_VERSION } from "../utils/gameVersion";
 
-export const ModCategories = [
-  "Tools",
-  "Reticle",
-  "Mark Of Excellence",
-] as const;
-export type ModCategory = (typeof ModCategories)[number];
-
 export class Mod {
   name: string;
   downloadUrl: string;
   thumbnailUrl: string;
   wgModsId?: number;
-  category: ModCategory;
+  category: string;
   downloadModsFolderPath: string;
   private customInstallScript?: (gameDir: string) => Promise<void>;
 
@@ -30,7 +23,7 @@ export class Mod {
     downloadUrl: string;
     thumbnailUrl: string;
     wgModsId?: number;
-    category: ModCategory;
+    category: string;
     downloadModsFolderPath: string;
     customInstallScript?: (mod: Mod, gameDir: string) => Promise<void>;
   }) {

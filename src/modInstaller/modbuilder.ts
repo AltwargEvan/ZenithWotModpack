@@ -1,11 +1,11 @@
-import { Mod, ModCategory } from "./mod";
+import { Mod } from "./mod";
 import type { GameVersion } from "../utils/gameVersion";
 export class ModBuilder {
   private _name?: string;
   private _downloadUrl?: string;
   private _thumbnailUrl?: string;
   private _wgModsId?: number;
-  private _category?: ModCategory;
+  private _category?: string;
   private _downloadModsFolderPath: string = "";
   private _customInstallScript?: (mod: Mod, gameDir: string) => Promise<void>;
 
@@ -33,7 +33,7 @@ export class ModBuilder {
     return this;
   }
 
-  public category(category: ModCategory) {
+  public category(category: string) {
     this._category = category;
     return this;
   }
