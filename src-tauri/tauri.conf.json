@@ -25,7 +25,8 @@
         "request": true,
         "scope": [
           "https://wgmods.net/**",
-          "https://modp.wgcdn.co/media/mod_files/**"
+          "https://modp.wgcdn.co/media/mod_files/**",
+          "https://opensheet.elk.sh/1oxonHiV5znE17ZaTHVSztzOVLyyX6SSLTz2BWduiXIg/*"
         ]
       },
       "fs": {

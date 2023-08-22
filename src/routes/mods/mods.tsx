@@ -1,9 +1,15 @@
 import { useState } from "react";
-import { ModList } from "../data/modlist";
 import { twMerge } from "tailwind-merge";
-import { ModCategories, ModCategory } from "../modInstaller/mod";
+import { ModCategories, ModCategory } from "../../modInstaller/mod";
+import { useSheetsDBMods } from "../../api/fetchMods";
 
 const ModsPage = () => {
+  const {
+    data: { mods, categories },
+    error,
+    isLoading,
+  } = useSheetsDBMods();
+
   const [category, setCategory] = useState<ModCategory | "All">("All");
   const ModFilterPill = ({ value }: { value: ModCategory | "All" }) => {
     const baseClass = "m-1 h-9 flex justify-center items-center  rounded-lg  ";
@@ -66,19 +72,19 @@ const ModsPage = () => {
         user profiles and when selected it will show the mods that are part of it */}
         {/* we also want a option to download streamer configs */}
       </div>
-      <div className="grid lg:grid-cols-5 grid-cols-3 mt-5 overflow-y-scroll">
-        {ModList.filter(
-          (mod) => category === "All" || mod.category === category
-        ).map((mod) => {
-          return (
-            <div className="bg-secondary-400 h-48 m-1  flex justify-center items-center rounded-lg">
-              <div className="grid text-center">
-                <span>Name: {mod.name}</span>
+      {/* <div className="grid lg:grid-cols-5 grid-cols-3 mt-5 overflow-y-scroll">
+        {mods
+          .filter((mod) => category === "All" || mod.category === category)
+          .map((mod) => {
+            return (
+              <div className="bg-secondary-400 h-48 m-1  flex justify-center items-center rounded-lg">
+                <div className="grid text-center">
+                  <span>Name: {mod.name}</span>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+      </div> */}
     </div>
   );
 };

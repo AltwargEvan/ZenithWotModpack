@@ -14,8 +14,6 @@
     "@tanstack/react-query": "^4.32.6",
     "@tanstack/react-router": "beta",
     "@tauri-apps/api": "^1.4.0",
-    "axios": "^1.4.0",
-    "public-google-sheets-parser": "^1.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.45.4",

@@ -1,10 +1,10 @@
 import Button from "../components/Button";
 import FileDirInput from "../components/FileDirInput";
 import React from "react";
-import { ModList } from "../data/modlist";
+
 const CurrentlyInstalledPage = () => {
   const onSubmit = () => {
-    ModList[1].install(gameDir);
+    // ModList[1].install(gameDir);
   };
 
   const [modCdnId, setModCdnId] = React.useState<string>(

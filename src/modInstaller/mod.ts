@@ -7,7 +7,7 @@ import {
 } from "@tauri-apps/api/fs";
 import { appCacheDir } from "@tauri-apps/api/path";
 import { downloadFile, unzipFile } from "./installUtils";
-import { GAME_VERSION } from "../data/gameVersion";
+import { CURRENT_GAME_VERSION } from "../utils/gameVersion";
 
 export const ModCategories = [
   "Tools",
@@ -57,7 +57,7 @@ export class Mod {
   public async uninstall(gameDirectory: string) {
     const gameModsFolder = `${gameDirectory}/mods`;
     const modNameCleaned = this.modNameCleaned();
-    const modDirInModsFolder = `${gameModsFolder}/${GAME_VERSION}/${modNameCleaned}`;
+    const modDirInModsFolder = `${gameModsFolder}/${CURRENT_GAME_VERSION}/${modNameCleaned}`;
     if (await exists(modDirInModsFolder)) {
       removeDir(modDirInModsFolder, { recursive: true });
     }
@@ -99,7 +99,7 @@ export class Mod {
     // Create if not exists folder in mods/version/{modname}
     const gameModsFolder = `${gameDirectory}/mods`;
     if (!(await exists(gameModsFolder))) createDir(gameModsFolder);
-    const gameVersionInModsFolderPath = `${gameModsFolder}/${GAME_VERSION}`;
+    const gameVersionInModsFolderPath = `${gameModsFolder}/${CURRENT_GAME_VERSION}`;
     if (!(await exists(gameVersionInModsFolderPath)))
       createDir(gameVersionInModsFolderPath);
     const modInGameVersionFolderPath = `${gameVersionInModsFolderPath}/${modNameCleaned}`;

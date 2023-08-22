@@ -8,7 +8,7 @@ import {
 import Root from "./routes/root";
 import AboutPage from "./routes/about";
 import ContactPage from "./routes/contact";
-import ModsPage from "./routes/mods";
+import ModsPage from "./routes/mods/mods";
 import SettingsPage from "./routes/settings";
 import CurrentlyInstalledPage from "./routes/currentlyinstalled";
 

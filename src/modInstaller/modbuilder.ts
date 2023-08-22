@@ -1,5 +1,5 @@
 import { Mod, ModCategory } from "./mod";
-
+import type { GameVersion } from "../utils/gameVersion";
 export class ModBuilder {
   private _name?: string;
   private _downloadUrl?: string;
@@ -14,7 +14,7 @@ export class ModBuilder {
     return this;
   }
 
-  public downloadUrl(downloadUrl: string) {
+  public downloadUrl(downloadUrl: string, version: GameVersion) {
     this._downloadUrl = downloadUrl;
     return this;
   }
