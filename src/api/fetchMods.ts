@@ -6,25 +6,34 @@ import { z } from "zod";
 const SPREADSHEET_ID = "1oxonHiV5znE17ZaTHVSztzOVLyyX6SSLTz2BWduiXIg";
 const SHEET_PAGE = "Mods";
 const SHEETS_TARGET = `https://opensheet.elk.sh/${SPREADSHEET_ID}/${SHEET_PAGE}`;
-const sheetsDBSchema = z.array(
-  z.object({
-    category: z.string(),
-    downloadUrl: z.string().url(),
-    downloadVersion: z.string(),
-    name: z.string(),
-    thumbnailUrl: z.string().url(),
-    wgModsId: z
-      .preprocess((val) => parseInt(val as string), z.number())
-      .optional(),
-    id: z.preprocess((val) => parseInt(val as string), z.number()),
-    createdBy: z.string(),
-  })
-);
+const modSchema = z.object({
+  category: z.string(),
+  downloadUrl: z.string().url(),
+  downloadVersion: z.string(),
+  name: z.string(),
+  thumbnailUrl: z.string().url(),
+  wgModsId: z
+    .preprocess((val) => parseInt(val as string), z.number())
+    .optional(),
+  id: z.preprocess((val) => parseInt(val as string), z.number()),
+  createdBy: z.string(),
+});
+const modRequestResultParser = z.object({
+  data: z.any().array(),
+});
 export async function fetchMods() {
   const res = await fetch(SHEETS_TARGET);
-  const data = sheetsDBSchema.parse(res.data);
-
-  return data;
+  const data = modRequestResultParser.parse(res).data;
+  const output: Array<z.infer<typeof modSchema>> = new Array();
+  data.forEach((item, index) => {
+    const parsedRes = modSchema.safeParse(item);
+    if (parsedRes.success) return output.push(parsedRes.data);
+    console.error(
+      `Error occured parsing mods at item ${index}`,
+      parsedRes.error
+    );
+  });
+  return output;
 }
 
 export function useSheetsDBMods() {
