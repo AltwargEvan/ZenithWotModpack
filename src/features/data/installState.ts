@@ -23,9 +23,9 @@ interface InstallState {
   addToAppCache: (mod: ModType) => Promise<void>;
   removeFromAppCache: (id: number) => Promise<void>;
   clearCache: () => Promise<void>;
-
   initialize: () => Promise<void>;
 }
+
 export const useModInstallState = create<InstallState>()((set, getPrev) => ({
   gameInstalls: new Map(),
   appCache: new Map(),

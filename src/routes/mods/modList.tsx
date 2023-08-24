@@ -86,7 +86,7 @@ const ModItem = ({ modData }: { modData: ModType }) => {
           {modState === "Installed" && (
             <div className="group" onClick={handleUninstall}>
               <CheckIcon />
-              <RemoveIcon />
+              <RemoveIcon className="group-hover:flex hidden  hover:animate-pulse" />
             </div>
           )}
           {modState === "NotInstalled" && (

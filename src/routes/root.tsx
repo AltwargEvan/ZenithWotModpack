@@ -11,13 +11,13 @@ const Root = () => {
 
   useEffect(() => {
     initializeInstallStateStore().catch(console.error);
-  });
+  }, []);
 
   useEffect(() => {
     const gameDir = localStorage.getItem("gameDir");
     if (!gameDir) navigate({ to: "/settings" });
     else navigate({ to: "/mods" });
-  });
+  }, []);
 
   return (
     <div className="bg-secondary-600 font-oswald h-screen w-screen flex select-none text-white overflow-hidden">
