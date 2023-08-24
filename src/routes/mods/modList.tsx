@@ -3,7 +3,7 @@ import { DownloadIcon } from "../../assets/DownloadIcon";
 import { CheckIcon } from "../../assets/CheckIcon";
 import { RemoveIcon } from "../../assets/RemoveIcon";
 import { useModRouteStore } from "./modRouteStore";
-import { ModBuilder } from "../../modInstaller/modbuilder";
+import { ModBuilder } from "../../features/modInstaller/modbuilder";
 
 const ModItem = ({
   mod,

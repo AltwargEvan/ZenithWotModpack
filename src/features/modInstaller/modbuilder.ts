@@ -1,5 +1,5 @@
 import { Mod } from "./mod";
-import { GameVersion } from "../utils/gameVersion";
+import { GameVersion } from "../../utils/gameVersion";
 export class ModBuilder {
   private _name?: string;
   private _downloadUrl?: string;

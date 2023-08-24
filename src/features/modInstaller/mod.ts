@@ -8,7 +8,7 @@ import {
 } from "@tauri-apps/api/fs";
 import { appCacheDir } from "@tauri-apps/api/path";
 import { downloadFile, unzipFile } from "./installUtils";
-import { CURRENT_GAME_VERSION, GameVersion } from "../utils/gameVersion";
+import { CURRENT_GAME_VERSION, GameVersion } from "../../utils/gameVersion";
 
 export class Mod {
   name: string;
