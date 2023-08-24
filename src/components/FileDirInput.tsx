@@ -1,9 +1,11 @@
 import React from "react";
 import { open } from "@tauri-apps/api/dialog";
 import Button from "./Button";
+import { twMerge } from "tailwind-merge";
 const FileDirInput = ({
   value,
   setValue,
+  className,
   ...props
 }: React.InputHTMLAttributes<HTMLInputElement> & {
   value: string;
@@ -27,16 +29,25 @@ const FileDirInput = ({
     setValue(e.currentTarget.value);
   };
 
+  const classMerge = twMerge(
+    className,
+    "w-full flex border border-white bg-white"
+  );
   return (
-    <div className="w-full">
+    <div className={classMerge}>
       <input
         {...props}
+        className="h-10 grow pl-2 ring-0 outline-0 border-0"
         type="string"
         value={value}
-        onClick={handleClick}
         onChange={handleChange}
       />
-      <Button onClick={handleClick}>Select File</Button>
+      <Button
+        onClick={handleClick}
+        className="p-2 h-10 text-white rounded-r min-w-[10rem]"
+      >
+        Select File
+      </Button>
     </div>
   );
 };

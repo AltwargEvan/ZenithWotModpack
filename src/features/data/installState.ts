@@ -1,5 +1,5 @@
-import { appDataDir } from "@tauri-apps/api/path";
-import { readTextFile, writeTextFile } from "@tauri-apps/api/fs";
+import { appDataDir, appCacheDir } from "@tauri-apps/api/path";
+import { readTextFile, removeDir, writeTextFile } from "@tauri-apps/api/fs";
 import { create } from "zustand";
 import superjson from "superjson";
 import { ModType } from "../modInstaller/mod";
@@ -22,12 +22,21 @@ interface InstallState {
   removeFromGameInstalls: (id: number) => Promise<void>;
   addToAppCache: (mod: ModType) => Promise<void>;
   removeFromAppCache: (id: number) => Promise<void>;
+  clearCache: () => Promise<void>;
+
   initialize: () => Promise<void>;
 }
 export const useModInstallState = create<InstallState>()((set, getPrev) => ({
   gameInstalls: new Map(),
   appCache: new Map(),
   initialized: false,
+  clearCache: async () => {
+    const path = await getAppCacheDataPath();
+    await writeTextFile(path, superjson.stringify(new Map<number, ModType>()));
+    const cacheDir = await appCacheDir();
+    set((prev) => ({ ...prev, appCache: new Map() }));
+    await removeDir(`${cacheDir}/mods`, { recursive: true });
+  },
   addToGameInstalls: async (mod) => {
     const prev = getPrev();
     await prev.initialize();
