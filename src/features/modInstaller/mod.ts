@@ -8,35 +8,52 @@ import {
 } from "@tauri-apps/api/fs";
 import { appCacheDir } from "@tauri-apps/api/path";
 import { downloadFile, unzipFile } from "./installUtils";
-import { CURRENT_GAME_VERSION, GameVersion } from "../../utils/gameVersion";
+import { useModInstallState } from "../data/installState";
+import { CURRENT_GAME_VERSION } from "../data/currentGameVersion";
+import { z } from "zod";
 
-export class Mod {
+export const modSchema = z.object({
+  category: z.string(),
+  downloadUrl: z.string().url(),
+  gameversion: z.string(),
+  modversion: z.string(),
+  name: z.string(),
+  thumbnailUrl: z.string().url(),
+  wgModsId: z
+    .preprocess((val) => parseInt(val as string), z.number())
+    .optional(),
+  id: z.preprocess((val) => parseInt(val as string), z.number()),
+  createdBy: z.string(),
+});
+
+export type ModType = z.infer<typeof modSchema>;
+
+export class Mod implements ModType {
   name: string;
   downloadUrl: string;
   thumbnailUrl: string;
   wgModsId?: number;
   category: string;
-  downloadModsFolderPath: string;
-  version: GameVersion;
+  gameversion: string;
+  modversion: string;
+  id: number; // id in google sheets
+  createdBy: string;
   private customInstallScript?: (gameDir: string) => Promise<void>;
 
-  constructor(params: {
-    name: string;
-    downloadUrl: string;
-    thumbnailUrl: string;
-    wgModsId?: number;
-    category: string;
-    downloadModsFolderPath: string;
-    version?: GameVersion;
-    customInstallScript?: (mod: Mod, gameDir: string) => Promise<void>;
-  }) {
+  constructor(
+    params: ModType & {
+      customInstallScript?: (mod: Mod, gameDir: string) => Promise<void>;
+    }
+  ) {
     this.name = params.name;
     this.downloadUrl = params.downloadUrl;
     this.thumbnailUrl = params.thumbnailUrl;
     this.wgModsId = params.wgModsId;
     this.category = params.category;
-    this.downloadModsFolderPath = params.downloadModsFolderPath;
-    this.version = params.version || CURRENT_GAME_VERSION;
+    this.gameversion = params.gameversion;
+    this.id = params.id;
+    this.createdBy = params.createdBy;
+    this.modversion = params.modversion;
     if (params.customInstallScript) {
       // this is stupid. why do i need this. fuck this is dumb
       const script = params.customInstallScript;
@@ -55,19 +72,20 @@ export class Mod {
     const gameModsFolder = `${gameDirectory}/mods`;
     const modNameCleaned = this.modNameCleaned();
     const modDirInModsFolder = `${gameModsFolder}/${CURRENT_GAME_VERSION}/${modNameCleaned}`;
-    if (await exists(modDirInModsFolder)) {
-      removeDir(modDirInModsFolder, { recursive: true });
-    }
+
+    if (await exists(modDirInModsFolder))
+      await removeDir(modDirInModsFolder, { recursive: true });
+    await useModInstallState.getState().removeFromGameInstalls(this.id);
   }
 
-  public async uninstallAndRemoveFromCache(gameDirectory: string) {
-    await this.uninstall(gameDirectory);
+  public async removeFromCache() {
     const modNameCleaned = this.modNameCleaned();
     const appCacheDirPath = await appCacheDir();
     const modInModsCacheDir = `${appCacheDirPath}/mods/${modNameCleaned}`;
-    if (await exists(modInModsCacheDir)) {
-      removeDir(modInModsCacheDir, { recursive: true });
-    }
+
+    if (await exists(modInModsCacheDir))
+      await removeDir(modInModsCacheDir, { recursive: true });
+    await useModInstallState.getState().removeFromAppCache(this.id);
   }
 
   public downloadedFileExtension() {
@@ -77,83 +95,81 @@ export class Mod {
     return fileExtension;
   }
 
-  public async download() {
-    // Create App Mods Cache If Not Exists
+  public async downloadToCache() {
+    // check that not already cached
+    const cache = useModInstallState.getState().appCache;
+
+    if (cache.has(this.id)) {
+      const data = cache.get(this.id);
+      if (
+        data?.gameversion === this.gameversion &&
+        data?.modversion === this.modversion
+      )
+        return;
+    }
+    // paths
     const appCacheDirPath = await appCacheDir();
-    const modsCacheDir = `${appCacheDirPath}/mods`;
-    if (!(await exists(modsCacheDir))) createDir(modsCacheDir);
-
-    // lmao regex https://stackoverflow.com/questions/30075649/javascript-regex-for-cleaning-string-value
     const modNameCleaned = this.modNameCleaned();
-
-    // get file extension of download to decide how to handle
     const fileExtension = this.downloadedFileExtension();
-    // If mod directory doesn't exist, create it
-    const modFolderInCache = `${modsCacheDir}/${modNameCleaned}`;
-    if (!(await exists(modFolderInCache))) createDir(modFolderInCache);
+    const cacheFolderPath = `${appCacheDirPath}/mods/${modNameCleaned}`;
+    const downloadPath = `${cacheFolderPath}/${modNameCleaned}.${fileExtension}`;
 
-    // Download Mod
-    const filename = `${modNameCleaned}.${fileExtension}`;
-    const downloadDest = `${modFolderInCache}/${filename}`;
-    await downloadFile(this.downloadUrl, downloadDest);
+    // clear any previous shit in the folder
+    if (await exists(cacheFolderPath)) {
+      await removeDir(cacheFolderPath, { recursive: true });
+    }
+    await createDir(cacheFolderPath, { recursive: true });
+
+    // donwload, unpack and update cache
+    await downloadFile(this.downloadUrl, downloadPath);
+    if (fileExtension === "zip") {
+      await unzipFile(downloadPath, cacheFolderPath);
+      // delete the original zip
+      await removeFile(downloadPath);
+    }
+    await useModInstallState.getState().addToAppCache({
+      category: this.category,
+      downloadUrl: this.downloadUrl,
+      gameversion: this.gameversion,
+      name: this.name,
+      thumbnailUrl: this.thumbnailUrl,
+      id: this.id,
+      createdBy: this.createdBy,
+      wgModsId: this.wgModsId,
+      modversion: this.modversion,
+    });
   }
 
   public async install(gameDirectory: string): Promise<void> {
     const appCacheDirPath = await appCacheDir();
     const modNameCleaned = this.modNameCleaned();
-    const fileExtension = this.downloadedFileExtension();
-    // Create if not exists folder in mods/version/{modname}
-    const gameModsFolder = `${gameDirectory}/mods`;
-    if (!(await exists(gameModsFolder))) createDir(gameModsFolder);
-    const gameVersionInModsFolderPath = `${gameModsFolder}/${CURRENT_GAME_VERSION}`;
-    if (!(await exists(gameVersionInModsFolderPath)))
-      createDir(gameVersionInModsFolderPath);
-    const modInGameVersionFolderPath = `${gameVersionInModsFolderPath}/${modNameCleaned}`;
-    if (!(await exists(modInGameVersionFolderPath)))
-      createDir(modInGameVersionFolderPath);
+    const cacheFolderPath = `${appCacheDirPath}/mods/${modNameCleaned}`;
 
-    const filename = `${modNameCleaned}.${fileExtension}`;
-    const modFilePathInCache = `${appCacheDirPath}/mods/${modNameCleaned}`;
-    const cacheLocation = `${modFilePathInCache}/${filename}`;
+    const gameModsFolderPath = `${gameDirectory}/mods/${CURRENT_GAME_VERSION}/${modNameCleaned}`;
 
-    switch (fileExtension) {
-      case "wotmod":
-        // copy file to destination
-        await copyFile(
-          cacheLocation,
-          `${modInGameVersionFolderPath}/${filename}`
-        );
-        break;
-      case "zip":
-        // unzip download into mods/modname
-        await unzipFile(cacheLocation, modFilePathInCache);
-
-        // delete the original zip
-        await removeFile(cacheLocation);
-
-        // recursively iterate through upzipped folder and copy all .wotmod files to mods folder
-        async function processEntries(entries: any) {
-          for (const entry of entries) {
-            console.log(`Entry: ${entry.path}`);
-            const path = entry.path as string;
-            if (path.endsWith(".wotmod")) {
-              const filename = path.split("\\").pop();
-              await copyFile(path, `${modInGameVersionFolderPath}/${filename}`);
-            }
-            if (entry.children) {
-              processEntries(entry.children);
-            }
-          }
-        }
-
-        const entries = await readDir(modFilePathInCache, { recursive: true });
-        await processEntries(entries);
-
-        // move over config from specified location?
-
-        break;
-      default:
-        throw new Error("Downloaded file format is not currently supported.");
+    // clear any previous shit in the folder
+    if (await exists(gameModsFolderPath)) {
+      await removeDir(gameModsFolderPath, { recursive: true });
     }
+    await createDir(gameModsFolderPath, { recursive: true });
+
+    // recursively iterate through cache folder and copy all .wotmod files to mods folder
+    async function processEntries(entries: any) {
+      for (const entry of entries) {
+        const path = entry.path as string;
+        if (path.endsWith(".wotmod")) {
+          const filename = path.split("\\").pop();
+          await copyFile(path, `${gameModsFolderPath}/${filename}`);
+        }
+        if (entry.children) {
+          processEntries(entry.children);
+        }
+      }
+    }
+
+    const entries = await readDir(cacheFolderPath, { recursive: true });
+    await processEntries(entries);
+
+    await useModInstallState.getState().addToGameInstalls(this);
   }
 }

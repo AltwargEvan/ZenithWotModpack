@@ -9,7 +9,7 @@ type ModRouteState = {
 export const useModRouteStore = create<ModRouteState>((set) => ({
   category: "All Mods",
   setCategory: (category) => set((state) => ({ ...state, category })),
-  showInstalled: false,
+  showInstalled: true,
   setShowInstalled: (showInstalled) =>
     set((state) => ({ ...state, showInstalled })),
 }));
