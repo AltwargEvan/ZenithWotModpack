@@ -22,7 +22,7 @@ const NavLink = ({
 
 const Navbar = () => {
   return (
-    <div className="bg-secondary-300 flex flex-col p-2 rounded-r-xl justify-between">
+    <div className="bg-secondary-300 flex flex-col p-2 justify-between">
       <div>
         <div className="px-2 py-1">
           <span className="font-cinzel text-3xl font-bold">ZeNitH</span>
