@@ -1,11 +1,13 @@
 import { Store } from "tauri-plugin-store-api";
 import { create } from "zustand";
 import Profile from "../features/profile";
+import { Settings } from "./settingsStore";
 
 export const store = new Store(".settings.dat");
 type KVTypeMap = {
   profiles: Profile[];
   activeProfile: Profile;
+  settings: Settings;
 };
 
 async function get<K extends keyof KVTypeMap>(key: K) {

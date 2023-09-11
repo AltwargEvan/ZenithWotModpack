@@ -8,6 +8,11 @@ export default {
         oswald: ["Oswald", "sans-serif"],
         cinzel: ["Cinzel Decorative", "cursive"],
       },
+      colors: {
+        neutral: {
+          850: "#2C2C2C",
+        },
+      },
     },
   },
   plugins: [],

@@ -8,6 +8,7 @@ import { useLocalKVStore } from "../stores/localKeyValueStore";
 
 import Profile from "../features/profile";
 import { initProfileStore } from "../stores/profileStore";
+import { initSettingsStore } from "../stores/settingsStore";
 
 const App = () => {
   const routeTitle = usePageTitleStore();
@@ -17,7 +18,7 @@ const App = () => {
       <TitleBar />
       <Navbar />
       <div
-        className="bg-gradient-to-b from-neutral-800   via-neutral-900 via-50%  to-neutral-950 border-t fixed  grow flex w-full text-white bprder-r-px border-neutral-600 "
+        className="bg-gradient-to-bl from-neutral-900/90    to-neutral-950 border-t fixed  grow flex w-full text-white bprder-r-px border-neutral-600 "
         style={{
           height: "calc(100% - 2.25rem - 1px)",
           width: "calc(100% - 4rem - 1px)",
@@ -51,7 +52,11 @@ const Root = () => {
   );
 
   useEffect(() => {
-    Promise.allSettled([initProfileStore(), initializeInstallStateStore()])
+    Promise.allSettled([
+      initProfileStore(),
+      initializeInstallStateStore(),
+      initSettingsStore(),
+    ])
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);

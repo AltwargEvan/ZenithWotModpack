@@ -80,6 +80,9 @@
         "startDragging": true,
         "unmaximize": true,
         "unminimize": true
+      },
+      "clipboard": {
+        "all": true
       }
     },
     "bundle": {
