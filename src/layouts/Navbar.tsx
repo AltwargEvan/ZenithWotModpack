@@ -1,42 +1,90 @@
 import { ReactNode } from "react";
-import { Link, ToPathOption, useNavigate } from "@tanstack/react-router";
+import { ToPathOption, useNavigate } from "@tanstack/react-router";
+import { Logo } from "../assets/Logo";
+import { HomeIcon, Profiles, Settings } from "../assets/PagesIcons";
+import { twMerge } from "tailwind-merge";
 
-const NavLink = ({
+const NavItem = ({
+  text,
+  Icon,
   to,
-  children,
 }: {
   to: ToPathOption;
-  children: ReactNode;
+  text: string;
+  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
 }) => {
   const navigate = useNavigate();
+
   function onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     e.preventDefault();
     navigate({ to: to });
   }
   return (
-    <div className="hover:cursor-pointer hover:bg-secondary-200 px-2 py-1 rounded font-light">
-      <div onClick={onClick}>{children}</div>
+    <div
+      onClick={onClick}
+      className={twMerge(
+        "grid py-2.5",
+        location.pathname === to
+          ? "text-neutral-50 fill-neutral-50"
+          : "text-neutral-300 fill-neutral-300 hover:text-neutral-100 hover:fill-neutral-100"
+      )}
+      style={{
+        gridTemplateColumns: "64px 112px",
+      }}
+    >
+      <div className="flex justify-center  items-center hover:cursor-pointer">
+        <Icon className="h-5 w-5 group" />
+      </div>
+      <span className="font-medium align-middle hover:cursor-pointer text-sm">
+        {text}
+      </span>
     </div>
   );
 };
 
 const Navbar = () => {
   return (
-    <div className="bg-secondary-300 flex flex-col p-2 justify-between">
-      <div>
-        <div className="px-2 py-1">
-          <span className="font-cinzel text-3xl font-bold">ZeNitH</span>
-        </div>
-        <hr className="py-1" />
-        <NavLink to="/mods">All Mods</NavLink>
+    <>
+      <div
+        className="bg-zinc-900  hover:w-40 transition-all ease-out duration-150 w-16 flex flex-col justify-between overflow-hidden fixed z-40 border-neutral-700 border-r"
+        style={{ height: "calc(100% - 2.25rem - 2px)" }}
+      >
+        <div>
+          <div
+            className="grid pt-5 pb-3"
+            style={{
+              gridTemplateColumns: "64px 112px",
+            }}
+          >
+            <div className="flex justify-center  items-center">
+              <Logo className="h-7 fill-red-500 w-7" />
+            </div>
+            <div className=" font-bold text-xl tracking-wider text-neutral-50">
+              <span>Zenith</span>
+            </div>
+          </div>
+
+          <NavItem to="/" Icon={HomeIcon} text="Home" />
+          {/* <NavItem to="/profiles" Icon={Profiles} text="Profiles" /> */}
+
+          {/* <NavLink to="/">All Mods</NavLink>
         <NavLink to="/currentlyinstalled">Currently Installed</NavLink>
-        <NavLink to="/settings">Settings</NavLink>
+        <NavLink to="/settings">Settings</NavLink> */}
+        </div>
+        <div className="pb-3">
+          <NavItem to="/profiles" Icon={Profiles} text="Profiles" />
+          <NavItem to="/settings" Icon={Settings} text="Settings" />
+
+          {/* <NavItem to="/profiles" Icon={Profiles} text="Profiles" /> */}
+
+          {/* <NavLink to="/">All Mods</NavLink>
+        <NavLink to="/currentlyinstalled">Currently Installed</NavLink>
+        <NavLink to="/settings">Settings</NavLink> */}
+        </div>
       </div>
-      <div>
-        <NavLink to="/about">About</NavLink>
-        <NavLink to="/contact">Contact</NavLink>
-      </div>
-    </div>
+      {/* filler div */}
+      <div className="w-16 invisible"></div>
+    </>
   );
 };
 

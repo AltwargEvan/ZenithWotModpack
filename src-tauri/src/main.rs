@@ -11,6 +11,7 @@ fn main() {
                 .targets([LogTarget::LogDir, LogTarget::Stdout, LogTarget::Webview])
                 .build(),
         )
+        .plugin(tauri_plugin_store::Builder::default().build())
         .invoke_handler(tauri::generate_handler![greet, install_mod, unzip_file])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

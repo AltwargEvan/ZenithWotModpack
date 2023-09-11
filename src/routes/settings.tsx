@@ -14,8 +14,6 @@ const SettingsPage = () => {
   async function handleClearCache() {
     await clearCache();
   }
-  function handleUninstallAllMods() {}
-  function copyCurrentConfigToClipboard() {}
 
   return (
     <div className="flex p-4 flex-col w-full">

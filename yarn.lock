@@ -626,7 +626,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tauri-apps/api@npm:^1.4.0":
+"@tauri-apps/api@npm:1.4.0, @tauri-apps/api@npm:^1.4.0":
   version: 1.4.0
   resolution: "@tauri-apps/api@npm:1.4.0"
   checksum: 0c24b72d6bdb1180aafc6a19bdaad1501810f880f1a52f0fbe1b1b2b04fe0b6148deba7a3769a03b877e4ddf3008348b6e1c6cb725f17effb78c9a0a0e099dc5
@@ -2700,6 +2700,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tauri-plugin-store-api@https://github.com/tauri-apps/tauri-plugin-store#v1":
+  version: 0.0.0
+  resolution: "tauri-plugin-store-api@https://github.com/tauri-apps/tauri-plugin-store.git#commit=a65ce9bfb168a9a3cd7ed4102b9f22770cc3abfa"
+  dependencies:
+    "@tauri-apps/api": 1.4.0
+  checksum: 938a84984060a536cc8a00bdcb077be1ab5eda3b9bb9220506075bed199f354567e8bfd67e33e257ed6884d9cd8cf32fbb5038023980d6f7936bc54fc0506b45
+  languageName: node
+  linkType: hard
+
 "thenify-all@npm:^1.0.0":
   version: 1.6.0
   resolution: "thenify-all@npm:1.6.0"
@@ -2952,6 +2961,7 @@ __metadata:
     superjson: ^1.13.1
     tailwind-merge: ^1.14.0
     tailwindcss: ^3.3.3
+    tauri-plugin-store-api: "https://github.com/tauri-apps/tauri-plugin-store#v1"
     typescript: ^5.0.2
     vite: ^4.4.4
     zod: ^3.22.2
