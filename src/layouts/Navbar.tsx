@@ -73,21 +73,10 @@ const Navbar = () => {
           </div>
 
           <NavItem to="/" Icon={HomeIcon} text="Home" />
-          {/* <NavItem to="/profiles" Icon={Profiles} text="Profiles" /> */}
-
-          {/* <NavLink to="/">All Mods</NavLink>
-        <NavLink to="/currentlyinstalled">Currently Installed</NavLink>
-        <NavLink to="/settings">Settings</NavLink> */}
+          <NavItem to="/profiles" Icon={Profiles} text="Profiles" />
         </div>
         <div className="pb-3">
-          <NavItem to="/profiles" Icon={Profiles} text="Profiles" />
           <NavItem to="/settings" Icon={Settings} text="Settings" />
-
-          {/* <NavItem to="/profiles" Icon={Profiles} text="Profiles" /> */}
-
-          {/* <NavLink to="/">All Mods</NavLink>
-        <NavLink to="/currentlyinstalled">Currently Installed</NavLink>
-        <NavLink to="/settings">Settings</NavLink> */}
         </div>
       </div>
       {/* filler div */}

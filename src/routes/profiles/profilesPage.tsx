@@ -1,15 +1,10 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
 import { useLocalKVStore } from "../../stores/localKeyValueStore";
 import { useRouteTitle } from "../../stores/pageTitleStore";
 import { useState } from "react";
-import { exists, readDir } from "@tauri-apps/api/fs";
 import { twMerge } from "tailwind-merge";
 import { TwitchIcon } from "../../assets/twitchIcon";
 import { BoxesIcon } from "../../assets/BoxesIcon";
 import Profile from "../../features/profile";
-import { PlusIcon } from "../../assets/PlusIcon";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { detectGameDirectories } from "../../utils/detectGameDirectories";
 import { ThreeDotsVertical } from "../../assets/ThreeDotsVertical";
 import Menu from "@mui/material/Menu";
 import { MenuItem } from "@mui/material";
@@ -77,7 +72,7 @@ const ProfileLineItem = ({
           {profile.name}
         </span>
         <span className="bg-zinc-700/80 group-hover:bg-zinc-600  p-3">
-          {profile.gameDirectory}
+          {/* {profile.gameDirectory} */}
         </span>
         <span className="bg-zinc-700/80 group-hover:bg-zinc-600  p-3">
           {profile.mods.length}
@@ -114,8 +109,8 @@ const YourProfilesTab = () => {
         }}
       >
         <span className="font-light text-xs pl-1">Name</span>
-        <span className="font-light text-xs pl-0.5">Game Directory</span>
-        <span className="font-light text-xs pl-0.5">Mod Count</span>
+        <span className="font-light text-xs pl-0.5">Mods</span>
+        <span className="font-light text-xs invisible">_</span>
         <span className="font-light text-xs invisible">_</span>
       </div>
       {profiles?.map((profile) => (
