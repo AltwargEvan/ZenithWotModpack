@@ -7,6 +7,7 @@ import { usePageTitleStore } from "../stores/pageTitleStore";
 import { useLocalKVStore } from "../stores/localKeyValueStore";
 
 import Profile from "../features/profile";
+import { initProfileStore } from "../stores/profileStore";
 
 const App = () => {
   const routeTitle = usePageTitleStore();
@@ -50,7 +51,7 @@ const Root = () => {
   );
 
   useEffect(() => {
-    Promise.allSettled([initializeInstallStateStore()])
+    Promise.allSettled([initProfileStore(), initializeInstallStateStore()])
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);

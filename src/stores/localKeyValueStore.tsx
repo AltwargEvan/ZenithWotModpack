@@ -5,7 +5,7 @@ import Profile from "../features/profile";
 export const store = new Store(".settings.dat");
 type KVTypeMap = {
   profiles: Profile[];
-  currentProfile: Profile;
+  activeProfile: Profile;
 };
 
 async function get<K extends keyof KVTypeMap>(key: K) {

@@ -4,7 +4,7 @@ type ModData = {
   version: string;
 };
 type Profile = {
-  gameDirectory: string;
+  gameDirectory?: string;
   name: string;
   mods: Array<ModData>;
 };

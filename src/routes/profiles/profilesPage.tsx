@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useLocalKVStore } from "../../stores/localKeyValueStore";
 import { useRouteTitle } from "../../stores/pageTitleStore";
 import { useState } from "react";
@@ -8,43 +8,123 @@ import { TwitchIcon } from "../../assets/twitchIcon";
 import { BoxesIcon } from "../../assets/BoxesIcon";
 import Profile from "../../features/profile";
 import { PlusIcon } from "../../assets/PlusIcon";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { detectGameDirectories } from "../../utils/detectGameDirectories";
+import { ThreeDotsVertical } from "../../assets/ThreeDotsVertical";
+import Menu from "@mui/material/Menu";
+import { MenuItem } from "@mui/material";
+import { useProfileStore } from "../../stores/profileStore";
 
 const StreamerProfilesTab = () => {
-  return <div></div>;
+  //   <button className="flex justify-between rounded w-full bg-zinc-900/80 border-neutral-700 border shadow  hover:bg-zinc-600/50 py-3 text-left items-center px-3">
+  //   <span className="font-semibold">Create New Profile</span>
+  // </button>
+  return <div>Work In Progress</div>;
 };
 
-const ProfileLineItem = ({ profile }: { profile: Profile }) => {
+const ProfileLineItem = ({
+  profile,
+  active,
+}: {
+  profile: Profile;
+  active: boolean;
+}) => {
+  const profileStore = useProfileStore();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(anchorEl ? null : event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const handleDuplicate = async () => {
+    handleClose();
+    profileStore.createProfile({ ...profile, name: `${profile.name} Copy` });
+  };
+  const handleUseThisProfile = () => {
+    handleClose();
+    profileStore.setActiveProfile(profile);
+  };
+  const handleDelete = () => {
+    handleClose();
+    profileStore.deleteProfile(profile);
+  };
+
+  const handleEdit = () => {
+    handleClose();
+  };
   return (
-    <div className="grid grid-cols-6 rounded w-full bg-zinc-900/80 border-neutral-700 border shadow  hover:bg-zinc-600/50 py-3 text-left items-center px-3">
-      <div>{profile.name}</div>
+    <div>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClick}>
+        <MenuItem onClick={handleUseThisProfile}>Use This Profile</MenuItem>
+        <MenuItem onClick={handleEdit}>Edit</MenuItem>
+        <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
+        <MenuItem onClick={handleDelete}>Delete</MenuItem>
+      </Menu>
+      <div
+        className={twMerge(
+          "rounded text-left text-neutral-300 group shadow",
+          active && "border border-green-300 my-1 hover:border-green-400"
+        )}
+        style={{
+          columnGap: "2px",
+          display: "grid",
+          gridTemplateColumns: "200px auto 70px 40px",
+        }}
+      >
+        <span className="rounded-l bg-zinc-700/80 group-hover:bg-zinc-600  p-3">
+          {profile.name}
+        </span>
+        <span className="bg-zinc-700/80 group-hover:bg-zinc-600  p-3">
+          {profile.gameDirectory}
+        </span>
+        <span className="bg-zinc-700/80 group-hover:bg-zinc-600  p-3">
+          {profile.mods.length}
+        </span>
+        <button
+          className="bg-zinc-700/80 group-hover:bg-zinc-600   p-3 rounded-r flex justify-center items-center hover:cursor-pointer"
+          onClick={handleClick}
+          aria-controls={open ? "basic-menu" : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? "true" : undefined}
+        >
+          <ThreeDotsVertical className="scale-125" />
+          {/* <div className="w-full flex justify-center items-center h-6 hover:cursor-pointer"></div> */}
+        </button>
+      </div>
     </div>
+
+    // </div>
   );
 };
 
 const YourProfilesTab = () => {
   const get = useLocalKVStore((ctx) => ctx.get);
-  const { data: profiles } = useQuery({
-    queryFn: async () => {
-      return await get("profiles");
-    },
-    queryKey: ["profiles"],
-  });
-  const { data: currentProfile } = useQuery({
-    queryFn: async () => {
-      return await get("currentProfile");
-    },
-    queryKey: ["currentProfile"],
-  });
+  const profiles = useProfileStore((ctx) => ctx.profiles);
+  const activeProfile = useProfileStore((ctx) => ctx.activeProfile);
 
   return (
-    <div className="mt-4 space-y-2 grid">
+    <div className="mt-4 grid">
+      <div
+        className="text-left text-neutral-300 mb-0.5"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "200px auto 70px 40px",
+        }}
+      >
+        <span className="font-light text-xs pl-1">Name</span>
+        <span className="font-light text-xs pl-0.5">Game Directory</span>
+        <span className="font-light text-xs pl-0.5">Mod Count</span>
+        <span className="font-light text-xs invisible">_</span>
+      </div>
       {profiles?.map((profile) => (
-        <ProfileLineItem profile={profile} key={profile.name} />
+        <ProfileLineItem
+          profile={profile}
+          key={profile.name}
+          active={profile.name === activeProfile?.name}
+        />
       ))}
-      <button className="flex justify-between rounded w-full bg-zinc-900/80 border-neutral-700 border shadow  hover:bg-zinc-600/50 py-3 text-left items-center px-3">
-        <span className="font-semibold"> Create New Profile</span>
-        <PlusIcon className="scale-150" />
-      </button>
     </div>
   );
 };
@@ -90,24 +170,3 @@ const ProfilesPage = () => {
 };
 
 export default ProfilesPage;
-
-// const [detectedGameDirectories, setDetectedGameDirectories] =
-// useState<Array<string> | null>(null);
-
-// async function findGameDirectories() {
-//   try {
-//     const entries = await readDir("C:\\games");
-
-//     entries
-//       .filter((entry) => entry.name?.toLowerCase().includes("world_of_tanks"))
-//       // this async code we could promise all
-//       .forEach(async (entry) => {
-//         if (await exists(`${entry.path}\\WorldOfTanks.exe`))
-//           setDetectedGameDirectories((prev) =>
-//             prev ? [...prev, entry.path] : [entry.path]
-//           );
-//       });
-//   } catch {
-//     setDetectedGameDirectories([]);
-//   }
-// }
