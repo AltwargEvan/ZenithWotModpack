@@ -121,6 +121,7 @@ const HomePage = () => {
     | "Currently Installed"
   >("All Mods");
   const { data: mods, error } = useSheetsDBMods();
+
   const activeProfile = useProfileStore((ctx) => ctx.activeProfile);
   const modsFiltered = useMemo(() => {
     switch (tab) {
@@ -128,7 +129,7 @@ const HomePage = () => {
         return mods?.filter(
           (mod) =>
             !activeProfile?.mods.find(
-              (installedMod) => installedMod.id === mod.id
+              (installedMod) => installedMod. === mod.id
             )
         );
       case "Tools":
@@ -136,7 +137,7 @@ const HomePage = () => {
       case "Mark of Excellence":
         return mods?.filter(
           (mod) =>
-            mod.category.toLowerCase().includes(tab.toLowerCase()) &&
+            mod..category.toLowerCase().includes(tab.toLowerCase()) &&
             !activeProfile?.mods.find(
               (installedMod) => installedMod.id === mod.id
             )
