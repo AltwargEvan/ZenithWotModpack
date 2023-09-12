@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { useSheetsDBMods } from "../api/fetchMods";
 import { useRouteTitle } from "../stores/pageTitleStore";
@@ -13,17 +13,32 @@ import { useProfileStore } from "../stores/profileStore";
 import { Download } from "../assets/Download";
 import { CircularProgress } from "@mui/material";
 import { useModInstallState } from "../stores/modInstallStateStore";
+import { RemoveIcon } from "../assets/RemoveIcon";
 
-const CurrentlyInstalledTab = () => {
-  return <div></div>;
-};
-const ModItem = ({ mod }: { mod: ModType }) => {
+const ModItem = ({
+  mod,
+  currentlyInstalled,
+}: {
+  mod: ModType;
+  currentlyInstalled: boolean;
+}) => {
   const [installing, setInstalling] = useState(false);
   const install = useModInstallState((ctx) => ctx.install);
+  const uninstall = useModInstallState((ctx) => ctx.uninstall);
+
   async function handleInstall() {
     setInstalling(true);
     try {
       await install(mod);
+    } catch (e) {
+      console.error(e);
+    }
+    setInstalling(false);
+  }
+  async function handleUninstall() {
+    setInstalling(true);
+    try {
+      await uninstall(mod);
     } catch (e) {
       console.error(e);
     }
@@ -37,7 +52,12 @@ const ModItem = ({ mod }: { mod: ModType }) => {
         }}
         className="h-36 bg-blue-500 w-full bg-contain shadow-lg bg-center"
       />
-      <div className="p-1 px-2">
+      <div
+        className="p-1 px-2"
+        style={{
+          maxWidth: "85%",
+        }}
+      >
         <div className="h-6 overflow-hidden text-ellipsis font-bold break-all">
           {mod.name}
         </div>
@@ -48,18 +68,39 @@ const ModItem = ({ mod }: { mod: ModType }) => {
           Version {mod.modversion} for {mod.gameversion}
         </div>
       </div>
-      {!installing && (
-        <div
-          className="group-hover:block absolute hidden z-10 right-2 bottom-2 hover:cursor-pointer"
-          onClick={handleInstall}
-        >
-          <Download className="h-5 w-5" />
-        </div>
+      {!currentlyInstalled && (
+        <>
+          {!installing && (
+            <div
+              className="group-hover:block absolute hidden z-10 right-2 bottom-2 hover:cursor-pointer"
+              onClick={handleInstall}
+            >
+              <Download className="h-5 w-5" />
+            </div>
+          )}
+          {installing && (
+            <div className="absolute z-10 right-2 bottom-1">
+              <CircularProgress size={20} />
+            </div>
+          )}
+        </>
       )}
-      {installing && (
-        <div className="absolute z-10 right-2 bottom-1">
-          <CircularProgress size={20} />
-        </div>
+      {currentlyInstalled && (
+        <>
+          {!installing && (
+            <div
+              className="group-hover:block absolute hidden z-10 right-2 bottom-2 hover:cursor-pointer"
+              onClick={handleUninstall}
+            >
+              <RemoveIcon className="h-5 w-5 fill-red-500" />
+            </div>
+          )}
+          {installing && (
+            <div className="absolute z-10 right-2 bottom-1">
+              <CircularProgress size={20} />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -77,10 +118,15 @@ const HomePage = () => {
 
   const { data: mods, error } = useSheetsDBMods();
   const activeProfile = useProfileStore((ctx) => ctx.activeProfile);
-  const modsFiltered = () => {
+  const modsFiltered = useMemo(() => {
     switch (tab) {
       case "All Mods":
-        return mods;
+        return mods?.filter(
+          (mod) =>
+            !activeProfile?.mods.find(
+              (installedMod) => installedMod.id === mod.id
+            )
+        );
       case "Tools":
       case "Reticle":
       case "Mark of Excellence":
@@ -92,9 +138,12 @@ const HomePage = () => {
             )
         );
       case "Currently Installed":
-        return activeProfile?.mods || [];
+        return mods?.filter((mod) =>
+          activeProfile.mods.find((installedMod) => installedMod.id === mod.id)
+        );
     }
-  };
+  }, [tab, activeProfile.mods]);
+
   return (
     <div>
       <div className="flex">
@@ -135,9 +184,14 @@ const HomePage = () => {
       </div>
       <div className="grid grid-cols-4 gap-4 pt-3 lg:grid-cols-5 xl:grid-cols-4 2xl:grid-cols-5">
         {Boolean(error) && <div>Failed To Fetch Mod List</div>}
-        {tab !== "Currently Installed" &&
-          modsFiltered()?.map((mod) => <ModItem mod={mod} key={mod.id} />)}
-        {tab === "Currently Installed" && <CurrentlyInstalledTab />}
+
+        {modsFiltered?.map((mod) => (
+          <ModItem
+            mod={mod}
+            key={mod.id}
+            currentlyInstalled={tab === "Currently Installed"}
+          />
+        ))}
       </div>
     </div>
   );

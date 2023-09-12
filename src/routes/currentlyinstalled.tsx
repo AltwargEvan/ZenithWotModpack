@@ -1,15 +1,14 @@
 import { useNavigate } from "@tanstack/react-router";
-import { RemoveIcon } from "../assets/RemoveIcon";
-import { Mod } from "../features/mod";
+import { useModInstallState } from "../stores/modInstallStateStore";
 
 const CurrentlyInstalledPage = () => {
   const navigate = useNavigate();
-  const installed = useModInstallState((ctx) => ctx.gameInstalls);
+  const installed = useModInstallState((ctx) => ctx.installed);
   const gameDir = localStorage.getItem("gameDir");
 
   return (
     <div className="flex p-4 flex-col w-full">
-      <div className="w-full mb-4">
+      {/* <div className="w-full mb-4">
         <span className="text-3xl font-bold">Currently Installed</span>
       </div>
       <hr className="border-secondary-100 p-2"></hr>
@@ -43,7 +42,7 @@ const CurrentlyInstalledPage = () => {
             </div>
           );
         })}
-      </div>
+      </div> */}
     </div>
   );
 };

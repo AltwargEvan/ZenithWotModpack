@@ -1,8 +1,7 @@
 import { create } from "zustand";
 import Profile, { defaultProfile } from "../features/profile";
-import { useLocalKVStore } from "./localKeyValueStore";
 import { stringToHslColor } from "../utils/stringToHslColor";
-
+import { kv } from "./localKeyValueStore";
 type ProfileStore = {
   activeProfile: Profile;
   profiles: Array<Profile>;
@@ -38,7 +37,6 @@ export const useProfileStore = create<ProfileStore>((set, getState) => ({
 
   duplicateProfile: async (profile) => {
     const state = getState();
-    const kv = useLocalKVStore.getState();
     const newProfile = structuredClone(profile);
     newProfile.name = getUniqueName(profile.name) as string;
     newProfile.id = crypto.randomUUID();
@@ -47,11 +45,9 @@ export const useProfileStore = create<ProfileStore>((set, getState) => ({
     const newProfiles = [...state.profiles, newProfile];
     set((prev) => ({ ...prev, profiles: newProfiles }));
     await kv.set("profiles", newProfiles);
-    await kv.save();
   },
   updateProfile: async (profile) => {
     const state = getState();
-    const kv = useLocalKVStore.getState();
     const newProfiles = state.profiles.map((item) =>
       item.id === profile.id ? profile : item
     );
@@ -60,11 +56,9 @@ export const useProfileStore = create<ProfileStore>((set, getState) => ({
     set((prev) => ({ ...prev, profiles: newProfiles, activeProfile }));
     await kv.set("profiles", newProfiles);
     if (activeProfile) await kv.set("activeProfile", activeProfile);
-    await kv.save();
   },
   deleteProfile: async (profile) => {
     const state = getState();
-    const kv = useLocalKVStore.getState();
     const newProfiles = state.profiles.filter((item) => item.id !== profile.id);
     if (profile.id === state.activeProfile?.id)
       throw new Error("Cannot delete the current active profile");
@@ -73,11 +67,9 @@ export const useProfileStore = create<ProfileStore>((set, getState) => ({
 
     set((prev) => ({ ...prev, profiles: newProfiles }));
     await kv.set("profiles", newProfiles);
-    await kv.save();
   },
   setActiveProfile: async (profile) => {
     const state = getState();
-    const kv = useLocalKVStore.getState();
     const newActiveProfile = state.profiles.find(
       (prof) => prof.id === profile.id
     );
@@ -85,10 +77,8 @@ export const useProfileStore = create<ProfileStore>((set, getState) => ({
       throw new Error("Profile with provided name not found in state.");
     set((prev) => ({ ...prev, activeProfile: newActiveProfile }));
     await kv.set("activeProfile", newActiveProfile);
-    await kv.save();
   },
   resetAllProfileData: async () => {
-    const kv = useLocalKVStore.getState();
     const activeProfile = defaultProfile;
     const profiles = [activeProfile];
     useProfileStore.setState((prev) => ({ ...prev, profiles, activeProfile }));
@@ -98,7 +88,6 @@ export const useProfileStore = create<ProfileStore>((set, getState) => ({
 }));
 
 export async function initProfileStore() {
-  const kv = useLocalKVStore.getState();
   const activeProfile = (await kv.get("activeProfile")) || defaultProfile;
   const profiles = (await kv.get("profiles")) || [activeProfile];
   useProfileStore.setState((prev) => ({ ...prev, profiles, activeProfile }));

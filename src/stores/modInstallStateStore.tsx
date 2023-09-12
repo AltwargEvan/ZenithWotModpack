@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { ModType } from "../features/mod";
-import { useLocalKVStore } from "./localKeyValueStore";
+import { kv } from "./localKeyValueStore";
 import { useProfileStore } from "./profileStore";
 import { appCacheDir } from "@tauri-apps/api/path";
 import { cleanFilename } from "../utils/cleanFilename";
@@ -9,6 +9,8 @@ import { createDir, exists, removeDir, removeFile } from "@tauri-apps/api/fs";
 import { downloadFile, unzipFile } from "../utils/installUtils";
 import { useSettings } from "./settingsStore";
 import { copyDirectory } from "../utils/copyDirectory";
+import { fs } from "@tauri-apps/api";
+
 type ModInstallStateStore = {
   installed: Map<number, ModType>; // [id, moddata]
   cached: Map<number, ModType>; // [id, moddata]
@@ -22,11 +24,13 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
   cached: new Map<number, ModType>(),
   install: async (mod, installConfigIndex?: number) => {
     // state stores
-    const kv = useLocalKVStore.getState();
     const internalState = get();
     const settings = useSettings.getState();
+    if (!settings.gameDirectory)
+      throw new Error(
+        "Cannot install mod. You must set game directory in settings."
+      );
     const profileStore = useProfileStore.getState();
-
     // folder stuffs
     const appCacheDirPath = await appCacheDir();
     const fileExtension = getFileExtension(mod.downloadUrl);
@@ -35,13 +39,13 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
     const downloadPath = `${cacheFolderPath}/${modNameCleaned}.${fileExtension}`;
 
     // CACHE (add or check already there)
-    const modInCache = !internalState.cached.has(mod.id);
+    const modInCache = internalState.cached.has(mod.id);
     const cachedMod = internalState.cached.get(mod.id);
     const modMatchesCachedModVersions =
       cachedMod?.modversion === mod.modversion &&
       cachedMod.gameversion === mod.gameversion;
 
-    if (!modInCache || !modMatchesCachedModVersions) {
+    if (!modInCache && !modMatchesCachedModVersions) {
       // clean out the cache folder
       if (await exists(cacheFolderPath)) {
         await removeDir(cacheFolderPath, { recursive: true });
@@ -60,12 +64,17 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
         cached: new Map(internalState.cached),
       }));
       await kv.set("cachedMods", internalState.cached);
-      await kv.save();
     }
 
     // INSTALL
-    const installConfig = mod.installdata[installConfigIndex || 0];
-    if (installConfig.modsPath) {
+    let installConfig = mod.installdata[installConfigIndex || 0];
+    if (!installConfig)
+      installConfig = {
+        modsPath: "",
+        name: mod.name,
+      };
+
+    if (installConfig.modsPath !== undefined) {
       const gameModsFolderPath = `${settings.gameDirectory}/mods/${settings.gameVersion}/${modNameCleaned}`;
       if (await exists(gameModsFolderPath)) {
         await removeDir(gameModsFolderPath, { recursive: true });
@@ -76,7 +85,7 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
         gameModsFolderPath
       );
     }
-    if (installConfig.resPath) {
+    if (installConfig.resPath !== undefined) {
       const gameResModsFolderPath = `${settings.gameDirectory}/res_mods/${settings.gameVersion}/${modNameCleaned}`;
       if (await exists(gameResModsFolderPath)) {
         await removeDir(gameResModsFolderPath, { recursive: true });
@@ -100,16 +109,52 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
       mods: profile.mods.concat(mod),
     });
     await kv.set("installedMods", internalState.installed);
-    await kv.save();
   },
-  uninstall: async (mod) => {},
-  clearCache: async () => {},
+  uninstall: async (mod) => {
+    const profileStore = useProfileStore.getState();
+    const internalState = get();
+    const settings = useSettings.getState();
+    if (!settings.gameDirectory)
+      throw new Error(
+        "Cannot uninstall mod. You must set game directory in settings."
+      );
+    const modNameCleaned = cleanFilename(mod.name);
+
+    const modsFolder = `${settings.gameDirectory}/mods/${settings.gameVersion}/${modNameCleaned}`;
+    if (await exists(modsFolder))
+      await fs.removeDir(modsFolder, { recursive: true });
+    const resFolder = `${settings.gameDirectory}/res_mods/${settings.gameVersion}/${modNameCleaned}`;
+    if (await exists(resFolder))
+      await fs.removeDir(resFolder, { recursive: true });
+
+    internalState.installed.delete(mod.id);
+    set((prev) => ({ ...prev, installed: internalState.installed }));
+    const profile = profileStore.activeProfile;
+    await profileStore.updateProfile({
+      ...profile,
+      mods: profile.mods.filter((x) => x.id != mod.id),
+    });
+    await kv.set("installedMods", internalState.installed);
+  },
+  clearCache: async () => {
+    const settings = useSettings.getState();
+    if (!settings.gameDirectory)
+      throw new Error(
+        "Cannot install mod. You must set game directory in settings."
+      );
+    const appCacheDirPath = await appCacheDir();
+    await fs.removeDir(`${appCacheDirPath}/mods`, { recursive: true });
+    set((prev) => ({ ...prev, cached: new Map<number, ModType>() }));
+    kv.set("cachedMods", new Map<number, ModType>());
+  },
 }));
 
 export async function initializeModInstallState() {
-  const kv = useLocalKVStore.getState();
-  const installed =
-    (await kv.get("installedMods")) || new Map<number, ModType>();
-  const cached = (await kv.get("cachedMods")) || new Map<number, ModType>();
-  useModInstallState.setState((prev) => ({ ...prev, installed, cached }));
+  const installed = await kv.get("installedMods");
+  const cached = await kv.get("cachedMods");
+  useModInstallState.setState((prev) => ({
+    ...prev,
+    installed: installed || new Map(),
+    cached: cached || new Map(),
+  }));
 }

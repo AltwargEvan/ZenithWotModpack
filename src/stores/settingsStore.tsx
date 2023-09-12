@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { useLocalKVStore } from "./localKeyValueStore";
 import { readDir } from "@tauri-apps/api/fs";
+import { kv } from "./localKeyValueStore";
 
 export type Settings = {
   gameDirectory: string | null;
@@ -13,23 +13,21 @@ type SettingOperations = {
 
 export const useSettings = create<Settings & SettingOperations>((set, get) => ({
   gameDirectory: null,
-  gameVersion: "1.21.1.0",
+  gameVersion: "1.22.0.0",
   setGameDirectory: async (folder) => {
-    const state = get();
     const entries = await readDir(folder);
     if (!entries.find((entry) => entry.name === "WorldOfTanks.exe"))
       throw new Error(
         "The game client was not detected in the specified folder."
       );
     set((prev) => ({ ...prev, gameDirectory: folder }));
-    await useLocalKVStore.getState().set("settings", {
-      gameDirectory: state.gameDirectory,
+    await kv.set("settings", {
+      gameDirectory: folder,
     });
   },
 }));
 
 export const initSettingsStore = async () => {
-  const kv = useLocalKVStore.getState();
   const settings = await kv.get("settings");
   useSettings.setState((prev) => ({
     ...prev,

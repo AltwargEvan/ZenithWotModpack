@@ -23,7 +23,6 @@ export async function fetchMods() {
       parsedRes.error
     );
   });
-  console.log(output);
   return output;
 }
 
