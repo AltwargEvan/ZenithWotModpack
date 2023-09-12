@@ -4,6 +4,7 @@ export const InstallConfigSchema = z.array(
   z.object({
     modsPath: z.string().optional(),
     resPath: z.string().optional(),
+    configsPath: z.string().optional(),
     name: z.string(),
   })
 );

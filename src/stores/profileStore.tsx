@@ -4,7 +4,7 @@ import { stringToHslColor } from "../utils/stringToHslColor";
 import { kv } from "./localKeyValueStore";
 import { useModInstallState } from "./modInstallStateStore";
 type ProfileStore = {
-  activeProfile: Profile;
+  activeProfile: Profile | null;
   profiles: Array<Profile>;
   duplicateProfile: (profile: Profile) => Promise<void>;
   updateProfile: (profile: Profile) => Promise<void>;
@@ -33,9 +33,8 @@ const getUniqueName = (fileName: string, index = 0): any => {
 };
 export const useProfileStore = create<ProfileStore>((set, getState) => ({
   // this gets inited so its fine
-  activeProfile: {} as Profile,
+  activeProfile: null,
   profiles: [],
-
   duplicateProfile: async (profile) => {
     const state = getState();
     const newProfile = structuredClone(profile);
@@ -84,20 +83,18 @@ export const useProfileStore = create<ProfileStore>((set, getState) => ({
 
     // this could cause version issues. make a mod version compare function later
     const modsToInstall = newActiveProfile.mods.filter(
-      (x) => !oldProfile.mods.find((y) => y.id === x.id)
+      (x) => !oldProfile?.mods.find((y) => y.id === x.id)
     );
-    const modsToUninstall = oldProfile.mods.filter(
+    const modsToUninstall = oldProfile?.mods.filter(
       (x) => !newActiveProfile.mods.find((y) => y.id === x.id)
     );
 
-    for (const mod of modsToUninstall) {
-      await installer.uninstall(mod.id, { updateProfile: false });
+    for (const mod of modsToUninstall || []) {
+      await installer.uninstall(mod);
     }
 
     for (const mod of modsToInstall) {
-      await installer.install(mod, {
-        updateProfile: false,
-      });
+      await installer.install(mod);
     }
   },
   resetAllProfileData: async () => {

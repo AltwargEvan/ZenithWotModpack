@@ -58,14 +58,16 @@ const SettingsPage = () => {
         </FormControl>
         {error && <span className="text-red-500">{error}</span>}
       </div>
-      <div className="w-full">
-        <Button
-          onClick={handleClearCache}
-          className="p-1 rounded bg-blue-500 text-black font-oswald w-full"
-          variant="contained"
-        >
-          Clear Mod Downloads Cache
-        </Button>
+      <div>
+        <div className="w-full">
+          <Button
+            onClick={handleClearCache}
+            className="p-1 rounded bg-blue-500 text-black font-oswald w-full"
+            variant="contained"
+          >
+            Clear Mod Downloads Cache
+          </Button>
+        </div>
       </div>
     </div>
   );

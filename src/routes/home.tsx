@@ -12,6 +12,7 @@ import { Download } from "../assets/Download";
 import { CircularProgress } from "@mui/material";
 import { useModInstallState } from "../stores/modInstallStateStore";
 import { RemoveIcon } from "../assets/RemoveIcon";
+import { InstallData, compareInstallData } from "../features/mod";
 
 const ModItem = ({
   mod,
@@ -20,40 +21,57 @@ const ModItem = ({
   mod: Awaited<ReturnType<typeof fetchMods>>[number];
   currentlyInstalled: boolean;
 }) => {
-  const [installing, setInstalling] = useState(false);
   const install = useModInstallState((ctx) => ctx.install);
+  const currentlyInstalling = useModInstallState(
+    (ctx) => ctx.currentlyInstalling
+  );
+  const [activeProfile, updateProfile] = useProfileStore((ctx) => [
+    ctx.activeProfile,
+    ctx.updateProfile,
+  ]);
   const uninstall = useModInstallState((ctx) => ctx.uninstall);
+
   const name =
     mod.wgData.localizations.find((item) => item.lang.code === "en")?.title ||
     mod.dbData.name;
-
+  const installData: InstallData = {
+    name: name,
+    wgModsId: mod.dbData.wgModsId,
+    id: mod.dbData.id,
+    installConfig: mod.dbData.installConfig,
+    installConfigIndices: [0],
+    version: mod.wgData.versions[0].version,
+    gameVersion: mod.wgData.versions[0].game_version.version,
+    downloadUrl: mod.wgData.versions[0].download_url,
+  };
+  const installing = Boolean(
+    currentlyInstalling.find((item) => compareInstallData(item, installData))
+  );
   async function handleInstall() {
-    setInstalling(true);
-
     try {
-      await install({
-        name: name,
-        wgModsId: mod.dbData.wgModsId,
-        id: mod.dbData.id,
-        installConfig: mod.dbData.installConfig,
-        installConfigIndices: [0],
-        version: mod.wgData.versions[0].version,
-        gameVersion: mod.wgData.versions[0].game_version.version,
-        downloadUrl: mod.wgData.versions[0].download_url,
+      if (!activeProfile)
+        throw new Error("Failed to install. No active profile set.");
+      await install(installData);
+      const newProfile = structuredClone(activeProfile);
+      newProfile.mods = newProfile.mods.concat(installData);
+      await updateProfile(newProfile);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function handleUninstall() {
+    try {
+      if (!activeProfile)
+        throw new Error("Failed to install. No active profile set.");
+      await uninstall(installData);
+      await updateProfile({
+        ...activeProfile,
+        mods: activeProfile.mods.filter((x) => x.id !== installData.id),
       });
     } catch (e) {
       console.error(e);
     }
-    setInstalling(false);
-  }
-  async function handleUninstall() {
-    setInstalling(true);
-    try {
-      await uninstall(mod.dbData.id);
-    } catch (e) {
-      console.error(e);
-    }
-    setInstalling(false);
   }
   return (
     <div className="h-54 relative rounded-xl overflow-visible bg-neutral-700 hover:ring-1 ring-offset-2 ring-offset-transparent ring-neutral-400 hover:scale-105 transition-all group">
@@ -135,7 +153,6 @@ const HomePage = () => {
   const { data: mods, error } = useSheetsDBMods();
 
   const activeProfile = useProfileStore((ctx) => ctx.activeProfile);
-  console.log(activeProfile);
   const modsFiltered = useMemo(() => {
     switch (tab) {
       case "All Mods":
@@ -157,12 +174,12 @@ const HomePage = () => {
         );
       case "Currently Installed":
         return mods?.filter((mod) =>
-          activeProfile.mods.find(
+          activeProfile?.mods.find(
             (installedMod) => installedMod.id === mod.dbData.id
           )
         );
     }
-  }, [tab, activeProfile.mods]);
+  }, [tab, activeProfile?.mods]);
 
   return (
     <div>

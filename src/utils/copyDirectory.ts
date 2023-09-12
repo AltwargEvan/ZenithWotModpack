@@ -1,4 +1,10 @@
-import { copyFile, createDir, readDir } from "@tauri-apps/api/fs";
+import {
+  copyFile,
+  createDir,
+  exists,
+  readDir,
+  removeFile,
+} from "@tauri-apps/api/fs";
 import { getFileExtension } from "./getFileExtension";
 
 export async function copyDirectory(source: string, destination: string) {
@@ -8,9 +14,12 @@ export async function copyDirectory(source: string, destination: string) {
       const path = entry.path as string;
       const filename = path.split(/[\\\/]/).pop();
       if (entry.children) {
-        await createDir(`${destination}/${filename}`);
+        if (!(await exists(`${destination}/${filename}`)))
+          await createDir(`${destination}/${filename}`);
         await copyDirectory(path, `${destination}/${filename}`);
       } else if (filename && getFileExtension(filename) !== ".exe") {
+        if (await exists(`${destination}/${filename}`))
+          await removeFile(`${destination}/${filename}`);
         await copyFile(path, `${destination}/${filename}`);
       }
     } catch (e) {
