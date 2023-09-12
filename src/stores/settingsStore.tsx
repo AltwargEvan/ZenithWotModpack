@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { readDir } from "@tauri-apps/api/fs";
+import { readDir, readTextFile } from "@tauri-apps/api/fs";
 import { kv } from "./localKeyValueStore";
 
 export type Settings = {
@@ -29,6 +29,21 @@ export const useSettings = create<Settings & SettingOperations>((set, get) => ({
 
 export const initSettingsStore = async () => {
   const settings = await kv.get("settings");
+  if (settings?.gameDirectory) {
+    const versionXml = await readTextFile(
+      `${settings.gameDirectory}/version.xml`
+    );
+    const data = new DOMParser().parseFromString(versionXml, "text/xml");
+    const version = data
+      .getElementsByTagName("version")[0]
+      .innerHTML.split("#")[0]
+      .replace(/[^0-9.]/g, "")
+      .slice(1);
+    useSettings.setState((prev) => ({
+      ...prev,
+      gameVersion: version,
+    }));
+  }
   useSettings.setState((prev) => ({
     ...prev,
     gameDirectory: settings?.gameDirectory || null,
