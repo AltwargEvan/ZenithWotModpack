@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetch } from "@tauri-apps/api/http";
 import { z } from "zod";
-import { ModType } from "../features/mod";
-import fetchWGMod from "./wargaming/fetchWGMod";
+import fetchWGMod, { wgModsAPIResultType } from "./wargaming/fetchWGMod";
 
 // https://github.com/benborgers/opensheet
 const SPREADSHEET_ID = "1oxonHiV5znE17ZaTHVSztzOVLyyX6SSLTz2BWduiXIg";
@@ -19,6 +18,7 @@ const mobDbRowSchema = z.object({
   category: z.string(),
   installConfig: z.string(),
 });
+
 export async function fetchMods() {
   const res = await fetch(SHEETS_TARGET);
   const data = modRequestResultParser.parse(res).data;
@@ -34,10 +34,18 @@ export async function fetchMods() {
   });
 
   const wgMods = modsFromDB.filter((mod) => mod.wgModsId);
-  const wgAPIMods = await Promise.allSettled(
-    wgMods.map((mod) => (mod.wgModsId ? fetchWGMod(mod.wgModsId) : mod))
+  const out = new Array<{
+    dbData: z.infer<typeof mobDbRowSchema>;
+    wgData: z.infer<typeof wgModsAPIResultType>;
+  }>();
+  await Promise.allSettled(
+    wgMods.map(async (mod) => {
+      const wgData = await fetchWGMod(mod.wgModsId);
+      if (!wgData) throw new Error("Failed to parse wargaming api data.");
+      out.push({ wgData, dbData: mod });
+    })
   );
-  return wgAPIMods;
+  return out;
 }
 
 export function useSheetsDBMods() {

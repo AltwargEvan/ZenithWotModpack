@@ -1,7 +1,7 @@
 import { Store } from "tauri-plugin-store-api";
 import Profile from "../features/profile";
 import { Settings } from "./settingsStore";
-import { ModType } from "../features/mod";
+import { InstallData } from "../features/mod";
 import SuperJSON from "superjson";
 
 export const store = new Store(`data.json`);
@@ -10,8 +10,8 @@ type KVTypeMap = {
   profiles: Profile[];
   activeProfile: Profile;
   settings: Settings;
-  installedMods: Map<number, ModType>;
-  cachedMods: Map<number, ModType>;
+  installedMods: Map<number, InstallData>;
+  cachedMods: Map<number, InstallData>;
 };
 
 async function get<K extends keyof KVTypeMap>(key: K) {

@@ -97,7 +97,6 @@ export const useProfileStore = create<ProfileStore>((set, getState) => ({
     for (const mod of modsToInstall) {
       await installer.install(mod, {
         updateProfile: false,
-        installConfigIndex: mod.installConfigIndex,
       });
     }
   },
