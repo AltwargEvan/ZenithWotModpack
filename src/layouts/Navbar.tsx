@@ -1,8 +1,6 @@
-import { ReactNode } from "react";
 import {
   ToPathOption,
   useNavigate,
-  useRouter,
   useRouterState,
 } from "@tanstack/react-router";
 import { Logo } from "../assets/Logo";
@@ -37,7 +35,7 @@ const NavItem = ({
           : "text-neutral-500 fill-neutral-500 hover:text-neutral-400 hover:fill-neutral-400"
       )}
       style={{
-        gridTemplateColumns: "64px 112px",
+        gridTemplateColumns: "4.5rem 35.5rem",
       }}
     >
       <div className="flex justify-center  items-center hover:cursor-pointer">
@@ -54,14 +52,14 @@ const Navbar = () => {
   return (
     <>
       <div
-        className="bg-zinc-900  hover:w-40 transition-all ease-out duration-150 w-16 flex flex-col justify-between overflow-hidden fixed z-40 border-neutral-700 border-r select-none"
+        className="bg-zinc-900  hover:w-40 transition-all ease-out duration-150 w-[4.5rem] flex flex-col justify-between overflow-hidden fixed z-40 border-neutral-700 border-r select-none"
         style={{ height: "calc(100% - 2.25rem - 2px)" }}
       >
         <div>
           <div
             className="grid pt-5 pb-3"
             style={{
-              gridTemplateColumns: "64px 112px",
+              gridTemplateColumns: "4.5rem 35.5rem",
             }}
           >
             <div className="flex justify-center  items-center">

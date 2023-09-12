@@ -8,7 +8,6 @@ import {
 import Root from "./routes/root";
 import HomePage from "./routes/home";
 import SettingsPage from "./routes/settings";
-import CurrentlyInstalledPage from "./routes/currentlyinstalled";
 import ProfilesPage from "./routes/profiles";
 
 const rootRoute = new RootRoute({
@@ -32,17 +31,10 @@ const settingsRoute = new Route({
   component: SettingsPage,
 });
 
-const currentlyinstalledRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: "/currentlyinstalled",
-  component: CurrentlyInstalledPage,
-});
-
 const routeTree = rootRoute.addChildren([
   homeRoute,
   profilesRoute,
   settingsRoute,
-  currentlyinstalledRoute,
 ]);
 
 const hashHistory = createHashHistory();

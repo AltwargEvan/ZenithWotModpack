@@ -22,7 +22,7 @@ const SettingsPage = () => {
 
   const settings = useSettings();
   return (
-    <div className="flex flex-col gap-0.5 justify-between h-full">
+    <div className="flex flex-col gap-0.5 justify-between h-full px-3">
       <div>
         <label>Game Directory</label>
 

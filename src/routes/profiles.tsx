@@ -266,7 +266,7 @@ const ProfilesPage = () => {
     }
   };
   return (
-    <div>
+    <div className="px-3">
       <div className="flex justify-between">
         <div className="flex space-x-2">
           <TabButton selected={tab === "Your"} onClick={() => setTab("Your")}>

@@ -13,7 +13,7 @@ const App = () => {
   const routeTitle = usePageTitleStore();
 
   return (
-    <div className="border-neutral-600 border h-screen w-screen overflow-hidden font-oswald">
+    <div className="border-neutral-600 border h-screen w-screen font-oswald">
       <TitleBar />
       <Navbar />
       <div
@@ -25,8 +25,8 @@ const App = () => {
           top: "2.25rem",
         }}
       >
-        <div className="flex  xl:mx-32 p-4 w-full flex-col">
-          <div className="h-12 pb-4">
+        <div className="flex xl:px-24 p-4 w-full flex-col">
+          <div className="h-12 pb-4 px-3">
             <span className="text-3xl font-bold">{routeTitle}</span>
           </div>
           <Outlet />
