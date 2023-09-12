@@ -2,9 +2,6 @@ import { z } from "zod";
 
 export const modSchema = z.object({
   category: z.string(),
-  downloadUrl: z.string().url(),
-  gameversion: z.string(),
-  modversion: z.string(),
   name: z.string(),
   thumbnailUrl: z.string().url(),
   wgModsId: z
