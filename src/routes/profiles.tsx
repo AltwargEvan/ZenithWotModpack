@@ -203,7 +203,8 @@ const ProfileLineItem = ({
                 <Duplicate className="fill-neutral-300 scale-110" />
               </div>
             </Tooltip>
-            <Tooltip title="Copu To Clipboard">
+
+            <Tooltip title="Copy To Clipboard">
               <div
                 onClick={handleCopyToClipboard}
                 className="hover:cursor-pointer rounded-full hover:bg-neutral-500 h-8 w-8 flex items-center justify-center transition-all"

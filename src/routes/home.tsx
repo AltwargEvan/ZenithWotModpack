@@ -1,10 +1,8 @@
-import { useMemo, useRef, useState } from "react";
-import { appWindow } from "@tauri-apps/api/window";
-import { useSheetsDBMods } from "../api/fetchMods";
+import { useMemo, useState } from "react";
+import { fetchMods, useSheetsDBMods } from "../api/fetchMods";
 import { useRouteTitle } from "../stores/pageTitleStore";
 import { TabButton } from "../components/TabButton";
 import { BoxesIcon } from "../assets/BoxesIcon";
-import { ModType } from "../features/mod";
 import { Wrench } from "../assets/Wrench";
 import { Crosshair } from "../assets/Crosshair";
 import { Star } from "../assets/Star";
@@ -19,17 +17,30 @@ const ModItem = ({
   mod,
   currentlyInstalled,
 }: {
-  mod: ModType;
+  mod: Awaited<ReturnType<typeof fetchMods>>[number];
   currentlyInstalled: boolean;
 }) => {
   const [installing, setInstalling] = useState(false);
   const install = useModInstallState((ctx) => ctx.install);
   const uninstall = useModInstallState((ctx) => ctx.uninstall);
+  const name =
+    mod.wgData.localizations.find((item) => item.lang.code === "en")?.title ||
+    mod.dbData.name;
 
   async function handleInstall() {
     setInstalling(true);
+
     try {
-      await install(mod);
+      await install({
+        name: name,
+        wgModsId: mod.dbData.wgModsId,
+        id: mod.dbData.id,
+        installConfig: mod.dbData.installConfig,
+        installConfigIndices: [0],
+        version: mod.wgData.versions[0].version,
+        gameVersion: mod.wgData.versions[0].game_version.version,
+        downloadUrl: mod.wgData.versions[0].download_url,
+      });
     } catch (e) {
       console.error(e);
     }
@@ -38,7 +49,7 @@ const ModItem = ({
   async function handleUninstall() {
     setInstalling(true);
     try {
-      await uninstall(mod);
+      await uninstall(mod.dbData.id);
     } catch (e) {
       console.error(e);
     }
@@ -48,13 +59,13 @@ const ModItem = ({
     <div className="h-54 relative rounded-xl overflow-visible bg-neutral-700 hover:ring-1 ring-offset-2 ring-offset-transparent ring-neutral-400 hover:scale-105 transition-all group">
       <div
         style={{
-          backgroundImage: `url(${mod.thumbnailUrl})`,
+          backgroundImage: `url(${mod.wgData.cover})`,
         }}
         className="h-36 bg-blue-500 w-full bg-contain shadow-lg bg-center overflow-hidden rounded-t-xl"
       />
       <div className="p-1 px-2">
         <div className="h-6 overflow-hidden text-ellipsis font-bold break-all">
-          {mod.name}
+          {name}
         </div>
         <div
           className="font-light text-xs h-4 overflow-hidden text-ellipsis break-all"
@@ -62,7 +73,7 @@ const ModItem = ({
             maxWidth: "85%",
           }}
         >
-          Created By {mod.createdBy}
+          Created By {mod.wgData.owner.spa_username}
         </div>
         <div
           className="font-light text-xs h-4 overflow-hidden text-ellipsis break-all"
@@ -70,7 +81,8 @@ const ModItem = ({
             maxWidth: "85%",
           }}
         >
-          Version {mod.modversion} for {mod.gameversion}
+          Version {mod.wgData.versions[0].version} for{" "}
+          {mod.wgData.versions[0].game_version.version}
         </div>
       </div>
       {!currentlyInstalled && (
@@ -123,13 +135,14 @@ const HomePage = () => {
   const { data: mods, error } = useSheetsDBMods();
 
   const activeProfile = useProfileStore((ctx) => ctx.activeProfile);
+  console.log(activeProfile);
   const modsFiltered = useMemo(() => {
     switch (tab) {
       case "All Mods":
         return mods?.filter(
           (mod) =>
             !activeProfile?.mods.find(
-              (installedMod) => installedMod. === mod.id
+              (installedMod) => installedMod.id === mod.dbData.id
             )
         );
       case "Tools":
@@ -137,14 +150,16 @@ const HomePage = () => {
       case "Mark of Excellence":
         return mods?.filter(
           (mod) =>
-            mod..category.toLowerCase().includes(tab.toLowerCase()) &&
+            mod.dbData.category.toLowerCase().includes(tab.toLowerCase()) &&
             !activeProfile?.mods.find(
-              (installedMod) => installedMod.id === mod.id
+              (installedMod) => installedMod.id === mod.dbData.id
             )
         );
       case "Currently Installed":
         return mods?.filter((mod) =>
-          activeProfile.mods.find((installedMod) => installedMod.id === mod.id)
+          activeProfile.mods.find(
+            (installedMod) => installedMod.id === mod.dbData.id
+          )
         );
     }
   }, [tab, activeProfile.mods]);
@@ -197,7 +212,7 @@ const HomePage = () => {
         {modsFiltered?.map((mod) => (
           <ModItem
             mod={mod}
-            key={mod.id}
+            key={mod.dbData.id}
             currentlyInstalled={tab === "Currently Installed"}
           />
         ))}

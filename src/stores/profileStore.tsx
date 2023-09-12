@@ -91,7 +91,7 @@ export const useProfileStore = create<ProfileStore>((set, getState) => ({
     );
 
     for (const mod of modsToUninstall) {
-      await installer.uninstall(mod, { updateProfile: false });
+      await installer.uninstall(mod.id, { updateProfile: false });
     }
 
     for (const mod of modsToInstall) {

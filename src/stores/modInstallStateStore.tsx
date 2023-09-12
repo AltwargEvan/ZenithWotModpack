@@ -16,10 +16,10 @@ type ModInstallStateStore = {
   cached: Map<number, InstallData>; // [id, moddata]
   install: (
     mod: InstallData,
-    options?: { updateProfile?: boolean; installConfigIndex?: number }
+    options?: { updateProfile?: boolean }
   ) => Promise<void>;
   uninstall: (
-    mod: InstallData,
+    modId: number,
     options?: { updateProfile?: boolean }
   ) => Promise<void>;
   clearCache: () => Promise<void>;
@@ -33,9 +33,8 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
     if (options === undefined) {
       options = {};
     }
-    if (options.installConfigIndex === undefined)
-      options.installConfigIndex = 0;
-    if (!options.updateProfile === undefined) options.updateProfile = true;
+
+    if (options.updateProfile === undefined) options.updateProfile = true;
     // state stores
     const internalState = get();
     const settings = useSettings.getState();
@@ -51,6 +50,12 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
     const downloadPath = `${cacheFolderPath}/${modNameCleaned}.${fileExtension}`;
 
     // CACHE (add or check already there)
+    const installedMod =
+      internalState.installed.has(mod.id) &&
+      internalState.installed.get(mod.id);
+    const modIsInstalled =
+      installedMod && compareInstallData(installedMod, mod);
+    if (modIsInstalled) return;
     const cachedMod =
       internalState.cached.has(mod.id) && internalState.cached.get(mod.id);
     const modIsCached = cachedMod && compareInstallData(cachedMod, mod);
@@ -74,6 +79,7 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
         cached: new Map(internalState.cached),
       }));
       await kv.set("cachedMods", internalState.cached);
+      console.log("finish updating cache");
     }
 
     // INSTALL
@@ -86,20 +92,22 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
     if (await exists(gameModsFolderPath)) {
       await removeDir(gameModsFolderPath, { recursive: true });
     }
+    await createDir(gameModsFolderPath, { recursive: true });
+
     if (await exists(gameResModsFolderPath)) {
       await removeDir(gameResModsFolderPath, { recursive: true });
     }
+    await createDir(gameModsFolderPath, { recursive: true });
 
     for (const item of config) {
-      if (item.modsPath !== null) {
-        await createDir(gameModsFolderPath, { recursive: true });
+      console.log(item);
+      if (item.modsPath) {
         await copyDirectory(
           `${cacheFolderPath}/${item.modsPath}`,
           gameModsFolderPath
         );
       }
-      if (item.resPath !== null) {
-        await createDir(gameModsFolderPath, { recursive: true });
+      if (item.resPath) {
         await copyDirectory(
           `${cacheFolderPath}/${item.resPath}`,
           gameModsFolderPath
@@ -112,7 +120,6 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
       ...prev,
       installed: new Map(internalState.installed),
     }));
-
     if (options.updateProfile) {
       const profileStore = useProfileStore.getState();
       const profile = profileStore.activeProfile;
@@ -124,7 +131,7 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
 
     await kv.set("installedMods", internalState.installed);
   },
-  uninstall: async (mod, options) => {
+  uninstall: async (modId, options) => {
     if (options === undefined) options = {};
     if (options.updateProfile === undefined) options.updateProfile = true;
     const profileStore = useProfileStore.getState();
@@ -134,7 +141,12 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
       throw new Error(
         "Cannot uninstall mod. You must set game directory in settings."
       );
-    const modNameCleaned = cleanFilename(mod.name);
+
+    const installData = profileStore.activeProfile.mods.find(
+      (data) => data.id === modId
+    );
+    if (!installData) throw new Error("Mod is not installed");
+    const modNameCleaned = cleanFilename(installData.name);
 
     const modsFolder = `${settings.gameDirectory}/mods/${settings.gameVersion}/${modNameCleaned}`;
     if (await exists(modsFolder))
@@ -143,13 +155,13 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
     if (await exists(resFolder))
       await fs.removeDir(resFolder, { recursive: true });
 
-    internalState.installed.delete(mod.id);
+    internalState.installed.delete(modId);
     set((prev) => ({ ...prev, installed: internalState.installed }));
     if (options.updateProfile) {
       const profile = profileStore.activeProfile;
       await profileStore.updateProfile({
         ...profile,
-        mods: profile.mods.filter((x) => x.id !== mod.id),
+        mods: profile.mods.filter((x) => x.id !== modId),
       });
     }
     await kv.set("installedMods", internalState.installed);

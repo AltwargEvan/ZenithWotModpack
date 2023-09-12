@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetch } from "@tauri-apps/api/http";
 import { z } from "zod";
 import fetchWGMod, { wgModsAPIResultType } from "./wargaming/fetchWGMod";
+import { InstallConfigSchema } from "../features/mod";
 
 // https://github.com/benborgers/opensheet
 const SPREADSHEET_ID = "1oxonHiV5znE17ZaTHVSztzOVLyyX6SSLTz2BWduiXIg";
@@ -16,7 +17,10 @@ const mobDbRowSchema = z.object({
   wgModsId: z.preprocess((val) => parseInt(val as string), z.number()),
   name: z.string(),
   category: z.string(),
-  installConfig: z.string(),
+  installConfig: z.preprocess(
+    (arg) => JSON.parse(arg as string),
+    InstallConfigSchema
+  ),
 });
 
 export async function fetchMods() {
@@ -52,5 +56,9 @@ export function useSheetsDBMods() {
   return useQuery({
     queryKey: ["mods"],
     queryFn: fetchMods,
+    refetchOnWindowFocus: false,
+    cacheTime: 1000 * 60 * 15,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 }
