@@ -7,11 +7,13 @@ export type Settings = {
 };
 
 type SettingOperations = {
+  gameVersion: string;
   setGameDirectory: (folder: string) => Promise<void>;
 };
 
 export const useSettings = create<Settings & SettingOperations>((set, get) => ({
   gameDirectory: null,
+  gameVersion: "1.21.1.0",
   setGameDirectory: async (folder) => {
     const state = get();
     const entries = await readDir(folder);
@@ -20,10 +22,17 @@ export const useSettings = create<Settings & SettingOperations>((set, get) => ({
         "The game client was not detected in the specified folder."
       );
     set((prev) => ({ ...prev, gameDirectory: folder }));
-    await useLocalKVStore
-      .getState()
-      .set("settings", { gameDirectory: state.gameDirectory });
+    await useLocalKVStore.getState().set("settings", {
+      gameDirectory: state.gameDirectory,
+    });
   },
 }));
 
-export const initSettingsStore = () => {};
+export const initSettingsStore = async () => {
+  const kv = useLocalKVStore.getState();
+  const settings = await kv.get("settings");
+  useSettings.setState((prev) => ({
+    ...prev,
+    gameDirectory: settings?.gameDirectory || null,
+  }));
+};

@@ -1,8 +1,7 @@
 import { fs, invoke } from "@tauri-apps/api";
-import { removeDir, exists, createDir } from "@tauri-apps/api/fs";
+import { removeDir } from "@tauri-apps/api/fs";
 import { ResponseType, getClient } from "@tauri-apps/api/http";
 import { appCacheDir } from "@tauri-apps/api/path";
-import { Mod } from "./mod";
 
 /**
  * Downloads the giventarget url and copies to appCacheDir/ @param cacheSubDir

@@ -2,12 +2,15 @@ import { Store } from "tauri-plugin-store-api";
 import { create } from "zustand";
 import Profile from "../features/profile";
 import { Settings } from "./settingsStore";
+import { ModType } from "../features/mod";
 
 export const store = new Store(".settings.dat");
 type KVTypeMap = {
   profiles: Profile[];
   activeProfile: Profile;
   settings: Settings;
+  installedMods: Map<number, ModType>;
+  cachedMods: Map<number, ModType>;
 };
 
 async function get<K extends keyof KVTypeMap>(key: K) {

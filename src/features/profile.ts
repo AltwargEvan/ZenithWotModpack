@@ -1,15 +1,12 @@
-type ModData = {
-  name: string;
-  id: number;
-  version: string;
-};
+import { ModType } from "./mod";
+
 export type Avatar = {
   color: string;
 };
 type Profile = {
   id: string;
   name: string;
-  mods: Array<ModData>;
+  mods: Array<ModType>;
   avatar: Avatar;
   createdAt: string;
 };

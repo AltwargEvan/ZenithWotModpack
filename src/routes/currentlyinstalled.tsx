@@ -1,7 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { RemoveIcon } from "../assets/RemoveIcon";
-import { useModInstallState } from "../features/data/installState";
-import { Mod } from "../features/modInstaller/mod";
+import { Mod } from "../features/mod";
 
 const CurrentlyInstalledPage = () => {
   const navigate = useNavigate();

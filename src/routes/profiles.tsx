@@ -1,19 +1,20 @@
-import { useRouteTitle } from "../../stores/pageTitleStore";
+import { useRouteTitle } from "../stores/pageTitleStore";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { TwitchIcon } from "../../assets/twitchIcon";
-import { BoxesIcon } from "../../assets/BoxesIcon";
-import Profile from "../../features/profile";
+import { TwitchIcon } from "../assets/twitchIcon";
+import { BoxesIcon } from "../assets/BoxesIcon";
+import Profile from "../features/profile";
 import { Dialog, TextField, Tooltip } from "@mui/material";
-import { useProfileStore } from "../../stores/profileStore";
-import { CheckLarge } from "../../assets/CheckLarge";
-import { Pen } from "../../assets/Pen";
-import { ClipboardIcon, ClipboardPlusIcon } from "../../assets/Clipboard";
-import { Trash } from "../../assets/Trash";
-import { Duplicate } from "../../assets/Duplicate";
+import { useProfileStore } from "../stores/profileStore";
+import { CheckLarge } from "../assets/CheckLarge";
+import { Pen } from "../assets/Pen";
+import { ClipboardIcon, ClipboardPlusIcon } from "../assets/Clipboard";
+import { Trash } from "../assets/Trash";
+import { Duplicate } from "../assets/Duplicate";
 import { clipboard } from "@tauri-apps/api";
-import { Download } from "../../assets/Download";
+import { Download } from "../assets/Download";
 import SuperJSON from "superjson";
+import { TabButton } from "../components/TabButton";
 
 const StreamerProfilesTab = () => {
   //   <button className="flex justify-between rounded w-full bg-zinc-900/80 border-neutral-700 border shadow  hover:bg-zinc-600/50 py-3 text-left items-center px-3">
@@ -24,20 +25,19 @@ const StreamerProfilesTab = () => {
 
 const ProfileLineItem = ({
   profile,
-  active,
+  selected,
 }: {
   profile: Profile;
-  active: boolean;
+  selected: boolean;
 }) => {
   const profileStore = useProfileStore();
-  const [hovered, setHovered] = useState(false);
   const [dialog, setDialog] = useState<"None" | "Rename" | "Delete">();
   const handleCloseRenameDialog = () => setDialog("None");
   const handleDuplicate = () => profileStore.duplicateProfile(profile);
   const handleCopyToClipboard = () =>
     clipboard.writeText(SuperJSON.stringify(profile));
   const handleSwitchProfile = () => {
-    if (!active) profileStore.setActiveProfile(profile);
+    if (!selected) profileStore.setActiveProfile(profile);
   };
   return (
     <>
@@ -126,17 +126,13 @@ const ProfileLineItem = ({
           </>
         )}
       </Dialog>
-      <div
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        className="flex p-4 h-18 bg-neutral-700 hover:bg-neutral-600 shadow justify-between"
-      >
+      <div className="flex p-4 h-18 bg-neutral-700 hover:bg-neutral-600 shadow justify-between group">
         <div className="flex items-center">
           <Tooltip title="Use This Profile" placement="top-start">
             <div
               className={twMerge(
                 "h-11 w-11 rounded flex items-center justify-center hover:cursor-pointer",
-                active && "ring-2 ring-neutral-100 overflow-visible"
+                selected && "ring-2 ring-neutral-100 overflow-visible"
               )}
               onClick={handleSwitchProfile}
               style={{
@@ -156,20 +152,23 @@ const ProfileLineItem = ({
             <div className="flex">
               <span
                 className={twMerge(
-                  "font-semibold text-lg",
-                  active ? "text-white" : "text-neutral-300"
+                  "font-medium text-lg",
+                  selected ? "text-white" : "text-neutral-300"
                 )}
               >
                 {profile.name}
               </span>
             </div>
             <div className="flex">
-              <span className="font-light text-xs text-neutral-200 mr-2">
+              <span className="font-normal text-xs text-neutral-200 mr-2">
                 Created {profile.createdAt}
               </span>
-              {active && (
+              <span className="font-normal text-xs text-neutral-200 mr-2">
+                Mods {profile.mods.length}
+              </span>
+              {selected && (
                 <>
-                  <span className="font-light text-xs text-neutral-200 mr-0.5">
+                  <span className="font-normal text-xs text-neutral-200 mr-0.5">
                     Active
                   </span>
                   <CheckLarge className="fill-green-500" />
@@ -179,12 +178,7 @@ const ProfileLineItem = ({
           </div>
         </div>
         <div className="flex items-center">
-          <div
-            className={twMerge(
-              "flex space-x-3",
-              hovered ? "visible" : "invisible"
-            )}
-          >
+          <div className="flex space-x-3 invisible group-hover:visible">
             <Tooltip title="Use this Profile">
               <div
                 onClick={handleSwitchProfile}
@@ -244,27 +238,11 @@ const YourProfilesTab = () => {
           <ProfileLineItem
             profile={profile}
             key={profile.name}
-            active={profile.name === activeProfile?.name}
+            selected={profile.name === activeProfile?.name}
           />
         ))}
       </div>
     </div>
-  );
-};
-
-const TabButton = (
-  props: React.ButtonHTMLAttributes<HTMLButtonElement> & { active?: boolean }
-) => {
-  return (
-    <button
-      className={twMerge(
-        "px-3 py-2  rounded flex space-x-2 items-center",
-        props.active
-          ? " bg-neutral-500/40"
-          : "bg-transparent hover:bg-neutral-500/10"
-      )}
-      {...props}
-    ></button>
   );
 };
 
@@ -289,23 +267,14 @@ const ProfilesPage = () => {
   };
   return (
     <div>
-      <Dialog
-        open={showDialog}
-        PaperProps={{
-          className: "px-6 py-3 flex flex-col",
-        }}
-        onClose={() => setShowDialog(false)}
-      >
-        <div>Error: Failed to parse clipboard content</div>
-      </Dialog>
       <div className="flex justify-between">
-        <div className="flex space-x-4 ">
-          <TabButton active={tab === "Your"} onClick={() => setTab("Your")}>
+        <div className="flex space-x-2">
+          <TabButton selected={tab === "Your"} onClick={() => setTab("Your")}>
             <BoxesIcon />
             <span className="font-medium text-sm">Your Profiles</span>
           </TabButton>
           <TabButton
-            active={tab === "Streamer"}
+            selected={tab === "Streamer"}
             onClick={() => setTab("Streamer")}
           >
             <TwitchIcon />
@@ -324,6 +293,15 @@ const ProfilesPage = () => {
       </div>
       {tab === "Your" && <YourProfilesTab />}
       {tab === "Streamer" && <StreamerProfilesTab />}
+      <Dialog
+        open={showDialog}
+        PaperProps={{
+          className: "px-6 py-3 flex flex-col",
+        }}
+        onClose={() => setShowDialog(false)}
+      >
+        <div>Error: Failed to parse clipboard content</div>
+      </Dialog>
     </div>
   );
 };

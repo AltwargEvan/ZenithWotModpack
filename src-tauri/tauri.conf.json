@@ -69,7 +69,7 @@
         "setIgnoreCursorEvents": false,
         "setMaxSize": false,
         "setMaximizable": false,
-        "setMinSize": false,
+        "setMinSize": true,
         "setMinimizable": false,
         "setPosition": false,
         "setResizable": false,

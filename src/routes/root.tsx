@@ -1,20 +1,19 @@
-import { Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Outlet } from "@tanstack/react-router";
 import Navbar from "../layouts/Navbar";
 import { useEffect, useState } from "react";
-import { useModInstallState } from "../features/data/installState";
 import TitleBar from "../layouts/Titlebar";
 import { usePageTitleStore } from "../stores/pageTitleStore";
-import { useLocalKVStore } from "../stores/localKeyValueStore";
 
-import Profile from "../features/profile";
 import { initProfileStore } from "../stores/profileStore";
 import { initSettingsStore } from "../stores/settingsStore";
+import { PhysicalSize, appWindow } from "@tauri-apps/api/window";
+import { initializeModInstallState } from "../stores/modInstallStateStore";
 
 const App = () => {
   const routeTitle = usePageTitleStore();
 
   return (
-    <div className="border-neutral-600 border h-screen w-screen overflow-hidden">
+    <div className="border-neutral-600 border h-screen w-screen overflow-hidden font-oswald">
       <TitleBar />
       <Navbar />
       <div
@@ -26,8 +25,8 @@ const App = () => {
           top: "2.25rem",
         }}
       >
-        <div className="flex overflow-scroll xl:ml-32 xl:mr-32 p-4 w-full flex-col">
-          <div className="h-12">
+        <div className="flex  xl:mx-32 p-4 w-full flex-col">
+          <div className="h-12 pb-4">
             <span className="text-3xl font-bold">{routeTitle}</span>
           </div>
           <Outlet />
@@ -46,22 +45,25 @@ const AppLoading = () => {
 };
 
 const Root = () => {
-  const [loading, setLoading] = useState(true);
-  const initializeInstallStateStore = useModInstallState(
-    (ctx) => ctx.initialize
+  const [loadState, setLoadState] = useState<"Idle" | "Loading" | "Loaded">(
+    "Idle"
   );
 
   useEffect(() => {
-    Promise.allSettled([
-      initProfileStore(),
-      initializeInstallStateStore(),
-      initSettingsStore(),
-    ])
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    if (loadState === "Idle") {
+      setLoadState("Loading");
+      Promise.allSettled([
+        initProfileStore(),
+        initializeModInstallState(),
+        initSettingsStore(),
+        appWindow.setMinSize(new PhysicalSize(800, 600)),
+      ])
+        .catch(console.error)
+        .finally(() => setLoadState("Loaded"));
+    }
   }, []);
 
-  if (loading) return <AppLoading />;
+  if (loadState !== "Loaded") return <AppLoading />;
   return <App />;
 };
 

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetch } from "@tauri-apps/api/http";
 import { z } from "zod";
-import { ModType, modSchema } from "../modInstaller/mod";
+import { ModType, modSchema } from "../features/mod";
 
 // https://github.com/benborgers/opensheet
 const SPREADSHEET_ID = "1oxonHiV5znE17ZaTHVSztzOVLyyX6SSLTz2BWduiXIg";
@@ -23,6 +23,7 @@ export async function fetchMods() {
       parsedRes.error
     );
   });
+  console.log(output);
   return output;
 }
 

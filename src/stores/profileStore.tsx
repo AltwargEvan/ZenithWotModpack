@@ -4,7 +4,7 @@ import { useLocalKVStore } from "./localKeyValueStore";
 import { stringToHslColor } from "../utils/stringToHslColor";
 
 type ProfileStore = {
-  activeProfile: Profile | null;
+  activeProfile: Profile;
   profiles: Array<Profile>;
   duplicateProfile: (profile: Profile) => Promise<void>;
   updateProfile: (profile: Profile) => Promise<void>;
@@ -32,7 +32,8 @@ const getUniqueName = (fileName: string, index = 0): any => {
   return nameExists ? getUniqueName(fileName, index + 1) : checkName;
 };
 export const useProfileStore = create<ProfileStore>((set, getState) => ({
-  activeProfile: null,
+  // this gets inited so its fine
+  activeProfile: {} as Profile,
   profiles: [],
 
   duplicateProfile: async (profile) => {

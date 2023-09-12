@@ -6,10 +6,10 @@ import {
   createHashHistory,
 } from "@tanstack/react-router";
 import Root from "./routes/root";
-import ModsPage from "./routes/mods/mods";
+import HomePage from "./routes/home";
 import SettingsPage from "./routes/settings";
 import CurrentlyInstalledPage from "./routes/currentlyinstalled";
-import ProfilesPage from "./routes/profiles/profilesPage";
+import ProfilesPage from "./routes/profiles";
 
 const rootRoute = new RootRoute({
   component: Root,
@@ -24,7 +24,7 @@ const profilesRoute = new Route({
 const homeRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: ModsPage,
+  component: HomePage,
 });
 const settingsRoute = new Route({
   getParentRoute: () => rootRoute,

@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useModInstallState } from "../features/data/installState";
 import { useRouteTitle } from "../stores/pageTitleStore";
 import { Autocomplete, Button, FormControl, TextField } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { detectGameDirectories } from "../utils/detectGameDirectories";
 import { useSettings } from "../stores/settingsStore";
 import { open } from "@tauri-apps/api/dialog";
+import { useModInstallState } from "../stores/modInstallStateStore";
 
 const SettingsPage = () => {
   useRouteTitle("Settings");
@@ -22,8 +22,8 @@ const SettingsPage = () => {
 
   const settings = useSettings();
   return (
-    <div className="flex flex-col w-full">
-      <div className="flex flex-col gap-0.5">
+    <div className="flex flex-col gap-0.5 justify-between h-full">
+      <div>
         <label>Game Directory</label>
 
         <FormControl fullWidth variant="filled" className="bg-white rounded">
@@ -57,9 +57,11 @@ const SettingsPage = () => {
           />
         </FormControl>
         {error && <span className="text-red-500">{error}</span>}
+      </div>
+      <div className="w-full">
         <Button
           onClick={handleClearCache}
-          className="p-1 rounded bg-blue-500 text-black font-oswald"
+          className="p-1 rounded bg-blue-500 text-black font-oswald w-full"
           variant="contained"
         >
           Clear Mod Downloads Cache
