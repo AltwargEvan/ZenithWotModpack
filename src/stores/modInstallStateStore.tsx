@@ -14,15 +14,28 @@ import { fs } from "@tauri-apps/api";
 type ModInstallStateStore = {
   installed: Map<number, ModType>; // [id, moddata]
   cached: Map<number, ModType>; // [id, moddata]
-  install: (mod: ModType) => Promise<void>;
-  uninstall: (mod: ModType) => Promise<void>;
+  install: (
+    mod: ModType,
+    options?: { updateProfile?: boolean; installConfigIndex?: number }
+  ) => Promise<void>;
+  uninstall: (
+    mod: ModType,
+    options?: { updateProfile?: boolean }
+  ) => Promise<void>;
   clearCache: () => Promise<void>;
 };
 
 export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
   installed: new Map<number, ModType>(),
   cached: new Map<number, ModType>(),
-  install: async (mod, installConfigIndex?: number) => {
+  install: async (mod, options) => {
+    // default options
+    if (options === undefined) {
+      options = {};
+    }
+    if (options.installConfigIndex === undefined)
+      options.installConfigIndex = 0;
+    if (!options.updateProfile === undefined) options.updateProfile = true;
     // state stores
     const internalState = get();
     const settings = useSettings.getState();
@@ -30,7 +43,6 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
       throw new Error(
         "Cannot install mod. You must set game directory in settings."
       );
-    const profileStore = useProfileStore.getState();
     // folder stuffs
     const appCacheDirPath = await appCacheDir();
     const fileExtension = getFileExtension(mod.downloadUrl);
@@ -67,7 +79,7 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
     }
 
     // INSTALL
-    let installConfig = mod.installdata[installConfigIndex || 0];
+    let installConfig = mod.installdata[options.installConfigIndex];
     if (!installConfig)
       installConfig = {
         modsPath: "",
@@ -103,14 +115,23 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
       installed: new Map(internalState.installed),
     }));
 
-    const profile = profileStore.activeProfile;
-    await profileStore.updateProfile({
-      ...profile,
-      mods: profile.mods.concat(mod),
-    });
+    if (options.updateProfile) {
+      const profileStore = useProfileStore.getState();
+      const profile = profileStore.activeProfile;
+      await profileStore.updateProfile({
+        ...profile,
+        mods: profile.mods.concat({
+          ...mod,
+          installConfigIndex: options.installConfigIndex,
+        }),
+      });
+    }
+
     await kv.set("installedMods", internalState.installed);
   },
-  uninstall: async (mod) => {
+  uninstall: async (mod, options) => {
+    if (options === undefined) options = {};
+    if (options.updateProfile === undefined) options.updateProfile = true;
     const profileStore = useProfileStore.getState();
     const internalState = get();
     const settings = useSettings.getState();
@@ -129,11 +150,13 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
 
     internalState.installed.delete(mod.id);
     set((prev) => ({ ...prev, installed: internalState.installed }));
-    const profile = profileStore.activeProfile;
-    await profileStore.updateProfile({
-      ...profile,
-      mods: profile.mods.filter((x) => x.id != mod.id),
-    });
+    if (options.updateProfile) {
+      const profile = profileStore.activeProfile;
+      await profileStore.updateProfile({
+        ...profile,
+        mods: profile.mods.filter((x) => x.id !== mod.id),
+      });
+    }
     await kv.set("installedMods", internalState.installed);
   },
   clearCache: async () => {
@@ -145,7 +168,7 @@ export const useModInstallState = create<ModInstallStateStore>((set, get) => ({
     const appCacheDirPath = await appCacheDir();
     await fs.removeDir(`${appCacheDirPath}/mods`, { recursive: true });
     set((prev) => ({ ...prev, cached: new Map<number, ModType>() }));
-    kv.set("cachedMods", new Map<number, ModType>());
+    await kv.set("cachedMods", new Map<number, ModType>());
   },
 }));
 

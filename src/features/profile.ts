@@ -3,10 +3,14 @@ import { ModType } from "./mod";
 export type Avatar = {
   color: string;
 };
+
+export type ModInstallData = ModType & {
+  installConfigIndex: number;
+};
 type Profile = {
   id: string;
   name: string;
-  mods: Array<ModType>;
+  mods: Array<ModInstallData>;
   avatar: Avatar;
   createdAt: string;
 };

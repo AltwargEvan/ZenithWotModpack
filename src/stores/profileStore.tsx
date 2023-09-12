@@ -2,6 +2,7 @@ import { create } from "zustand";
 import Profile, { defaultProfile } from "../features/profile";
 import { stringToHslColor } from "../utils/stringToHslColor";
 import { kv } from "./localKeyValueStore";
+import { useModInstallState } from "./modInstallStateStore";
 type ProfileStore = {
   activeProfile: Profile;
   profiles: Array<Profile>;
@@ -68,15 +69,37 @@ export const useProfileStore = create<ProfileStore>((set, getState) => ({
     set((prev) => ({ ...prev, profiles: newProfiles }));
     await kv.set("profiles", newProfiles);
   },
-  setActiveProfile: async (profile) => {
+  setActiveProfile: async (newProfile) => {
     const state = getState();
+    const oldProfile = state.activeProfile;
+    const installer = useModInstallState.getState();
     const newActiveProfile = state.profiles.find(
-      (prof) => prof.id === profile.id
+      (prof) => prof.id === newProfile.id
     );
+
     if (!newActiveProfile)
       throw new Error("Profile with provided name not found in state.");
     set((prev) => ({ ...prev, activeProfile: newActiveProfile }));
     await kv.set("activeProfile", newActiveProfile);
+
+    // this could cause version issues. make a mod version compare function later
+    const modsToInstall = newActiveProfile.mods.filter(
+      (x) => !oldProfile.mods.find((y) => y.id === x.id)
+    );
+    const modsToUninstall = oldProfile.mods.filter(
+      (x) => !newActiveProfile.mods.find((y) => y.id === x.id)
+    );
+
+    for (const mod of modsToUninstall) {
+      await installer.uninstall(mod, { updateProfile: false });
+    }
+
+    for (const mod of modsToInstall) {
+      await installer.install(mod, {
+        updateProfile: false,
+        installConfigIndex: mod.installConfigIndex,
+      });
+    }
   },
   resetAllProfileData: async () => {
     const activeProfile = defaultProfile;

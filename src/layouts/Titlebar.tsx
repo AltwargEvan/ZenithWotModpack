@@ -1,6 +1,6 @@
 import { appWindow } from "@tauri-apps/api/window";
 import { MinimizeWindow, MaximizeWindow, CloseWindow } from "../assets/Window";
-import "./title.css";
+
 const TitleBar = () => {
   return (
     <>
