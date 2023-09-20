@@ -3,12 +3,23 @@ import { useRouteTitle } from "../stores/pageTitleStore";
 import { Autocomplete, Button, FormControl, TextField } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { detectGameDirectories } from "../utils/detectGameDirectories";
-import { useSettings } from "../stores/settingsStore";
 import { open } from "@tauri-apps/api/dialog";
 import { useModInstallState } from "../stores/modInstallStateStore";
+import { invoke } from "@tauri-apps/api/tauri";
+import { Config, getConfig } from "@/api";
+import React from "react";
 
 const SettingsPage = () => {
   useRouteTitle("Settings");
+  const [data, setData] = useState<Config | undefined>();
+  console.log(data);
+
+  React.useEffect(() => {
+    getConfig()
+      .then((data) => setData(data))
+      .catch(console.error);
+  }, []);
+
   const [error, setError] = useState<string | undefined>();
   const clearCache = useModInstallState((ctx) => ctx.clearCache);
   async function handleClearCache() {
@@ -19,8 +30,7 @@ const SettingsPage = () => {
     queryKey: ["detectedGameDirectories"],
     queryFn: detectGameDirectories,
   });
-
-  const settings = useSettings();
+  // if (!data) return <div>failed to fetch settings</div>;
   return (
     <div className="flex flex-col gap-0.5 justify-between h-full px-3">
       <div>
@@ -33,26 +43,26 @@ const SettingsPage = () => {
                 ? detectedGameDirectories.concat("Browse...")
                 : ["Browse..."]
             }
-            value={settings.gameDirectory}
+            // value={data.gameDirectory}
             renderInput={(params) => <TextField {...params} />}
             onChange={async (event, values) => {
               event.preventDefault();
-              setError(undefined);
-              if (!values) return;
-              if (values === "Browse...") {
-                try {
-                  const selectedPath = await open({
-                    multiple: false,
-                    title: "Select World Of Tanks Game Directory",
-                    directory: true,
-                  });
-                  await settings.setGameDirectory(selectedPath as string);
-                } catch (e) {
-                  setError((e as Error).message);
-                }
-              } else {
-                await settings.setGameDirectory(values);
-              }
+              // setError(undefined);
+              // if (!values) return;
+              // if (values === "Browse...") {
+              //   try {
+              //     const selectedPath = await open({
+              //       multiple: false,
+              //       title: "Select World Of Tanks Game Directory",
+              //       directory: true,
+              //     });
+              //     await settings.setGameDirectory(selectedPath as string);
+              //   } catch (e) {
+              //     setError((e as Error).message);
+              //   }
+              // } else {
+              //   await settings.setGameDirectory(values);
+              // }
             }}
           />
         </FormControl>

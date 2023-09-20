@@ -1,5 +1,7 @@
+import { useQueries } from "@tanstack/react-query";
 import { fetch } from "@tauri-apps/api/http";
 import { z } from "zod";
+import { fetchDbMods } from "./useMods";
 
 export const wgModsAPIResultType = z.object({
   author_name: z.unknown(),
@@ -51,9 +53,11 @@ export const wgModsAPIResultType = z.object({
   ),
 });
 
-export default async function fetchWGMod(id: number) {
+export default async function fetchWGMod(
+  mod: Awaited<ReturnType<typeof fetchDbMods>>[number]
+) {
   try {
-    const url = `https://wgmods.net/api/mods/${id}/`;
+    const url = `https://wgmods.net/api/mods/${mod.wgModsId}/`;
     const res = await fetch(url, {
       method: "GET",
       headers: {
@@ -61,8 +65,30 @@ export default async function fetchWGMod(id: number) {
       },
     });
     const parsedRes = wgModsAPIResultType.parse(res.data);
-    return parsedRes;
+    return { wg: parsedRes, db: mod };
   } catch (e) {
     console.error(e);
   }
 }
+
+const modQuery = (mod: Awaited<ReturnType<typeof fetchDbMods>>[number]) => {
+  return {
+    queryKey: ["mod", mod.id],
+    queryFn: () => fetchWGMod(mod),
+    enabled: false,
+    refetchOnWindowFocus: false,
+    cacheTime: 1000 * 60 * 15,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  };
+};
+
+export const useWargamingMods = (
+  mods?: Awaited<ReturnType<typeof fetchDbMods>>
+) => {
+  const queries = mods ? mods.map((mod) => modQuery(mod)) : [];
+  const results = useQueries({
+    queries,
+  });
+  return results.filter((res) => res.data !== null && res.data !== undefined);
+};

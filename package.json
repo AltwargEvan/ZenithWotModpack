@@ -24,6 +24,7 @@
     "superjson": "^1.13.1",
     "tailwind-merge": "^1.14.0",
     "tauri-plugin-store-api": "https://github.com/tauri-apps/tauri-plugin-store#v1",
+    "vite-tsconfig-paths": "^4.2.1",
     "zod": "^3.22.2",
     "zustand": "^4.4.1"
   },

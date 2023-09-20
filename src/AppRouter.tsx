@@ -9,6 +9,8 @@ import Root from "./routes/root";
 import HomePage from "./routes/home";
 import SettingsPage from "./routes/settings";
 import ProfilesPage from "./routes/profiles";
+import ModPage from "./routes/modPage";
+import YourMods from "./routes/yourMods";
 
 const rootRoute = new RootRoute({
   component: Root,
@@ -31,10 +33,24 @@ const settingsRoute = new Route({
   component: SettingsPage,
 });
 
+const mod = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/mod/$id",
+  component: ModPage,
+});
+
+const yourMods = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/yourMods",
+  component: YourMods,
+});
+
 const routeTree = rootRoute.addChildren([
   homeRoute,
   profilesRoute,
   settingsRoute,
+  yourMods,
+  mod,
 ]);
 
 const hashHistory = createHashHistory();
