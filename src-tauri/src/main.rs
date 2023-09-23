@@ -13,7 +13,7 @@ use state::AppState;
 use tauri::{Manager, State};
 
 use specta::collect_types;
-use tauri_specta::{js, ts};
+use tauri_specta::ts;
 
 fn main() {
     // ts typegen
