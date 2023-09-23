@@ -8,6 +8,7 @@ import { Crosshair } from "../assets/Crosshair";
 import { Star } from "../assets/Star";
 import { SDCard } from "../assets/SDCard";
 import { Link, useParams, useSearch } from "@tanstack/react-router";
+import { TextField } from "@mui/material";
 
 export const Categories = [
   "All Mods",
@@ -27,44 +28,42 @@ const HomeTabs = ({
   setActiveTab: React.Dispatch<Tab>;
 }) => {
   return (
-    <div className="flex pb-3">
-      <div className="flex space-x-2 select-none px-3">
-        <TabButton
-          selected={activeTab === "All Mods"}
-          onClick={() => setActiveTab("All Mods")}
-        >
-          <BoxesIcon />
-          <span className="font-medium text-sm">All Mods</span>
-        </TabButton>
-        <TabButton
-          selected={activeTab === "Tools"}
-          onClick={() => setActiveTab("Tools")}
-        >
-          <Wrench />
-          <span className="font-medium text-sm">Tools</span>
-        </TabButton>
-        <TabButton
-          selected={activeTab === "Reticle"}
-          onClick={() => setActiveTab("Reticle")}
-        >
-          <Crosshair className="fill-white" />
-          <span className="font-medium text-sm">Reticle</span>
-        </TabButton>
-        <TabButton
-          selected={activeTab === "Mark of Excellence"}
-          onClick={() => setActiveTab("Mark of Excellence")}
-        >
-          <Star />
-          <span className="font-medium text-sm">Mark of Excellence</span>
-        </TabButton>
-        {/* <TabButton
+    <div className="flex space-x-2 select-none px-3">
+      <TabButton
+        selected={activeTab === "All Mods"}
+        onClick={() => setActiveTab("All Mods")}
+      >
+        <BoxesIcon />
+        <span className="font-medium text-sm">All Mods</span>
+      </TabButton>
+      <TabButton
+        selected={activeTab === "Tools"}
+        onClick={() => setActiveTab("Tools")}
+      >
+        <Wrench />
+        <span className="font-medium text-sm">Tools</span>
+      </TabButton>
+      <TabButton
+        selected={activeTab === "Reticle"}
+        onClick={() => setActiveTab("Reticle")}
+      >
+        <Crosshair className="fill-white" />
+        <span className="font-medium text-sm">Reticle</span>
+      </TabButton>
+      <TabButton
+        selected={activeTab === "Mark of Excellence"}
+        onClick={() => setActiveTab("Mark of Excellence")}
+      >
+        <Star />
+        <span className="font-medium text-sm">Mark of Excellence</span>
+      </TabButton>
+      {/* <TabButton
           selected={activeTab === "Currently Installed"}
           onClick={() => setActiveTab("Currently Installed")}
         >
           <SDCard />
           <span className="font-medium text-sm">Currently Installed</span>
         </TabButton> */}
-      </div>
     </div>
   );
 };
@@ -118,14 +117,16 @@ const ModItem = ({
 const HomePage = () => {
   useLayout("Home");
 
-  const search = useSearch() as any;
+  const searchParams = useSearch() as any;
   // set category on load
   useEffect(() => {
-    if (Categories.includes(search["category"]))
-      setActiveTab(search["category"]);
+    if (Categories.includes(searchParams["category"]))
+      setActiveTab(searchParams["category"]);
   }, []);
 
   const [activeTab, setActiveTab] = useState<Tab>("All Mods");
+  const [search, setSearch] = useState<string>("");
+
   const results = useMods();
   const mods = results
     .map((res) => res.data)
@@ -137,7 +138,16 @@ const HomePage = () => {
 
   return (
     <div>
-      <HomeTabs setActiveTab={setActiveTab} activeTab={activeTab} />
+      <div className="flex pb-3 justify-between items-center pr-3">
+        <HomeTabs setActiveTab={setActiveTab} activeTab={activeTab} />
+        <input
+          type="text"
+          className="px-4  py-1 rounded-2xl text-neutral-800 w-[15rem]"
+          placeholder="Search Mods..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
       {mods.length === 0 && <div>Failed To Fetch Mod List</div>}
       <div
         style={{
@@ -145,7 +155,11 @@ const HomePage = () => {
         }}
         className="grid grid-cols-4 gap-4 pt-2 px-3 pb-6 xl:grid-cols-4 2xl:grid-cols-5 w-full overflow-y-auto"
       >
-        {mods?.map((mod) => mod && <ModItem mod={mod} key={mod.internal.id} />)}
+        {mods
+          .filter((item) =>
+            JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
+          )
+          .map((mod) => mod && <ModItem mod={mod} key={mod.internal.id} />)}
       </div>
     </div>
   );
