@@ -1,5 +1,5 @@
 // https://github.com/RandomEngy/tauri-sqlite/blob/main/src-tauri/src/state.rs this template
-use rusqlite::Connection;
+use rusqlite::{types::Null, Connection};
 use std::fs;
 use tauri::AppHandle;
 
@@ -52,7 +52,10 @@ pub fn v0(db: &mut Connection) -> Result<(), rusqlite::Error> {
     tx.pragma_update(None, "user_version", 1)?;
     // create tables
     tx.execute_batch(
-        "CREATE TABLE config (game_directory TEXT);
+        "CREATE TABLE config (
+            id INTEGER NOT NULL UNIQUE,
+            game_directory TEXT
+        );
 
         CREATE TABLE mod_installs (
             id INTEGER NOT NULL UNIQUE,
@@ -70,8 +73,11 @@ pub fn v0(db: &mut Connection) -> Result<(), rusqlite::Error> {
         ",
     )?;
 
-    // seed config table
-    // tx.execute("INSERT INTO config", ())?;
+    // seed config table. config should be at id=1
+    tx.execute(
+        "INSERT INTO config (id, game_directory) VALUES (?1, ?2)",
+        (1, Null),
+    )?;
 
     tx.commit()?;
     Ok(())

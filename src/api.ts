@@ -14,4 +14,12 @@ export function getConfig() {
     return invoke()<Config>("get_config")
 }
 
+export function setGameDirectory(gameDirectory: string) {
+    return invoke()<null>("set_game_directory", { gameDirectory })
+}
+
+export function detectGameDirectories() {
+    return invoke()<string[]>("detect_game_directories")
+}
+
 export type Config = { game_directory: string | null }

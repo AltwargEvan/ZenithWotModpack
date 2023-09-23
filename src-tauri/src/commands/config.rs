@@ -1,6 +1,8 @@
+use std::{fs::read_dir, path::Path};
+
 use crate::state;
 use crate::types::Config;
-use rusqlite::{params, Error};
+use rusqlite::{named_params, params, Error};
 use state::ServiceAccess;
 use tauri::AppHandle;
 
@@ -8,8 +10,8 @@ use tauri::AppHandle;
 #[specta::specta]
 pub async fn get_config(app_handle: AppHandle) -> Result<Config, String> {
     app_handle
-        .db(|db| {
-            db.query_row("SELECT * FROM CONFIG LIMIT 1", [], |row| {
+        .db(|conn| {
+            conn.query_row("SELECT * FROM CONFIG LIMIT 1", [], |row| {
                 Ok(Config {
                     game_directory: row.get("game_directory")?,
                 })
@@ -18,16 +20,63 @@ pub async fn get_config(app_handle: AppHandle) -> Result<Config, String> {
         .map_err(|err| err.to_string().into())
 }
 
-// #[tauri::command]
-// pub async fn set_game_directory(
-//     game_directory: &str,
-//     app_handle: AppHandle,
-// ) -> Result<(), rusqlite::Error> {
-//     app_handle.db(|db| {
-//         let mut statement =
-//             db.prepare("INSERT INTO config (game_directory) VALUES (@game_directory)");
-//         let mut data = statement.execute(named_params! { "@game_directory": game_directory})?;
+#[specta::specta]
+#[tauri::command]
+pub async fn set_game_directory(
+    game_directory: String,
+    app_handle: AppHandle,
+) -> Result<(), String> {
+    app_handle.db(|conn| {
+        let path = Path::new(&game_directory);
+        println!("Set Dir Path: {}", path.to_str().unwrap());
 
-//         Ok(())
-//     })
-// }
+        if !is_game_dir(&path) {
+            return Err(String::from(
+                "The game client was not detected in the specified folder",
+            ));
+        };
+
+        match conn.execute(
+            "UPDATE config 
+            SET game_directory = ?1
+            WHERE id = 1",
+            [game_directory],
+        ) {
+            Ok(_) => Ok(()),
+            Err(err) => Err(err.to_string()),
+        }
+    })
+}
+
+#[specta::specta]
+#[tauri::command]
+pub async fn detect_game_directories() -> Vec<String> {
+    let mut results: Vec<String> = Vec::new();
+    let dir_string = String::from("C:\\Games");
+    let default_games_dir = Path::new(&dir_string);
+
+    if !default_games_dir.is_dir() {
+        return results;
+    }
+
+    if let Ok(entries) = read_dir(default_games_dir) {
+        for entry in entries {
+            if let Ok(dir) = entry {
+                let path = dir.path();
+                if path.is_dir() && is_game_dir(&path) {
+                    path.to_str()
+                        .and_then(|val| Some(results.push(val.to_string())));
+                }
+            }
+        }
+    }
+
+    results
+}
+
+fn is_game_dir(path: &Path) -> bool {
+    let exec_path = path.join("WorldOfTanks.exe");
+    let data = exec_path.to_str().unwrap();
+    println!("Path: {}", data);
+    return exec_path.try_exists().unwrap_or(false);
+}

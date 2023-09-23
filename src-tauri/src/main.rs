@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use tauri_plugin_log::LogTarget;
 mod commands;
-use commands::config::get_config;
+use commands::config::{detect_game_directories, get_config, set_game_directory};
 use commands::unzip_file_command::unzip_file;
 
 mod db;
@@ -18,7 +18,11 @@ use tauri_specta::{js, ts};
 fn main() {
     // ts typegen
     #[cfg(debug_assertions)]
-    ts::export(collect_types![get_config], "../src/api.ts").unwrap();
+    ts::export(
+        collect_types![get_config, set_game_directory, detect_game_directories],
+        "../src/api.ts",
+    )
+    .unwrap();
 
     tauri::Builder::default()
         .plugin(
@@ -37,12 +41,21 @@ fn main() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_config, unzip_file])
+        .invoke_handler(tauri::generate_handler![
+            get_config,
+            set_game_directory,
+            unzip_file,
+            detect_game_directories
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
 #[test]
 fn export_bindings() {
-    ts::export(collect_types![get_config], "../src/api.ts").unwrap();
+    ts::export(
+        collect_types![get_config, set_game_directory, detect_game_directories],
+        "../src/api.ts",
+    )
+    .unwrap();
 }

@@ -8,7 +8,7 @@ import {
 import Root from "./routes/root";
 import HomePage from "./routes/home";
 import SettingsPage from "./routes/settings";
-import ProfilesPage from "./routes/profiles";
+// import ProfilesPage from "./routes/profiles";
 import ModPage from "./routes/modPage";
 import YourMods from "./routes/yourMods";
 
@@ -16,11 +16,11 @@ const rootRoute = new RootRoute({
   component: Root,
 });
 
-const profilesRoute = new Route({
-  getParentRoute: () => rootRoute,
-  path: "/profiles",
-  component: ProfilesPage,
-});
+// const profilesRoute = new Route({
+//   getParentRoute: () => rootRoute,
+//   path: "/profiles",
+//   component: ProfilesPage,
+// });
 
 const homeRoute = new Route({
   getParentRoute: () => rootRoute,
@@ -47,10 +47,10 @@ const yourMods = new Route({
 
 const routeTree = rootRoute.addChildren([
   homeRoute,
-  profilesRoute,
+  // profilesRoute,
   settingsRoute,
-  yourMods,
-  mod,
+  // yourMods,
+  // mod,
 ]);
 
 const hashHistory = createHashHistory();

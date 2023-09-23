@@ -7,7 +7,6 @@ import { Wrench } from "../assets/Wrench";
 import { Crosshair } from "../assets/Crosshair";
 import { Star } from "../assets/Star";
 import { SDCard } from "../assets/SDCard";
-import { useProfileStore } from "../stores/profileStore";
 import { Download } from "../assets/Download";
 import { CircularProgress } from "@mui/material";
 import { useModInstallState } from "../stores/modInstallStateStore";
@@ -156,34 +155,35 @@ const HomePage = () => {
   const results = useMods();
   const mods = results.map((res) => res.data);
 
-  const activeProfile = useProfileStore((ctx) => ctx.activeProfile);
+  // const activeProfile = useProfileStore((ctx) => ctx.activeProfile);
   const modsFiltered = useMemo(() => {
+    return mods;
     switch (tab) {
       case "All Mods":
-        return mods?.filter(
-          (mod) =>
-            !activeProfile?.mods.find(
-              (installedMod) => installedMod.id === mod?.db.id
-            )
-        );
+      // return mods?.filter(
+      //   (mod) =>
+      //     !activeProfile?.mods.find(
+      //       (installedMod) => installedMod.id === mod?.db.id
+      //     )
+      // );
       case "Tools":
       case "Reticle":
       case "Mark of Excellence":
-        return mods?.filter(
-          (mod) =>
-            mod?.db.category.toLowerCase().includes(tab.toLowerCase()) &&
-            !activeProfile?.mods.find(
-              (installedMod) => installedMod.id === mod?.db.id
-            )
-        );
+      // return mods?.filter(
+      //   (mod) =>
+      //     mod?.db.category.toLowerCase().includes(tab.toLowerCase()) &&
+      //     !activeProfile?.mods.find(
+      //       (installedMod) => installedMod.id === mod?.db.id
+      //     )
+      // );
       case "Currently Installed":
-        return mods?.filter((mod) =>
-          activeProfile?.mods.find(
-            (installedMod) => installedMod.id === mod?.db.id
-          )
-        );
+      // return mods?.filter((mod) =>
+      //   activeProfile?.mods.find(
+      //     (installedMod) => installedMod.id === mod?.db.id
+      //   )
+      // );
     }
-  }, [tab, activeProfile?.mods]);
+  }, [tab]);
 
   return (
     <div>
