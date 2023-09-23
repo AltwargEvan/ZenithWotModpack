@@ -1,3 +1,6 @@
+use std::any::{self, Any};
+use std::error::Error;
+use std::fs;
 use std::{fs::read_dir, path::Path};
 
 use crate::state;
@@ -74,4 +77,26 @@ pub async fn detect_game_directories() -> Vec<String> {
 
 fn is_game_dir(path: &Path) -> bool {
     return path.join("WorldOfTanks.exe").try_exists().unwrap_or(false);
+}
+
+#[specta::specta]
+#[tauri::command]
+pub async fn detect_game_version(app_handle: AppHandle) -> Result<String, String> {
+    let config = get_config(app_handle).await?;
+
+    let game_directory = config
+        .game_directory
+        .ok_or("No game directory specified in user config")?;
+
+    let game_version_data_filepath = Path::new(&game_directory).join("version.xml");
+
+    let contents = fs::read_to_string(game_version_data_filepath).map_err(|e| e.to_string())?;
+    let start = contents
+        .find("<version>")
+        .ok_or("Failed to parse version.xml file.")?;
+    let end = contents
+        .find("</version>")
+        .ok_or("Failed to parse version.xml file.")?;
+
+    Ok(contents[start + 9..end - 1].to_string())
 }

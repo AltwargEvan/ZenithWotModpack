@@ -22,4 +22,8 @@ export function detectGameDirectories() {
     return invoke()<string[]>("detect_game_directories")
 }
 
+export function detectGameVersion() {
+    return invoke()<string>("detect_game_version")
+}
+
 export type Config = { game_directory: string | null }
