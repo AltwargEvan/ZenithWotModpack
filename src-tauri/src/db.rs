@@ -36,7 +36,7 @@ pub fn upgrade_database_if_needed(
         println!("Current DB Version: {}", version);
         match version {
             0 => v0(db)?,
-            _ => unreachable!("Should never happen"),
+            _ => (),
         }
         version += 1;
     }
