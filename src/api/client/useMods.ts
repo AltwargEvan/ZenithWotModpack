@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { fetch } from "@tauri-apps/api/http";
 import { z } from "zod";
 import { InstallConfigSchema } from "../../features/mod";
-import { useWargamingMods } from "./useWargamingMods";
+import fetchWGMod from "./fetchWargamingMods";
 
 // https://github.com/benborgers/opensheet
 const SPREADSHEET_ID = "1oxonHiV5znE17ZaTHVSztzOVLyyX6SSLTz2BWduiXIg";
@@ -37,8 +37,9 @@ export async function fetchDbMods() {
       parsedRes.error
     );
   });
-
   const wgMods = modsFromDB.filter((mod) => mod.wgModsId);
+  // console.log("fetched", wgMods);
+
   return wgMods;
 }
 
@@ -47,5 +48,21 @@ export function useMods() {
     queryKey: ["dbmods"],
     queryFn: fetchDbMods,
   });
-  return useWargamingMods(data);
+
+  const mods = useQueries({
+    queries: data
+      ? data.map((mod) => {
+          return {
+            queryKey: ["mod", mod.id],
+            queryFn: () => fetchWGMod(mod),
+            refetchOnWindowFocus: false,
+            cacheTime: 1000 * 60 * 15,
+            refetchOnMount: false,
+            refetchOnReconnect: false,
+          };
+        })
+      : [],
+  });
+
+  return mods;
 }

@@ -1,11 +1,10 @@
-import { useRouteTitle } from "../stores/pageTitleStore";
+import { useLayout } from "../stores/rootLayoutStore";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { TwitchIcon } from "../assets/twitchIcon";
 import { BoxesIcon } from "../assets/BoxesIcon";
 import Profile from "../features/profile";
 import { Dialog, TextField, Tooltip } from "@mui/material";
-import { useProfileStore } from "../stores/profileStore";
 import { CheckLarge } from "../assets/CheckLarge";
 import { Pen } from "../assets/Pen";
 import { ClipboardIcon, ClipboardPlusIcon } from "../assets/Clipboard";
@@ -30,7 +29,7 @@ const ProfileLineItem = ({
   profile: Profile;
   selected: boolean;
 }) => {
-  const profileStore = useProfileStore();
+  const profileStore = useLayout("");
   const [dialog, setDialog] = useState<"None" | "Rename" | "Delete">();
   const handleCloseRenameDialog = () => setDialog("None");
   const handleDuplicate = () => profileStore.duplicateProfile(profile);

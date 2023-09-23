@@ -1,5 +1,3 @@
-import { useNavigate } from "@tanstack/react-router";
-import { useModInstallState } from "../stores/modInstallStateStore";
 import { Tooltip } from "@mui/material";
 import { twMerge } from "tailwind-merge";
 import { CheckLarge } from "@/assets/CheckLarge";
@@ -7,7 +5,7 @@ import { Download } from "@/assets/Download";
 import { Pen } from "@/assets/Pen";
 import { Duplicate } from "@/assets/Duplicate";
 import { ClipboardIcon } from "@/assets/Clipboard";
-import { useRouteTitle } from "@/stores/pageTitleStore";
+import { useLayout } from "@/stores/rootLayoutStore";
 
 const double = (item: any) => item * 2;
 const ModItem = ({ mod, selected }: { mod: unknown; selected: boolean }) => {
@@ -110,7 +108,7 @@ const ModItem = ({ mod, selected }: { mod: unknown; selected: boolean }) => {
   );
 };
 const YourMods = () => {
-  useRouteTitle("Your Mods");
+  useLayout("Your Mods");
 
   return (
     <div className="mt-4 grid rounded  space-y-1">

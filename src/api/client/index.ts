@@ -1,3 +1,3 @@
 export * from "./downloadMod";
 export * from "./useMods";
-export * from "./useWargamingMods";
+export * from "./fetchWargamingMods";

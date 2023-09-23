@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useRouteTitle } from "../stores/pageTitleStore";
+import { useLayout } from "../stores/rootLayoutStore";
 import { GameDirectoryInput } from "@/components/GameDirectoryInput";
 import { useQuery } from "@tanstack/react-query";
 import { detectGameVersion } from "@/api";
 
 const SettingsPage = () => {
-  useRouteTitle("Settings");
+  useLayout("Settings");
 
   const [gameDirectoryError, setGameDirectoryError] = useState<
     string | undefined
