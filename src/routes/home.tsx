@@ -142,7 +142,7 @@ const HomePage = () => {
         <HomeTabs setActiveTab={setActiveTab} activeTab={activeTab} />
         <input
           type="text"
-          className="px-4  py-1 rounded-2xl text-neutral-800 w-[15rem]"
+          className="px-4  py-1 rounded-2xl text-neutral-800 w-[15rem] text-sm"
           placeholder="Search Mods..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
