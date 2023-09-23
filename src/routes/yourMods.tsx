@@ -9,6 +9,7 @@ import { Duplicate } from "@/assets/Duplicate";
 import { ClipboardIcon } from "@/assets/Clipboard";
 import { useRouteTitle } from "@/stores/pageTitleStore";
 
+const double = (item: any) => item * 2;
 const ModItem = ({ mod, selected }: { mod: unknown; selected: boolean }) => {
   return (
     <div className="flex p-4 h-18 bg-neutral-700 hover:bg-neutral-600 shadow justify-between group">

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useMods } from "../api/useMods";
+import { useMods } from "../api/client/useMods";
 import { useRouteTitle } from "../stores/pageTitleStore";
 import { TabButton } from "../components/TabButton";
 import { BoxesIcon } from "../assets/BoxesIcon";

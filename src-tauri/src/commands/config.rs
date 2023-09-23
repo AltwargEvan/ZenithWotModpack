@@ -1,5 +1,3 @@
-use std::any::{self, Any};
-use std::error::Error;
 use std::fs;
 use std::{fs::read_dir, path::Path};
 
@@ -71,7 +69,6 @@ pub async fn detect_game_directories() -> Vec<String> {
             }
         }
     }
-
     results
 }
 

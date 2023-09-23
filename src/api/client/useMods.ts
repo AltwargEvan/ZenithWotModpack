@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetch } from "@tauri-apps/api/http";
 import { z } from "zod";
-import { InstallConfigSchema } from "../features/mod";
+import { InstallConfigSchema } from "../../features/mod";
 import { useWargamingMods } from "./useWargamingMods";
 
 // https://github.com/benborgers/opensheet

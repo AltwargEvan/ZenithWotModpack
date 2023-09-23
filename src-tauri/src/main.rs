@@ -27,7 +27,7 @@ fn main() {
             detect_game_directories,
             detect_game_version
         ],
-        "../src/api.ts",
+        "../src/api/rust.ts",
     )
     .unwrap();
 
@@ -68,7 +68,7 @@ fn export_bindings() {
             detect_game_directories,
             detect_game_version
         ],
-        "../src/api.ts",
+        "../src/api/rust.ts",
     )
     .unwrap();
 }
