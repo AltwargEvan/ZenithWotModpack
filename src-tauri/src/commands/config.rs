@@ -2,7 +2,6 @@ use std::{fs::read_dir, path::Path};
 
 use crate::state;
 use crate::types::Config;
-use rusqlite::{named_params, params, Error};
 use state::ServiceAccess;
 use tauri::AppHandle;
 
@@ -28,7 +27,6 @@ pub async fn set_game_directory(
 ) -> Result<(), String> {
     app_handle.db(|conn| {
         let path = Path::new(&game_directory);
-        println!("Set Dir Path: {}", path.to_str().unwrap());
 
         if !is_game_dir(&path) {
             return Err(String::from(
@@ -75,8 +73,5 @@ pub async fn detect_game_directories() -> Vec<String> {
 }
 
 fn is_game_dir(path: &Path) -> bool {
-    let exec_path = path.join("WorldOfTanks.exe");
-    let data = exec_path.to_str().unwrap();
-    println!("Path: {}", data);
-    return exec_path.try_exists().unwrap_or(false);
+    return path.join("WorldOfTanks.exe").try_exists().unwrap_or(false);
 }

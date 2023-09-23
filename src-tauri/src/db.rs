@@ -57,19 +57,31 @@ pub fn v0(db: &mut Connection) -> Result<(), rusqlite::Error> {
             game_directory TEXT
         );
 
-        CREATE TABLE mod_installs (
+        CREATE TABLE mods (
             id INTEGER NOT NULL UNIQUE,
             wg_mods_id INTEGER NOT NULL UNIQUE,
             name TEXT NOT NULL,
-            PRIMARY KEY(id, wg_mods_id)
+            mod_version TEXT NOT NULL,
+            game_version TEXT NOT NULL,
+            thumbnail_url TEXT NOT NULL,
+            PRIMARY KEY(id)
         );
-        
-        CREATE TABLE mod_cache (
+
+        CREATE TABLE install_configs (
             id INTEGER NOT NULL UNIQUE,
-            wg_mods_id INTEGER NOT NULL UNIQUE,
-            name TEXT NOT NULL,
-            PRIMARY KEY(id, wg_mods_id)
+            mod_id INTEGER NOT NULL,
+            mods_path TEXT,
+            res_path TEXT,
+            configs_path TEXT,
+            PRIMARY KEY(id)
         );
+
+        CREATE TABLE installed_mods (
+            install_config_id INTEGER NOT NULL UNIQUE,
+            mod_id INTEGER NOT NULL UNIQUE,
+            installed_at TEXT NOT NULL,
+            PRIMARY KEY(install_config_id, mod_id)
+        )
         ",
     )?;
 

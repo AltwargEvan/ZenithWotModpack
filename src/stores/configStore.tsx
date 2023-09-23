@@ -16,12 +16,9 @@ export const createConfigStore = (initProps: ConfigProps) => {
   return createStore<ConfigState>()((set, get) => ({
     ...initProps,
     setGameDirectory: (dir: string) => {
-      return setGameDirectory(dir).then((res) => {
-        {
-          console.log("res", res);
-          set(() => ({ game_directory: dir }));
-        }
-      });
+      return setGameDirectory(dir).then(() =>
+        set(() => ({ game_directory: dir }))
+      );
     },
   }));
 };
