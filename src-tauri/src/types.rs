@@ -16,6 +16,14 @@ pub struct Mod {
     pub thumbnail_url: String,
 }
 
+impl Mod {
+    pub fn is_equal(&self, other: Mod) -> bool {
+        self.id == other.id
+            && self.game_version == other.game_version
+            && self.mod_version == other.mod_version
+    }
+}
+
 #[derive(Serialize, Deserialize, Type)]
 pub struct InstallConfig {
     pub id: i32,

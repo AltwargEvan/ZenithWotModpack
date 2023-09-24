@@ -1,6 +1,7 @@
 use std::fs;
 use std::{fs::read_dir, path::Path};
 
+use crate::db;
 use crate::state;
 use crate::types::Config;
 use state::ServiceAccess;
@@ -9,15 +10,7 @@ use tauri::AppHandle;
 #[tauri::command]
 #[specta::specta]
 pub async fn get_config(app_handle: AppHandle) -> Result<Config, String> {
-    app_handle
-        .db(|conn| {
-            conn.query_row("SELECT * FROM CONFIG LIMIT 1", [], |row| {
-                Ok(Config {
-                    game_directory: row.get("game_directory")?,
-                })
-            })
-        })
-        .map_err(|err| err.to_string().into())
+    return db::queries::fetch_config(&app_handle).await;
 }
 
 #[specta::specta]
@@ -26,15 +19,15 @@ pub async fn set_game_directory(
     game_directory: String,
     app_handle: AppHandle,
 ) -> Result<(), String> {
+    let path = Path::new(&game_directory);
+
+    if !is_game_dir(&path) {
+        return Err(String::from(
+            "The game client was not detected in the specified folder",
+        ));
+    };
+
     app_handle.db(|conn| {
-        let path = Path::new(&game_directory);
-
-        if !is_game_dir(&path) {
-            return Err(String::from(
-                "The game client was not detected in the specified folder",
-            ));
-        };
-
         match conn.execute(
             "UPDATE config 
             SET game_directory = ?1
@@ -79,7 +72,7 @@ fn is_game_dir(path: &Path) -> bool {
 #[specta::specta]
 #[tauri::command]
 pub async fn detect_game_version(app_handle: AppHandle) -> Result<String, String> {
-    let config = get_config(app_handle).await?;
+    let config = db::queries::fetch_config(&app_handle).await?;
 
     let game_directory = config
         .game_directory

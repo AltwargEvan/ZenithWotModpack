@@ -30,8 +30,8 @@ export function getMod(modId: number) {
     return invoke()<Mod>("get_mod", { modId })
 }
 
-export function upsertMod(modData: Mod, installConfigs: InstallConfig[]) {
-    return invoke()<null>("upsert_mod", { modData,installConfigs })
+export function cacheAndInstallMod(modData: Mod, installConfigs: InstallConfig[]) {
+    return invoke()<null>("cache_and_install_mod", { modData,installConfigs })
 }
 
 export type Mod = { id: number; wg_mods_id: number; name: string; mod_version: string; game_version: string; thumbnail_url: string }
