@@ -20,9 +20,13 @@ export function ModPageInner({
     mod.localizations.find((item) => item.lang.code === "en") ||
     mod.localizations[0];
 
-  const { data: modFromDB, refetch: refetchModFromDB } = useQuery({
-    queryKey: ["installData", mod.id],
-    queryFn: async () => getMod(mod.id),
+  const {
+    data: modFromDB,
+    error,
+    refetch: refetchModFromDB,
+  } = useQuery({
+    queryKey: ["installData", mod.internal.id],
+    queryFn: async () => getMod(mod.internal.id),
   });
 
   const modInUserMods = !!modFromDB;

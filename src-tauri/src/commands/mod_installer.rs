@@ -55,15 +55,15 @@ pub async fn cache_mod(
     app_handle: AppHandle,
 ) -> Result<(), String> {
     // check current cache data and see if mod is already cached
-    // match fetch_mod(mod_data.id, &app_handle).await {
-    //     // if installed, compare versions. if same do nothing
-    //     Ok(cached_mod) => {
-    //         if mod_data.is_equal(cached_mod) {
-    //             return Ok(());
-    //         }
-    //     }
-    //     Err(_) => (),
-    // }
+    match fetch_mod(mod_data.id, &app_handle).await {
+        // if installed, compare versions. if same do nothing
+        Ok(cached_mod) => {
+            if mod_data.is_equal(cached_mod) {
+                return Ok(());
+            }
+        }
+        Err(_) => (),
+    }
 
     // if versions differ:
     // 1. download latest version from passed download_url

@@ -7,14 +7,17 @@ use tauri::AppHandle;
 use super::state::ServiceAccess;
 
 pub async fn fetch_mod(mod_id: i32, app_handle: &AppHandle) -> Result<Mod, String> {
-    let sql = "--sql
+    let sql = format!(
+        "--sql
         SELECT * FROM mods
-        WHERE id = &1
-    ";
+        WHERE id = {}
+    ",
+        mod_id
+    );
 
     app_handle
         .db(|conn| {
-            conn.query_row(sql, [mod_id], |row| {
+            conn.query_row(&sql, (), |row| {
                 Ok(Mod {
                     id: row.get("id")?,
                     wg_mods_id: row.get("wg_mods_id")?,
