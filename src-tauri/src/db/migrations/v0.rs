@@ -3,7 +3,8 @@ use rusqlite::{types::Null, Transaction};
 pub fn v0(tx: &Transaction) -> Result<(), rusqlite::Error> {
     // create tables
     tx.execute_batch(
-        "CREATE TABLE config (
+        "--sql
+        CREATE TABLE config (
             id INTEGER NOT NULL UNIQUE,
             game_directory TEXT
         );
