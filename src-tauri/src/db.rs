@@ -33,7 +33,6 @@ pub fn upgrade_database_if_needed(
 ) -> Result<(), rusqlite::Error> {
     let mut version = existing_version;
     while version < CURRENT_DB_VERSION {
-        println!("Current DB Version: {}", version);
         match version {
             0 => v0(db)?,
             _ => (),

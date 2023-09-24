@@ -8,8 +8,8 @@ pub struct Config {
 
 #[derive(Serialize, Deserialize, Type)]
 pub struct Mod {
-    pub id: u32,
-    pub wg_mods_id: u32,
+    pub id: i32,
+    pub wg_mods_id: i32,
     pub name: String,
     pub mod_version: String,
     pub game_version: String,
@@ -18,15 +18,16 @@ pub struct Mod {
 
 #[derive(Serialize, Deserialize, Type)]
 pub struct InstallConfig {
-    pub id: u32,
-    pub mod_id: u32,
-    pub mods_path: String,
-    pub res_path: String,
-    pub configs_path: String,
+    pub id: i32,
+    pub mod_id: i32,
+    pub mods_path: Option<String>,
+    pub res_path: Option<String>,
+    pub configs_path: Option<String>,
+    pub name: Option<String>,
 }
 
 pub struct InstalledMod {
-    install_config_id: u32,
-    mod_id: u32,
+    install_config_id: i32,
+    mod_id: i32,
     installed_at: String,
 }

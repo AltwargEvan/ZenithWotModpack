@@ -54,7 +54,7 @@ const routeTree = rootRoute.addChildren([
   homeRoute,
   // profilesRoute,
   settingsRoute,
-  // yourMods,
+  yourMods,
   mod,
 ]);
 

@@ -6,9 +6,7 @@ import { BoxesIcon } from "../assets/BoxesIcon";
 import { Wrench } from "../assets/Wrench";
 import { Crosshair } from "../assets/Crosshair";
 import { Star } from "../assets/Star";
-import { SDCard } from "../assets/SDCard";
-import { Link, useParams, useSearch } from "@tanstack/react-router";
-import { TextField } from "@mui/material";
+import { Link, useSearch } from "@tanstack/react-router";
 
 export const Categories = [
   "All Mods",
@@ -156,8 +154,10 @@ const HomePage = () => {
         className="grid grid-cols-4 gap-4 pt-2 px-3 pb-6 xl:grid-cols-4 2xl:grid-cols-5 w-full overflow-y-auto"
       >
         {mods
-          .filter((item) =>
-            JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
+          .filter(
+            (item) =>
+              item &&
+              JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
           )
           .map((mod) => mod && <ModItem mod={mod} key={mod.internal.id} />)}
       </div>

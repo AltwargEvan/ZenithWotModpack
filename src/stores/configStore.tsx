@@ -1,9 +1,9 @@
-import { Config, setGameDirectory } from "@/api";
+import { Config, detectGameVersion, setGameDirectory } from "@/api";
 import { useStore, createStore } from "zustand";
 import { ReactNode, createContext, useContext, useRef } from "react";
 
 interface ConfigProps extends Config {
-  gameVersion: string;
+  gameVersion: string | null;
 }
 
 interface ConfigState extends ConfigProps {
@@ -14,9 +14,12 @@ export const createConfigStore = (initProps: ConfigProps) => {
   return createStore<ConfigState>()((set, get) => ({
     ...initProps,
     setGameDirectory: (dir: string) => {
-      return setGameDirectory(dir).then(() =>
-        set(() => ({ game_directory: dir }))
-      );
+      return setGameDirectory(dir).then(() => {
+        set(() => ({ game_directory: dir }));
+        detectGameVersion()
+          .then((gameVersion) => set(() => ({ gameVersion })))
+          .catch(console.error);
+      });
     },
   }));
 };

@@ -26,4 +26,14 @@ export function detectGameVersion() {
     return invoke()<string>("detect_game_version")
 }
 
+export function getMod(modId: number) {
+    return invoke()<Mod>("get_mod", { modId })
+}
+
+export function upsertMod(modData: Mod, installConfigs: InstallConfig[]) {
+    return invoke()<null>("upsert_mod", { modData,installConfigs })
+}
+
+export type Mod = { id: number; wg_mods_id: number; name: string; mod_version: string; game_version: string; thumbnail_url: string }
+export type InstallConfig = { id: number; mod_id: number; mods_path: string | null; res_path: string | null; configs_path: string | null; name: string | null }
 export type Config = { game_directory: string | null }

@@ -28,22 +28,10 @@ const Root = () => {
     isLoading: configLoading,
     error: configError,
   } = results[0];
-  const {
-    data: gameVersion,
-    isLoading: gameVersionLoading,
-    error: gameVersionError,
-  } = results[1];
-
-  // loading
-  if (configLoading || gameVersionLoading)
-    return (
-      <div className="border-neutral-600 border h-screen w-screen font-oswald">
-        <TitleBar />
-      </div>
-    );
+  const { data: gameVersion, isLoading: gameVersionLoading } = results[1];
 
   // error
-  if (configError || gameVersionError)
+  if (configError)
     return (
       <div className="border-neutral-600 border h-screen w-screen font-oswald">
         <TitleBar />
@@ -51,10 +39,21 @@ const Root = () => {
       </div>
     );
 
-  // success
-  if (gameVersion && config)
+  // loading
+  if (configLoading || gameVersionLoading)
     return (
-      <ConfigContextProvider value={{ ...config, gameVersion }}>
+      <div className="border-neutral-600 border h-screen w-screen font-oswald">
+        <TitleBar />
+        Loading
+      </div>
+    );
+
+  // success
+  if (config)
+    return (
+      <ConfigContextProvider
+        value={{ ...config, gameVersion: gameVersion || null }}
+      >
         <div className="border-neutral-600 border h-screen w-screen font-oswald">
           <TitleBar />
           <Navbar />
