@@ -6,7 +6,7 @@ import fetchWGMod from "@/api/client/fetchWargamingMods";
 import { Category } from "../home";
 import { ArrowLeft } from "@/assets/ArrowLeft";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { InstallConfig, Mod, cacheAndInstallMod, getMod } from "@/api";
+import { InstallConfig, Mod, cacheMod, getMod } from "@/api";
 import { CheckLarge } from "@/assets/CheckLarge";
 
 export function ModPageInner({
@@ -50,7 +50,7 @@ export function ModPageInner({
           };
           return formattedCfg;
         });
-      await cacheAndInstallMod(modData, installConfigs);
+      await cacheMod(modData, installConfigs, mod.versions[0].download_url);
       await refetchModFromDB();
     },
   });

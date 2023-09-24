@@ -1,26 +1,53 @@
-use std::{error::Error, fs, path::PathBuf};
-
-use rusqlite::named_params;
-use tauri::{api::path::cache_dir, AppHandle};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use crate::{
     db::{self, queries::fetch_mod},
-    state::ServiceAccess,
     types::{InstallConfig, Mod},
 };
+use tauri::api::http::{ClientBuilder, HttpRequestBuilder, ResponseType};
+use tauri::AppHandle;
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_mod(mod_id: i32, app_handle: AppHandle) -> Result<Mod, String> {
-    return db::queries::fetch_mod(mod_id, &app_handle).await;
+pub async fn get_mod(mod_id: i32, app_handle: AppHandle) -> Option<Mod> {
+    match db::queries::fetch_mod(mod_id, &app_handle).await {
+        Ok(res) => Some(res),
+        Err(_) => None,
+    }
 }
 
-pub async fn download(url: String, dest: PathBuf) -> Result<(), String> {
-    todo!()
+async fn download(target: String, mut dest: PathBuf) -> Result<(), String> {
+    // download to memory
+    let client = ClientBuilder::new().max_redirections(3).build().unwrap();
+    let request = HttpRequestBuilder::new("GET", &target)
+        .map_err(|e| e.to_string())?
+        .response_type(ResponseType::Binary);
+
+    let response = client.send(request).await.map_err(|e| e.to_string())?;
+    let content = response.bytes().await.map_err(|e| e.to_string())?.data;
+
+    // write to destination
+    let remote_target_path = Path::new(&target);
+    let file_name = remote_target_path
+        .file_name()
+        .ok_or("Target URL doesn't provide a filename")?;
+    let dest_file_path = dest.join(&file_name);
+    fs::write(&dest_file_path, content).map_err(|e| e.to_string())?;
+    // unzip if zip
+    if remote_target_path.extension().unwrap() == "zip" {
+        zip_extensions::zip_extract(&dest_file_path, &dest).map_err(|e| e.to_string())?;
+        fs::remove_file(dest_file_path).map_err(|e| e.to_string())?;
+    }
+    Ok(())
 }
 
 #[tauri::command]
 #[specta::specta]
+/// Compares the version of cached mod and requested mod.
+/// When the version differs, download the provided version and update the cache
 pub async fn cache_mod(
     mod_data: Mod,
     install_configs: Vec<InstallConfig>,
@@ -28,26 +55,33 @@ pub async fn cache_mod(
     app_handle: AppHandle,
 ) -> Result<(), String> {
     // check current cache data and see if mod is already cached
-    let cached_mod_version = fetch_mod(mod_data.id, &app_handle).await?;
-
-    // if installed, compare versions. if same do nothing
-    if mod_data.is_equal(cached_mod_version) {
-        return Ok(());
+    match fetch_mod(mod_data.id, &app_handle).await {
+        // if installed, compare versions. if same do nothing
+        Ok(cached_mod) => {
+            if mod_data.is_equal(cached_mod) {
+                return Ok(());
+            }
+        }
+        Err(_) => (),
     }
 
     // if versions differ:
     // 1. download latest version from passed download_url
-    let cache_directory = cache_dir().ok_or("The app cache directory should be exist.")?;
-    fs::create_dir_all(&cache_directory).expect("The app cache directory should be created.");
-    let download_dir = cache_directory.join(format!("/mods/{}", mod_data.name));
+    let cache_dir = app_handle
+        .path_resolver()
+        .app_cache_dir()
+        .expect("The app cache directory should exist.");
+
+    fs::create_dir_all(&cache_dir).expect("The app cache directory should be created.");
+    let destination = cache_dir.join(format!("mods\\{}", mod_data.name));
 
     // clean directory
-    fs::remove_dir_all(&download_dir)
-        .map_err(|e| format!("Failed to clean cache directory.\n{}", e.to_string()))?;
-    fs::create_dir_all(&download_dir)
-        .map_err(|e| format!("Failed to recreate cache directory.\n{}", e.to_string()))?;
+    if destination.try_exists().unwrap_or(false) {
+        let _ = fs::remove_dir_all(&destination);
+    }
+    let _ = fs::create_dir_all(&destination);
 
-    download(download_url, download_dir).await?;
+    download(download_url, destination).await?;
 
     // 2. update mods table
     db::queries::update_mod(mod_data, &app_handle).await?;
@@ -56,48 +90,18 @@ pub async fn cache_mod(
     todo!()
 }
 
-pub async fn install_mod(app_handle: AppHandle) {}
-
-#[tauri::command]
-#[specta::specta]
-pub async fn cache_and_install_mod(
+pub async fn install_mod(
     mod_data: Mod,
-    install_configs: Vec<InstallConfig>,
+    install_config: InstallConfig,
     app_handle: AppHandle,
 ) -> Result<(), String> {
-    return app_handle.db(|conn| {
-        // add mod
-        conn.execute(
-            "UPSERT INTO mods (id, wg_mods_id, name, mod_version, game_version, thumbnail_url)
-            VALUES (:id, :wg_mods_id, :name, :mod_version, :game_version, :thumbnail_url)",
-            named_params! {
-                ":id": mod_data.id,
-                ":name": mod_data.name,
-                ":mod_version": mod_data.mod_version,
-                ":game_version": mod_data.game_version,
-                ":thumbnail_url": mod_data.thumbnail_url
-            },
-        )
-        .map_err(|e| e.to_string())?;
-        // delete all old configs associated with mod
-        conn.execute("DELETE FROM install_configs WHERE mod_id=?1", [mod_data.id])
-            .map_err(|e| e.to_string())?;
+    todo!()
+}
 
-        // add new configs
-        for install_config in install_configs {
-            conn.execute(
-                "INSERT INTO install_configs (mod_id, mods_path, res_path, configs_path)
-            VALUES (:mod_id, :mods_path, :res_path, :configs_path)",
-                named_params! {
-                    ":mod_id": install_config.mod_id,
-                    ":mods_path": install_config.mods_path,
-                    ":res_path": install_config.res_path,
-                    ":configs_path": install_config.configs_path
-                },
-            )
-            .map_err(|e| e.to_string())?;
-        }
-
-        Ok(())
-    });
+pub async fn uninstall_mod(
+    mod_data: Mod,
+    install_config: InstallConfig,
+    app_handle: AppHandle,
+) -> Result<(), String> {
+    todo!()
 }

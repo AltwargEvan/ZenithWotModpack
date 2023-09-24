@@ -27,13 +27,17 @@ export function detectGameVersion() {
 }
 
 export function getMod(modId: number) {
-    return invoke()<Mod>("get_mod", { modId })
+    return invoke()<Mod | null>("get_mod", { modId })
 }
 
-export function cacheAndInstallMod(modData: Mod, installConfigs: InstallConfig[]) {
-    return invoke()<null>("cache_and_install_mod", { modData,installConfigs })
+/**
+ * Compares the version of cached mod and requested mod.
+ * When the version differs, download the provided version and update the cache
+ */
+export function cacheMod(modData: Mod, installConfigs: InstallConfig[], downloadUrl: string) {
+    return invoke()<null>("cache_mod", { modData,installConfigs,downloadUrl })
 }
 
-export type Mod = { id: number; wg_mods_id: number; name: string; mod_version: string; game_version: string; thumbnail_url: string }
 export type InstallConfig = { id: number; mod_id: number; mods_path: string | null; res_path: string | null; configs_path: string | null; name: string | null }
+export type Mod = { id: number; wg_mods_id: number; name: string; mod_version: string; game_version: string; thumbnail_url: string }
 export type Config = { game_directory: string | null }

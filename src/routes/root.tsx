@@ -15,10 +15,12 @@ const Root = () => {
       {
         queryKey: ["config"],
         queryFn: getConfig,
+        retry: false,
       },
       {
         queryKey: ["gameVersion"],
         queryFn: detectGameVersion,
+        retry: false,
       },
     ],
   });

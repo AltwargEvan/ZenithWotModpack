@@ -2,9 +2,8 @@ use std::fs;
 use std::{fs::read_dir, path::Path};
 
 use crate::db;
-use crate::state;
+use crate::db::state::ServiceAccess;
 use crate::types::Config;
-use state::ServiceAccess;
 use tauri::AppHandle;
 
 #[tauri::command]
