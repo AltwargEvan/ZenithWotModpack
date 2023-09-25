@@ -1,4 +1,4 @@
-use crate::types::{Config, InstallConfig, Mod};
+use crate::types::{Config, InstallConfig, InstalledMod, Mod};
 use rusqlite::named_params;
 use tauri::AppHandle;
 
@@ -27,6 +27,36 @@ pub async fn fetch_mod(mod_id: i32, app_handle: &AppHandle) -> Result<Mod, Strin
             })
         })
         .map_err(|e| e.to_string())
+}
+
+pub async fn fetch_installed_mods(
+    mod_id: i32,
+    app_handle: &AppHandle,
+) -> Result<Vec<InstalledMod>, String> {
+    let sql = format!(
+        "--sql
+        SELECT * FROM installed_mods
+        WHERE mod_id = {}
+        ",
+        mod_id
+    );
+    let mut result = Vec::new();
+    app_handle.db(|conn| {
+        let mut stmt = conn.prepare(&sql).unwrap();
+        let mod_iter = stmt
+            .query_map([], |row| {
+                Ok(InstalledMod {
+                    install_config_id: row.get("install_config_id")?,
+                    mod_id: row.get("mod_id")?,
+                })
+            })
+            .unwrap();
+
+        for item in mod_iter {
+            result.push(item.unwrap());
+        }
+    });
+    return Ok(result);
 }
 
 pub async fn fetch_config(app_handle: &AppHandle) -> Result<Config, String> {

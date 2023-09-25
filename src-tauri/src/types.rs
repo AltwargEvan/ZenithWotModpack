@@ -33,9 +33,9 @@ pub struct InstallConfig {
     pub configs_path: Option<String>,
     pub name: Option<String>,
 }
+#[derive(Serialize, Deserialize, Type, Debug)]
 
 pub struct InstalledMod {
-    install_config_id: i32,
-    mod_id: i32,
-    installed_at: String,
+    pub install_config_id: i32,
+    pub mod_id: i32,
 }

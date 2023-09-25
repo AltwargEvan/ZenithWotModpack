@@ -6,7 +6,9 @@ mod commands;
 use commands::config::{
     detect_game_directories, detect_game_version, get_config, set_game_directory,
 };
-use commands::mod_installer::{cache_mod, get_mod, install_mod, uninstall_mod};
+use commands::mod_installer::{
+    cache_mod, get_install_state, install_mod, uncache_mod, uninstall_mod,
+};
 use commands::unzip_file_command::unzip_file;
 mod db;
 mod types;
@@ -24,8 +26,11 @@ fn main() {
             set_game_directory,
             detect_game_directories,
             detect_game_version,
-            get_mod,
+            get_install_state,
             cache_mod,
+            install_mod,
+            uninstall_mod,
+            uncache_mod
         ],
         "../src/api/rust.ts",
     )
@@ -55,8 +60,11 @@ fn main() {
             unzip_file,
             detect_game_directories,
             detect_game_version,
-            get_mod,
-            cache_mod
+            get_install_state,
+            cache_mod,
+            install_mod,
+            uninstall_mod,
+            uncache_mod
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -70,8 +78,11 @@ fn export_bindings() {
             set_game_directory,
             detect_game_directories,
             detect_game_version,
-            get_mod,
-            cache_mod
+            get_install_state,
+            cache_mod,
+            install_mod,
+            uninstall_mod,
+            uncache_mod
         ],
         "../src/api/rust.ts",
     )

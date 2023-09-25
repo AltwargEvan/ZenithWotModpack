@@ -69,3 +69,7 @@ export default async function fetchWGMod(
     console.error(e);
   }
 }
+
+export type fetchWGModResult = NonNullable<
+  Awaited<ReturnType<typeof fetchWGMod>>
+>;

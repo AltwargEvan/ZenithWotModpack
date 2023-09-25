@@ -12,14 +12,20 @@ use tauri::AppHandle;
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_mod(mod_id: i32, app_handle: AppHandle) -> Option<Mod> {
-    match db::queries::fetch_mod(mod_id, &app_handle).await {
-        Ok(res) => Some(res),
-        Err(_) => None,
+pub async fn get_install_state(mod_id: i32, app_handle: AppHandle) -> String {
+    let cached = db::queries::fetch_mod(mod_id, &app_handle).await;
+    if cached.is_err() {
+        return "Not Installed".to_string();
     }
+    let installed = db::queries::fetch_installed_mods(mod_id, &app_handle).await;
+    if installed.is_ok_and(|res| res.len() > 0) {
+        return "Installed".to_string();
+    };
+
+    return "Cached".to_string();
 }
 
-async fn download(target: String, mut dest: PathBuf) -> Result<(), String> {
+async fn download(target: String, dest: PathBuf) -> Result<(), String> {
     // download to memory
     let client = ClientBuilder::new().max_redirections(3).build().unwrap();
     let request = HttpRequestBuilder::new("GET", &target)
@@ -83,16 +89,18 @@ pub async fn cache_mod(
 
     download(download_url, destination).await?;
 
-    // 2. update mods table
+    // 2. update db
     db::queries::update_mod(mod_data, install_configs, &app_handle).await?;
-    // 3. delete all install configs and create new ones with passed data
-
-    todo!()
+    Ok(())
 }
 
+#[tauri::command]
+#[specta::specta]
 pub async fn uncache_mod() {
     todo!()
 }
+#[tauri::command]
+#[specta::specta]
 pub async fn install_mod(
     mod_data: Mod,
     install_config: InstallConfig,
@@ -100,7 +108,8 @@ pub async fn install_mod(
 ) -> Result<(), String> {
     todo!()
 }
-
+#[tauri::command]
+#[specta::specta]
 pub async fn uninstall_mod(
     mod_data: Mod,
     install_config: InstallConfig,

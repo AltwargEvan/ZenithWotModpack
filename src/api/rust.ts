@@ -26,8 +26,8 @@ export function detectGameVersion() {
     return invoke()<string>("detect_game_version")
 }
 
-export function getMod(modId: number) {
-    return invoke()<Mod | null>("get_mod", { modId })
+export function getInstallState(modId: number) {
+    return invoke()<string>("get_install_state", { modId })
 }
 
 /**
@@ -36,6 +36,18 @@ export function getMod(modId: number) {
  */
 export function cacheMod(modData: Mod, installConfigs: InstallConfig[], downloadUrl: string) {
     return invoke()<null>("cache_mod", { modData,installConfigs,downloadUrl })
+}
+
+export function installMod(modData: Mod, installConfig: InstallConfig) {
+    return invoke()<null>("install_mod", { modData,installConfig })
+}
+
+export function uninstallMod(modData: Mod, installConfig: InstallConfig) {
+    return invoke()<null>("uninstall_mod", { modData,installConfig })
+}
+
+export function uncacheMod() {
+    return invoke()<null>("uncache_mod")
 }
 
 export type InstallConfig = { id: number; mod_id: number; mods_path: string | null; res_path: string | null; configs_path: string | null; name: string | null }

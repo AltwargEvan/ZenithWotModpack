@@ -31,7 +31,6 @@ pub fn v0(tx: &Transaction) -> Result<(), rusqlite::Error> {
         CREATE TABLE installed_mods (
             install_config_id INTEGER NOT NULL UNIQUE,
             mod_id INTEGER NOT NULL UNIQUE,
-            installed_at TEXT NOT NULL,
             PRIMARY KEY(install_config_id, mod_id)
         )
         ",
