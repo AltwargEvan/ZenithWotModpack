@@ -46,7 +46,7 @@ export function ModPageInner({
         mod.internal.installConfig.map((cfg) => {
           const formattedCfg: InstallConfig = {
             id: 0,
-            mod_id: mod.id,
+            mod_id: mod.internal.id,
             mods_path: cfg.modsPath || null,
             res_path: cfg.resPath || null,
             configs_path: cfg.configsPath || null,
@@ -54,6 +54,7 @@ export function ModPageInner({
           };
           return formattedCfg;
         });
+      console.log(installConfigs);
       await cacheMod(modData, installConfigs, mod.versions[0].download_url);
       await refetchModFromDB();
     },

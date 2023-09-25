@@ -22,17 +22,19 @@ pub fn initialize_database(app_handle: &AppHandle) -> Result<Connection, rusqlit
     let mut user_pragma = db.prepare("PRAGMA user_version")?;
     let mut existing_user_version: u32 = user_pragma.query_row([], |row| Ok(row.get(0)?))?;
     drop(user_pragma);
-
     // Upgrades the database to the current version.
     while existing_user_version < CURRENT_DB_VERSION {
+        db.pragma_update(None, "journal_mode", "WAL")?;
+
         let tx = db.transaction()?;
-        tx.pragma_update(None, "journal_mode", "WAL")?;
         tx.pragma_update(None, "user_version", existing_user_version + 1)?;
+
         match existing_user_version {
             0 => migrations::v0::v0(&tx)?,
             _ => (),
         }
         tx.commit()?;
+
         existing_user_version += 1;
     }
 

@@ -84,7 +84,7 @@ pub async fn cache_mod(
     download(download_url, destination).await?;
 
     // 2. update mods table
-    db::queries::update_mod(mod_data, &app_handle).await?;
+    db::queries::update_mod(mod_data, install_configs, &app_handle).await?;
     // 3. delete all install configs and create new ones with passed data
 
     todo!()
