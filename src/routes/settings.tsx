@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLayout } from "../stores/rootLayoutStore";
 import { GameDirectoryInput } from "@/components/GameDirectoryInput";
 import { useQuery } from "@tanstack/react-query";
-import { detectGameVersion } from "@/api";
+import { getGameVersion } from "@/api";
 
 const SettingsPage = () => {
   useLayout("Settings");
@@ -12,7 +12,7 @@ const SettingsPage = () => {
   >();
 
   const { data } = useQuery({
-    queryFn: detectGameVersion,
+    queryFn: getGameVersion,
     queryKey: ["detectGameVersion"],
   });
   console.log(data);

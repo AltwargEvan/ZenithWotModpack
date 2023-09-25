@@ -22,8 +22,8 @@ export function detectGameDirectories() {
     return invoke()<string[]>("detect_game_directories")
 }
 
-export function detectGameVersion() {
-    return invoke()<string>("detect_game_version")
+export function getGameVersion() {
+    return invoke()<string>("get_game_version")
 }
 
 export function getInstallState(modId: number) {
@@ -34,22 +34,22 @@ export function getInstallState(modId: number) {
  * Compares the version of cached mod and requested mod.
  * When the version differs, download the provided version and update the cache
  */
-export function cacheMod(modData: Mod, installConfigs: InstallConfig[], downloadUrl: string) {
-    return invoke()<null>("cache_mod", { modData,installConfigs,downloadUrl })
+export function cacheMod(modData: Mod, downloadUrl: string) {
+    return invoke()<null>("cache_mod", { modData,downloadUrl })
 }
 
 export function installMod(modData: Mod, installConfig: InstallConfig) {
     return invoke()<null>("install_mod", { modData,installConfig })
 }
 
-export function uninstallMod(modData: Mod, installConfig: InstallConfig) {
-    return invoke()<null>("uninstall_mod", { modData,installConfig })
+export function uninstallMod(modId: number, installConfigName: string) {
+    return invoke()<null>("uninstall_mod", { modId,installConfigName })
 }
 
-export function uncacheMod() {
-    return invoke()<null>("uncache_mod")
+export function uncacheMod(modData: Mod) {
+    return invoke()<null>("uncache_mod", { modData })
 }
 
-export type InstallConfig = { id: number; mod_id: number; mods_path: string | null; res_path: string | null; configs_path: string | null; name: string | null }
+export type InstallConfig = { name: string; mod_id: number; mods_path: string | null; res_path: string | null; configs_path: string | null; game_directory: string }
 export type Mod = { id: number; wg_mods_id: number; name: string; mod_version: string; game_version: string; thumbnail_url: string }
 export type Config = { game_directory: string | null }

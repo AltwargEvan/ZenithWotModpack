@@ -26,16 +26,11 @@ impl Mod {
 
 #[derive(Serialize, Deserialize, Type)]
 pub struct InstallConfig {
-    pub id: i32,
+    /// Primary key
+    pub name: String,
     pub mod_id: i32,
     pub mods_path: Option<String>,
     pub res_path: Option<String>,
     pub configs_path: Option<String>,
-    pub name: Option<String>,
-}
-#[derive(Serialize, Deserialize, Type, Debug)]
-
-pub struct InstalledMod {
-    pub install_config_id: i32,
-    pub mod_id: i32,
+    pub game_directory: String,
 }

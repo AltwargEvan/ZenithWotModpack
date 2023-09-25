@@ -3,9 +3,7 @@
 use db::state::AppState;
 use tauri_plugin_log::LogTarget;
 mod commands;
-use commands::config::{
-    detect_game_directories, detect_game_version, get_config, set_game_directory,
-};
+use commands::config::{detect_game_directories, get_config, get_game_version, set_game_directory};
 use commands::mod_installer::{
     cache_mod, get_install_state, install_mod, uncache_mod, uninstall_mod,
 };
@@ -25,7 +23,7 @@ fn main() {
             get_config,
             set_game_directory,
             detect_game_directories,
-            detect_game_version,
+            get_game_version,
             get_install_state,
             cache_mod,
             install_mod,
@@ -59,7 +57,7 @@ fn main() {
             set_game_directory,
             unzip_file,
             detect_game_directories,
-            detect_game_version,
+            get_game_version,
             get_install_state,
             cache_mod,
             install_mod,
@@ -77,7 +75,7 @@ fn export_bindings() {
             get_config,
             set_game_directory,
             detect_game_directories,
-            detect_game_version,
+            get_game_version,
             get_install_state,
             cache_mod,
             install_mod,

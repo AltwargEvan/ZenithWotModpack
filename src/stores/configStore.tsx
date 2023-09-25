@@ -1,8 +1,9 @@
-import { Config, detectGameVersion, setGameDirectory } from "@/api";
+import { Config, getGameVersion, setGameDirectory } from "@/api";
 import { useStore, createStore } from "zustand";
 import { ReactNode, createContext, useContext, useRef } from "react";
+import { NonNullableFields } from "@/utils/typeHelpers";
 
-interface ConfigProps extends Config {
+interface ConfigProps extends NonNullableFields<Config> {
   gameVersion: string | null;
 }
 
@@ -16,7 +17,7 @@ export const createConfigStore = (initProps: ConfigProps) => {
     setGameDirectory: (dir: string) => {
       return setGameDirectory(dir).then(() => {
         set(() => ({ game_directory: dir }));
-        detectGameVersion()
+        getGameVersion()
           .then((gameVersion) => set(() => ({ gameVersion })))
           .catch(console.error);
       });

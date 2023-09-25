@@ -1,10 +1,10 @@
-use crate::types::{Config, InstallConfig, InstalledMod, Mod};
+use crate::types::{Config, InstallConfig, Mod};
 use rusqlite::named_params;
 use tauri::AppHandle;
 
 use super::state::ServiceAccess;
 
-pub async fn fetch_mod(mod_id: i32, app_handle: &AppHandle) -> Result<Mod, String> {
+pub fn fetch_mod(mod_id: i32, app_handle: &AppHandle) -> Result<Mod, String> {
     let sql = format!(
         "--sql
         SELECT * FROM mods
@@ -29,10 +29,10 @@ pub async fn fetch_mod(mod_id: i32, app_handle: &AppHandle) -> Result<Mod, Strin
         .map_err(|e| e.to_string())
 }
 
-pub async fn fetch_installed_mods(
+pub fn fetch_installed_mods(
     mod_id: i32,
     app_handle: &AppHandle,
-) -> Result<Vec<InstalledMod>, String> {
+) -> Result<Vec<InstallConfig>, String> {
     let sql = format!(
         "--sql
         SELECT * FROM installed_mods
@@ -41,25 +41,33 @@ pub async fn fetch_installed_mods(
         mod_id
     );
     let mut result = Vec::new();
+
     app_handle.db(|conn| {
-        let mut stmt = conn.prepare(&sql).unwrap();
+        let mut stmt = conn.prepare(&sql).map_err(|e| e.to_string())?;
         let mod_iter = stmt
             .query_map([], |row| {
-                Ok(InstalledMod {
-                    install_config_id: row.get("install_config_id")?,
+                Ok(InstallConfig {
                     mod_id: row.get("mod_id")?,
+                    mods_path: row.get("mods_path")?,
+                    res_path: row.get("res_path")?,
+                    configs_path: row.get("configs_path")?,
+                    name: row.get("name")?,
+                    game_directory: row.get("game_directory")?,
                 })
             })
-            .unwrap();
+            .map_err(|e| e.to_string())?;
 
         for item in mod_iter {
-            result.push(item.unwrap());
+            match item {
+                Ok(item) => result.push(item),
+                Err(err) => println!("Failed to unwrap item: {}", err.to_string()),
+            }
         }
-    });
-    return Ok(result);
+        Ok(result)
+    })
 }
 
-pub async fn fetch_config(app_handle: &AppHandle) -> Result<Config, String> {
+pub fn fetch_config(app_handle: &AppHandle) -> Result<Config, String> {
     let sql = "--sql
         SELECT * FROM config
         WHERE ID = 1
@@ -76,11 +84,7 @@ pub async fn fetch_config(app_handle: &AppHandle) -> Result<Config, String> {
         .map_err(|err| err.to_string().into())
 }
 
-pub async fn update_mod(
-    mod_data: Mod,
-    install_configs: Vec<InstallConfig>,
-    app_handle: &AppHandle,
-) -> Result<(), String> {
+pub fn update_mod(mod_data: Mod, app_handle: &AppHandle) -> Result<(), String> {
     let update_mod_sql = "--sql
         INSERT OR REPLACE INTO mods (id, game_version, mod_version, name, thumbnail_url, wg_mods_id)
         VALUES (:id, :game_version, :mod_version, :name, :thumbnail_url, :wg_mods_id)
@@ -95,32 +99,82 @@ pub async fn update_mod(
         ":wg_mods_id": mod_data.wg_mods_id
     };
 
-    let delete_configs_sql = "--sql
-        DELETE FROM install_configs WHERE mod_id = ?1
-    ";
-
-    let create_config_sql = "--sql
-        INSERT OR REPLACE INTO install_configs (mod_id, mods_path, res_path, configs_path)
-        VALUES (:mod_id, :mods_path, :res_path, :configs_path)
-    ";
-
     app_handle.db(|conn| {
         conn.execute(update_mod_sql, update_mod_params)
             .map_err(|e| e.to_string())?;
-
-        conn.execute(&delete_configs_sql, [mod_data.id])
-            .map_err(|e| e.to_string())?;
-
-        for cfg in install_configs {
-            let params = named_params! {
-                ":mod_id": cfg.mod_id,
-                ":mods_path": cfg.mods_path,
-                ":res_path": cfg.res_path,
-                ":configs_path": cfg.configs_path
-            };
-            conn.execute(create_config_sql, params)
-                .map_err(|e| e.to_string())?;
-        }
         Ok(())
     })
+}
+
+pub fn delete_mod(mod_data: Mod, app_handle: &AppHandle) -> Result<(), String> {
+    let sql = "--sql
+        DELETE FROM mods WHERE id = ?1
+    ";
+
+    app_handle.db(|conn| {
+        conn.execute(sql, [mod_data.id])
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    })
+}
+
+pub fn insert_installed_mod(mod_data: InstallConfig, app_handle: &AppHandle) -> Result<(), String> {
+    let sql = "--sql
+        INSERT OR REPLACE INTO installed_mods (mod_id, mods_path, res_path, configs_path, name, game_directory)
+        VALUES (:mod_id, :mods_path, :res_path, :configs_path, :name, :game_directory)
+    ";
+
+    let params = named_params! {
+        ":mod_id": mod_data.mod_id,
+        ":mods_path": mod_data.mods_path,
+        ":res_path": mod_data.res_path,
+        ":configs_path": mod_data.configs_path,
+        ":name": mod_data.name,
+        ":game_directory": mod_data.game_directory
+    };
+
+    app_handle.db(|conn| {
+        conn.execute(sql, params).map_err(|e| e.to_string())?;
+        Ok(())
+    })
+}
+
+pub fn delete_install(install_name: String, app_handle: &AppHandle) -> Result<(), String> {
+    let sql = format!(
+        "--sql
+            DELETE FROM installed_mods WHERE name = '{install_name}'
+        "
+    );
+
+    app_handle.db(|conn| {
+        conn.execute(&sql, ()).map_err(|e| e.to_string())?;
+        Ok(())
+    })
+}
+
+pub fn fetch_install(
+    mod_id: i32,
+    install_config_name: &String,
+    app_handle: &AppHandle,
+) -> Result<InstallConfig, String> {
+    let sql = format!(
+        "--sql
+            SELECT * FROM installed_mods WHERE mod_id = {mod_id} AND name = '{install_config_name}'
+        "
+    );
+
+    app_handle
+        .db(|conn| {
+            conn.query_row(&sql, (), |row| {
+                Ok(InstallConfig {
+                    game_directory: row.get("game_directory")?,
+                    mod_id: row.get("mod_id")?,
+                    mods_path: row.get("mods_path")?,
+                    res_path: row.get("res_path")?,
+                    configs_path: row.get("configs_path")?,
+                    name: row.get("name")?,
+                })
+            })
+        })
+        .map_err(|e| e.to_string())
 }

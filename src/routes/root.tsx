@@ -4,7 +4,7 @@ import TitleBar from "../layouts/Titlebar";
 import { useRootLayoutStore } from "../stores/rootLayoutStore";
 import { ConfigContextProvider } from "@/stores/configStore";
 import { useQueries } from "@tanstack/react-query";
-import { detectGameVersion, getConfig } from "@/api";
+import { getGameVersion, getConfig } from "@/api";
 
 const Root = () => {
   const { title, backgroundUrl } = useRootLayoutStore();
@@ -19,7 +19,7 @@ const Root = () => {
       },
       {
         queryKey: ["gameVersion"],
-        queryFn: detectGameVersion,
+        queryFn: getGameVersion,
         retry: false,
       },
     ],

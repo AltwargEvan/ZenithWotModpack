@@ -8,14 +8,14 @@ import {
   uncacheMod,
   uninstallMod,
 } from "@/api";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { fetchWGModResult } from "@/api/client/fetchWargamingMods";
 import { Menu, MenuItem } from "@mui/material";
 import { ThreeDotsVertical } from "@/assets/ThreeDotsVertical";
-import { Circle } from "@/assets/Circle";
 import { twMerge } from "tailwind-merge";
 import { LoadingSpinner } from "@/assets/LoadingSpinner";
 import { useNavigate } from "@tanstack/react-router";
+import { useConfig } from "@/stores/configStore";
 
 export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
   const { data: installState, refetch: refetchInstallState } = useQuery({
@@ -25,6 +25,7 @@ export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const gameDirectory = useConfig((ctx) => ctx.game_directory);
 
   const modData: Mod = {
     id: mod.internal.id,
@@ -38,12 +39,12 @@ export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
   const installConfigs: Array<InstallConfig> = mod.internal.installConfig.map(
     (cfg) => {
       const formattedCfg: InstallConfig = {
-        id: 0,
+        name: cfg.name,
         mod_id: mod.internal.id,
         mods_path: cfg.modsPath || null,
         res_path: cfg.resPath || null,
         configs_path: cfg.configsPath || null,
-        name: cfg.name,
+        game_directory: gameDirectory,
       };
       return formattedCfg;
     }
@@ -89,52 +90,83 @@ export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
   })();
 
   async function handleInstall() {
-    if (loading) return;
-    setLoading(true);
-    await installMod(modData, installConfigs[0]);
-    await refetchInstallState();
-    setLoading(false);
+    try {
+      if (loading) return;
+      setLoading(true);
+      await installMod(modData, installConfigs[0]);
+      await refetchInstallState();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleUninstall() {
-    if (loading) return;
-    setLoading(true);
-    await uninstallMod(modData, installConfigs[0]);
-    await refetchInstallState();
-    setLoading(false);
+    try {
+      if (loading) return;
+      setLoading(true);
+      await uninstallMod(modData.id, installConfigs[0].name);
+      await refetchInstallState();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleCache() {
-    if (loading) return;
-    setLoading(true);
-    await cacheMod(modData, installConfigs, mod.versions[0].download_url);
-    await refetchInstallState();
-    setLoading(false);
+    try {
+      if (loading) return;
+      setLoading(true);
+      await cacheMod(modData, mod.versions[0].download_url);
+      await refetchInstallState();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleUncache() {
-    if (loading) return;
-    setLoading(true);
-    await uncacheMod();
-    await refetchInstallState();
-    setLoading(false);
+    try {
+      if (loading) return;
+      setLoading(true);
+      await uncacheMod(modData);
+      await refetchInstallState();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleCacheAndInstall() {
-    if (loading) return;
-    setLoading(true);
-    await cacheMod(modData, installConfigs, mod.versions[0].download_url);
-    await installMod(modData, installConfigs[0]);
-    await refetchInstallState();
-    setLoading(false);
+    try {
+      if (loading) return;
+      setLoading(true);
+      await cacheMod(modData, mod.versions[0].download_url);
+      await installMod(modData, installConfigs[0]);
+      await refetchInstallState();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleUncacheAndUninstall() {
-    if (loading) return;
-    setLoading(true);
-    await uninstallMod(modData, installConfigs[0]);
-    await uncacheMod();
-    setLoading(false);
+    try {
+      if (loading) return;
+      setLoading(true);
+      await uninstallMod(modData.id, installConfigs[0].name);
+      await uncacheMod(modData);
+      await refetchInstallState();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -207,52 +239,52 @@ export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
           </MenuItem>
         )}
         {installState === "Cached" && (
-          <>
-            <MenuItem
-              onClick={() => {
-                handleCloseDropdown();
-                handleInstall();
-              }}
-              disableRipple
-              className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
-            >
-              Install
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleCloseDropdown();
-                handleUncache();
-              }}
-              disableRipple
-              className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
-            >
-              Remove from your mods
-            </MenuItem>
-          </>
+          <MenuItem
+            onClick={() => {
+              handleCloseDropdown();
+              handleInstall();
+            }}
+            disableRipple
+            className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
+          >
+            Install
+          </MenuItem>
+        )}
+        {installState === "Cached" && (
+          <MenuItem
+            onClick={() => {
+              handleCloseDropdown();
+              handleUncache();
+            }}
+            disableRipple
+            className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
+          >
+            Remove from your mods
+          </MenuItem>
         )}
         {installState === "Installed" && (
-          <>
-            <MenuItem
-              onClick={() => {
-                handleCloseDropdown();
-                handleUninstall();
-              }}
-              disableRipple
-              className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
-            >
-              Uninstall
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleCloseDropdown();
-                handleUncacheAndUninstall();
-              }}
-              disableRipple
-              className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
-            >
-              Remove from your mods
-            </MenuItem>
-          </>
+          <MenuItem
+            onClick={() => {
+              handleCloseDropdown();
+              handleUninstall();
+            }}
+            disableRipple
+            className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
+          >
+            Uninstall
+          </MenuItem>
+        )}
+        {installState === "Installed" && (
+          <MenuItem
+            onClick={() => {
+              handleCloseDropdown();
+              handleUncacheAndUninstall();
+            }}
+            disableRipple
+            className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
+          >
+            Remove from your mods
+          </MenuItem>
         )}
       </Menu>
     </div>
