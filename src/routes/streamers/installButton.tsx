@@ -81,7 +81,7 @@ export const InstallButton = ({ modIds }: { modIds: Array<number> }) => {
   return (
     <div className="bg-neutral-500 flex h-8 rounded overflow-visible">
       <button
-        className="flex justify-center items-center min-w-[8rem] max-w-[8rem] rounded-l bg-neutral-50 text-black hover:bg-neutral-200"
+        className="flex justify-center items-center min-w-[8rem] max-w-[8rem] rounded bg-neutral-50 text-black hover:bg-neutral-200"
         onClick={() => {
           if (installed) navigate({ to: "/yourMods" });
           else handleCacheAndInstall();
@@ -93,7 +93,7 @@ export const InstallButton = ({ modIds }: { modIds: Array<number> }) => {
           return "Installed";
         })()}
       </button>
-      <button
+      {/* <button
         onClick={handleOpenDropdown}
         className=" bg-neutral-50 text-black hover:bg-neutral-200 flex flex-col items-center justify-center rounded-r"
         style={{
@@ -128,7 +128,7 @@ export const InstallButton = ({ modIds }: { modIds: Array<number> }) => {
         >
           Clean Install
         </MenuItem>
-      </Menu>
+      </Menu> */}
     </div>
   );
 };
