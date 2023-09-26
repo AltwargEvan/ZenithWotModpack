@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { GameDirectoryInput } from "@/components/GameDirectoryInput";
 
 import { Config, detectGameDirectories, setGameDirectory } from "@/api";
-import { useConfig } from "@/stores/configStore";
 import { FormControl, MenuItem, Select } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { open } from "@tauri-apps/api/dialog";

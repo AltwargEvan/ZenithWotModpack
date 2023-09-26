@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useLayout } from "../stores/rootLayoutStore";
 import { GameDirectoryInput } from "@/components/GameDirectoryInput";
-import { useConfig } from "@/stores/configStore";
 
 const SettingsPage = () => {
   useLayout("Settings");

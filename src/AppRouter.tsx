@@ -6,7 +6,7 @@ import {
   createHashHistory,
 } from "@tanstack/react-router";
 import Root from "./routes/root";
-import HomePage, { Category } from "./routes/home";
+import HomePage from "./routes/home";
 import SettingsPage from "./routes/settings";
 import ModPage from "./routes/modPage/modPage";
 import YourMods from "./routes/yourMods/yourMods";

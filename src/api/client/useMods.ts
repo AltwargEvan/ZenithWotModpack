@@ -18,7 +18,7 @@ export const InstallConfigSchema = z.array(
   })
 );
 
-export type InstallConfig = z.infer<typeof InstallConfigSchema>;
+type InstallConfig = z.infer<typeof InstallConfigSchema>;
 
 export type InstallData = {
   name: string;

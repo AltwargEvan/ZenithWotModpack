@@ -13,7 +13,7 @@ interface ConfigState extends ConfigProps {
 }
 
 export const createConfigStore = (initProps: ConfigProps) => {
-  return createStore<ConfigState>()((set, get) => ({
+  return createStore<ConfigState>()((set, _get) => ({
     ...initProps,
     setGameDirectory: (dir: string) => {
       return setGameDirectory(dir).then(() => {

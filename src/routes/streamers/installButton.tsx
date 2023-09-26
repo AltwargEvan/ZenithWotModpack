@@ -1,15 +1,7 @@
-import {
-  InstallConfig,
-  Mod,
-  cacheMod,
-  fetchWGModResult,
-  installMod,
-  useDBMods,
-  useMods,
-} from "@/api";
+import { InstallConfig, Mod, cacheMod, installMod, useMods } from "@/api";
 import { useState } from "react";
-import { Menu, MenuItem } from "@mui/material";
-import { ThreeDotsVertical } from "@/assets/ThreeDotsVertical";
+// import { Menu, MenuItem } from "@mui/material";
+// import { ThreeDotsVertical } from "@/assets/ThreeDotsVertical";
 import { LoadingSpinner } from "@/assets/LoadingSpinner";
 import { useConfig } from "@/stores/configStore";
 import { useNavigate } from "@tanstack/react-router";
@@ -67,16 +59,16 @@ export const InstallButton = ({ modIds }: { modIds: Array<number> }) => {
     }
   }
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  // const open = Boolean(anchorEl);
 
-  const handleOpenDropdown = (event: React.MouseEvent<HTMLElement>) => {
-    if (!loading) setAnchorEl(event.currentTarget);
-  };
+  // const handleOpenDropdown = (event: React.MouseEvent<HTMLElement>) => {
+  //   if (!loading) setAnchorEl(event.currentTarget);
+  // };
 
-  const handleCloseDropdown = () => {
-    setAnchorEl(null);
-  };
+  // const handleCloseDropdown = () => {
+  //   setAnchorEl(null);
+  // };
 
   return (
     <div className="bg-neutral-500 flex h-8 rounded overflow-visible">

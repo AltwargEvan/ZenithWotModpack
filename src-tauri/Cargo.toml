@@ -13,7 +13,7 @@ edition = "2021"
 tauri-build = { version = "1.4", features = [] }
 
 [dependencies]
-tauri = { version = "1.4", features = [ "updater", "window-set-min-size", "clipboard-all", "window-unminimize", "window-unmaximize", "window-close", "window-maximize", "window-minimize", "window-start-dragging", "window-show", "window-hide", "path-all", "fs-all", "http-all", "dialog-open", "shell-open"] }
+tauri = { version = "1.4", features = [ "window-set-min-size", "clipboard-all", "window-unminimize", "window-unmaximize", "window-close", "window-maximize", "window-minimize", "window-start-dragging", "window-show", "window-hide", "path-all", "fs-all", "http-all", "dialog-open", "shell-open"] }
 zip-extensions = "0.6.1"
 tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 rusqlite = { version = "0.29.0", features = ["bundled"] }

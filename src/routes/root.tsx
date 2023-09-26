@@ -7,7 +7,6 @@ import { useQueries } from "@tanstack/react-query";
 import { getGameVersion, getConfig, Config } from "@/api";
 import InitialSetupPage from "./InitialSetupPage";
 import { useEffect, useState } from "react";
-import { NonNullableFields } from "@/utils/typeHelpers";
 
 const Root = () => {
   const { title, backgroundUrl } = useRootLayoutStore();
