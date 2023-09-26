@@ -6,6 +6,7 @@ import {
 import { Logo } from "../assets/Logo";
 import { HomeIcon, Profiles, Settings } from "../assets/PagesIcons";
 import { twMerge } from "tailwind-merge";
+import { TwitchIcon } from "@/assets/twitchIcon";
 
 const NavItem = ({
   text,
@@ -72,6 +73,7 @@ const Navbar = () => {
 
           <NavItem to="/" Icon={HomeIcon} text="Home" />
           <NavItem to="/yourMods" Icon={Profiles} text="Your Mods" />
+          <NavItem to="/streamers" Icon={TwitchIcon} text="Streamers" />
         </div>
         <div className="pb-3">
           <NavItem to="/settings" Icon={Settings} text="Settings" />

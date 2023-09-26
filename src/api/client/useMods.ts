@@ -1,13 +1,35 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { fetch } from "@tauri-apps/api/http";
 import { z } from "zod";
-import { InstallConfigSchema } from "../../features/mod";
+
 import fetchWGMod from "./fetchWargamingMods";
 
 // https://github.com/benborgers/opensheet
 const SPREADSHEET_ID = "1oxonHiV5znE17ZaTHVSztzOVLyyX6SSLTz2BWduiXIg";
 const SHEET_PAGE = "Mods";
 const SHEETS_TARGET = `https://opensheet.elk.sh/${SPREADSHEET_ID}/${SHEET_PAGE}`;
+
+export const InstallConfigSchema = z.array(
+  z.object({
+    modsPath: z.string().optional(),
+    resPath: z.string().optional(),
+    configsPath: z.string().optional(),
+    name: z.string(),
+  })
+);
+
+export type InstallConfig = z.infer<typeof InstallConfigSchema>;
+
+export type InstallData = {
+  name: string;
+  wgModsId: number;
+  id: number;
+  installConfig: InstallConfig;
+  installConfigIndices: Array<number>;
+  version: string;
+  gameVersion: string;
+  downloadUrl: string;
+};
 
 const modRequestResultParser = z.object({
   data: z.any().array(),
@@ -38,16 +60,17 @@ export async function fetchDbMods() {
     );
   });
   const wgMods = modsFromDB.filter((mod) => mod.wgModsId);
-  // console.log("fetched", wgMods);
-
   return wgMods;
 }
 
-export function useMods() {
-  const { data } = useQuery({
+export function useDBMods() {
+  return useQuery({
     queryKey: ["dbmods"],
     queryFn: fetchDbMods,
   });
+}
+export function useMods() {
+  const { data } = useDBMods();
 
   const mods = useQueries({
     queries: data

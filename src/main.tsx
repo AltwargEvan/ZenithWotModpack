@@ -2,16 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import AppRouter from "./AppRouter";
 import "./index.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { StyledEngineProvider } from "@mui/material";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+import { queryClient } from "./utils/QueryClient";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

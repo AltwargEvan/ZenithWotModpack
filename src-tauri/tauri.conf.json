@@ -26,7 +26,8 @@
         "scope": [
           "https://wgmods.net/api/mods/*",
           "https://modp.wgcdn.co/media/mod_files/**",
-          "https://opensheet.elk.sh/1oxonHiV5znE17ZaTHVSztzOVLyyX6SSLTz2BWduiXIg/*"
+          "https://opensheet.elk.sh/1oxonHiV5znE17ZaTHVSztzOVLyyX6SSLTz2BWduiXIg/*",
+          "https://gql.twitch.tv/gql"
         ]
       },
       "fs": {

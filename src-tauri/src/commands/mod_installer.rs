@@ -43,7 +43,20 @@ pub async fn get_install_state(
         }
     };
 
-    match db::queries::fetch_installed_configs_for_mod(mod_id, &app_handle) {
+    let game_directory = match db::queries::fetch_config(&app_handle) {
+        Ok(res) => match res.game_directory {
+            Some(gd) => gd,
+            None => {
+                println!("No game directory found in config");
+                return ("Not Installed".into(), None, None);
+            }
+        },
+        Err(_) => {
+            println!("Failed to fetch config");
+            return ("Not Installed".into(), None, None);
+        }
+    };
+    match db::queries::fetch_installed_configs_for_mod(mod_id, game_directory, &app_handle) {
         Ok(res) => {
             if res.len() > 0 {
                 return ("Installed".into(), Some(cached), Some(res));

@@ -2,6 +2,7 @@ import { Config, getGameVersion, setGameDirectory } from "@/api";
 import { useStore, createStore } from "zustand";
 import { ReactNode, createContext, useContext, useRef } from "react";
 import { NonNullableFields } from "@/utils/typeHelpers";
+import { queryClient } from "@/utils/QueryClient";
 
 interface ConfigProps extends NonNullableFields<Config> {
   gameVersion: string | null;
@@ -16,6 +17,9 @@ export const createConfigStore = (initProps: ConfigProps) => {
     ...initProps,
     setGameDirectory: (dir: string) => {
       return setGameDirectory(dir).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["cachedMods"] });
+        queryClient.invalidateQueries({ queryKey: ["installData"] });
+        console.log("invalidated");
         set(() => ({ game_directory: dir }));
         getGameVersion()
           .then((gameVersion) => set(() => ({ gameVersion })))

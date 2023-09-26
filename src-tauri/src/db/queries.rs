@@ -93,14 +93,14 @@ pub fn fetch_installed_mods(app_handle: &AppHandle) -> Result<Vec<InstallConfig>
 
 pub fn fetch_installed_configs_for_mod(
     mod_id: i32,
+    game_directory: String,
     app_handle: &AppHandle,
 ) -> Result<Vec<InstallConfig>, String> {
     let sql = format!(
         "--sql
         SELECT * FROM installed_mods
-        WHERE mod_id = {}
-        ",
-        mod_id
+        WHERE mod_id = {mod_id} AND game_directory = '{game_directory}'
+        "
     );
     let mut result = Vec::new();
 

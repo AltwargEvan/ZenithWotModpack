@@ -6,25 +6,14 @@ import {
   createHashHistory,
 } from "@tanstack/react-router";
 import Root from "./routes/root";
-import HomePage, { Category, Categories } from "./routes/home";
+import HomePage, { Category } from "./routes/home";
 import SettingsPage from "./routes/settings";
-// import ProfilesPage from "./routes/profiles";
 import ModPage from "./routes/modPage/modPage";
 import YourMods from "./routes/yourMods/yourMods";
-
+import StreamersPage from "./routes/streamers/streamers";
 const rootRoute = new RootRoute({
   component: Root,
 });
-
-// const profilesRoute = new Route({
-//   getParentRoute: () => rootRoute,
-//   path: "/profiles",
-//   component: ProfilesPage,
-// });
-
-interface HomeSearch {
-  category: Category | undefined;
-}
 
 const homeRoute = new Route({
   getParentRoute: () => rootRoute,
@@ -38,6 +27,11 @@ const settingsRoute = new Route({
   component: SettingsPage,
 });
 
+const streamersRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/streamers",
+  component: StreamersPage,
+});
 const mod = new Route({
   getParentRoute: () => rootRoute,
   path: "/mod/$id",
@@ -52,10 +46,10 @@ const yourMods = new Route({
 
 const routeTree = rootRoute.addChildren([
   homeRoute,
-  // profilesRoute,
   settingsRoute,
   yourMods,
   mod,
+  streamersRoute,
 ]);
 
 const hashHistory = createHashHistory();
