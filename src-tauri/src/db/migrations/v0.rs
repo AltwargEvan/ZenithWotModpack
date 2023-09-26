@@ -20,13 +20,13 @@ pub fn v0(tx: &Transaction) -> Result<(), rusqlite::Error> {
         );
 
         CREATE TABLE installed_mods (
-            name TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
             mod_id INTEGER NOT NULL,
             mods_path TEXT,
             res_path TEXT,
             configs_path TEXT,
             game_directory TEXT NOT NULL,
-            PRIMARY KEY(name)
+            PRIMARY KEY(name, game_directory)
         );
         ",
     )?;
