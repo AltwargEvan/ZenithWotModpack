@@ -1,16 +1,8 @@
 import { detectGameDirectories } from "@/api";
 import { useConfig } from "@/stores/configStore";
-import {
-  Autocomplete,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from "@mui/material";
+import { FormControl, MenuItem, Select } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { open } from "@tauri-apps/api/dialog";
-import { useMemo } from "react";
 
 export const GameDirectoryInput = ({
   setError,

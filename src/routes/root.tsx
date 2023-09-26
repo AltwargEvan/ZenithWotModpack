@@ -4,11 +4,13 @@ import TitleBar from "../layouts/Titlebar";
 import { useRootLayoutStore } from "../stores/rootLayoutStore";
 import { ConfigContextProvider } from "@/stores/configStore";
 import { useQueries } from "@tanstack/react-query";
-import { getGameVersion, getConfig } from "@/api";
+import { getGameVersion, getConfig, Config } from "@/api";
+import InitialSetupPage from "./InitialSetupPage";
+import { useEffect, useState } from "react";
+import { NonNullableFields } from "@/utils/typeHelpers";
 
 const Root = () => {
   const { title, backgroundUrl } = useRootLayoutStore();
-
   // FETCH ALL INITIAL DATA TO PROVIDE TO CHILDREN
   const results = useQueries({
     queries: [
@@ -32,6 +34,11 @@ const Root = () => {
   } = results[0];
   const { data: gameVersion, isLoading: gameVersionLoading } = results[1];
 
+  const [initVals, setInitVals] = useState<Config | undefined>(undefined);
+  useEffect(() => {
+    setInitVals(config);
+  }, [config]);
+
   // error
   if (configError)
     return (
@@ -46,15 +53,32 @@ const Root = () => {
     return (
       <div className="border-neutral-600 border h-screen w-screen font-oswald">
         <TitleBar />
-        Loading
       </div>
     );
 
-  // success
-  if (config)
+  if (!initVals?.game_directory) {
+    return (
+      <div className="border-neutral-600 border h-screen w-screen font-oswald">
+        <TitleBar />
+        <div
+          className="bg-gradient-to-bl from-neutral-900/90    to-neutral-950 border-t fixed  grow flex w-full text-white bprder-r-px border-neutral-600 "
+          style={{
+            height: "calc(100% - 2.25rem - 1px)",
+            width: "calc(100%  - 2px)",
+            top: "2.25rem",
+          }}
+        >
+          <InitialSetupPage setInitVals={setInitVals} />
+        </div>
+      </div>
+    );
+  } else
     return (
       <ConfigContextProvider
-        value={{ ...config, gameVersion: gameVersion || null }}
+        value={{
+          game_directory: initVals.game_directory,
+          gameVersion: gameVersion || null,
+        }}
       >
         <div className="border-neutral-600 border h-screen w-screen font-oswald">
           <TitleBar />

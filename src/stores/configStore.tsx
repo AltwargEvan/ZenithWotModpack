@@ -9,7 +9,7 @@ interface ConfigProps extends NonNullableFields<Config> {
 }
 
 interface ConfigState extends ConfigProps {
-  setGameDirectory: (config: string) => Promise<void>;
+  setGameDirectory: (dir: string) => Promise<void>;
 }
 
 export const createConfigStore = (initProps: ConfigProps) => {

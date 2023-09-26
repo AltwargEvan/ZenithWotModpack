@@ -46,21 +46,19 @@ export function useStreamers() {
 
 export async function getIsStreaming(username: String) {
   const url = "https://gql.twitch.tv/gql";
-  const query =
-    'query {\n  user(login: "' +
-    username +
-    '") {\n    stream {\n      id\n    }\n  }\n}';
+  const query = `query {\n  user(login: \"${username}\") {\n    stream {\n      id\n    }\n  }\n}`;
 
-  const body = Body.form({ query });
   const headers = { "client-id": "kimne78kx3ncx6brgo4mv6wki5h1ko" };
-  const res = await fetch(url, { method: "POST", body, headers });
-  console.log("twitch res", res);
-  try {
-    // @ts-ignore
-    return !!res.data.user.stream;
-  } catch {
-    return false;
-  }
+  const body = Body.json({ query });
+  const res = await fetch(url, {
+    method: "POST",
+    body,
+    headers,
+  });
+
+  // @ts-ignore
+  if (res.data.data.user.stream) return true;
+  return false;
 }
 
 export function useIsStreaming(username: String) {
