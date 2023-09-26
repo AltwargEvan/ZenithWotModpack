@@ -34,3 +34,4 @@ pub struct InstallConfig {
     pub configs_path: Option<String>,
     pub game_directory: String,
 }
+

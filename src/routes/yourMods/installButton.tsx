@@ -14,20 +14,43 @@ import { Menu, MenuItem } from "@mui/material";
 import { ThreeDotsVertical } from "@/assets/ThreeDotsVertical";
 import { twMerge } from "tailwind-merge";
 import { LoadingSpinner } from "@/assets/LoadingSpinner";
-import { useNavigate } from "@tanstack/react-router";
 import { useConfig } from "@/stores/configStore";
 
-export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
+export const InstallButton = ({
+  mod,
+  refetchCache,
+}: {
+  mod: fetchWGModResult;
+  refetchCache: () => Promise<unknown>;
+}) => {
+  //dropdown
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleOpenDropdown = (event: React.MouseEvent<HTMLElement>) => {
+    if (!loading && installState) setAnchorEl(event.currentTarget);
+  };
+  const handleCloseDropdown = () => {
+    setAnchorEl(null);
+  };
+
+  // install state
   const { data: installStateData, refetch: refetchInstallState } = useQuery({
     queryKey: ["installData", mod.internal.id],
     queryFn: async () => getInstallState(mod.internal.id),
     retry: false,
   });
+  const [loading, setLoading] = useState(false);
+  const gameDirectory = useConfig((ctx) => ctx.game_directory);
+
   const installState = installStateData ? installStateData[0] : "Loading";
 
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const gameDirectory = useConfig((ctx) => ctx.game_directory);
+  if (
+    installState !== "Cached" &&
+    installState !== "Installed" &&
+    installState !== "Loading"
+  )
+    return null;
+
   const modData: Mod = {
     id: mod.internal.id,
     wg_mods_id: mod.id,
@@ -61,6 +84,7 @@ export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
         mod.mod_version !== mod.mod_version
       );
     })();
+
     switch (installState) {
       case "Cached": {
         if (updateAvailable) {
@@ -72,17 +96,17 @@ export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
           };
         } else
           return {
-            color: "bg-neutral-500",
-            hover: "hover:bg-neutral-600",
-            content: "Added",
-            action: () => navigate({ to: "/yourMods" }),
+            color: "bg-yellow-300  text-black",
+            hover: "hover:bg-yellow-400",
+            content: "Install",
+            action: handleInstall,
           };
       }
 
       case "Installed": {
         if (updateAvailable) {
           return {
-            color: "bg-yellow-300 text-black",
+            color: "bg-yellow-300 text-black ",
             hover: "hover:bg-yellow-400",
             content: "Update Available",
             action: handleCacheAndInstall,
@@ -91,29 +115,10 @@ export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
           return {
             color: "bg-green-500",
             hover: "hover:bg-green-600",
-            content: "Installed",
-            action: () => navigate({ to: "/yourMods" }),
+            content: "Uninstall",
+            action: handleUninstall,
           };
       }
-      case "Not Installed":
-        return {
-          color: "bg-yellow-300 text-black",
-          hover: "hover:bg-yellow-400",
-          content: "Install",
-          action: handleCacheAndInstall,
-        };
-      default:
-        return {
-          color: "bg-neutral-600",
-          hover: "hover:bg-neutral-500",
-          content: (
-            <LoadingSpinner
-              style={{ height: "20px" }}
-              className="fill-blue-100"
-            />
-          ),
-          action: () => null,
-        };
     }
   })();
 
@@ -156,19 +161,6 @@ export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
     }
   }
 
-  async function handleUncache() {
-    try {
-      if (loading) return;
-      setLoading(true);
-      await uncacheMod(modData);
-      await refetchInstallState();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function handleCacheAndInstall() {
     try {
       if (loading) return;
@@ -183,13 +175,12 @@ export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
     }
   }
 
-  async function handleUncacheAndUninstall() {
+  async function handleUncache() {
     try {
       if (loading) return;
       setLoading(true);
-      await uninstallMod(modData.id, installConfigs[0].name);
       await uncacheMod(modData);
-      await refetchInstallState();
+      await refetchCache();
     } catch (e) {
       console.error(e);
     } finally {
@@ -197,16 +188,22 @@ export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
     }
   }
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
+  async function handleUncacheAndUninstall() {
+    try {
+      if (loading) return;
+      setLoading(true);
+      await uninstallMod(modData.id, installConfigs[0].name);
+      await uncacheMod(modData);
+      await refetchCache();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  const handleOpenDropdown = (event: React.MouseEvent<HTMLElement>) => {
-    if (!loading && installState) setAnchorEl(event.currentTarget);
-  };
+  if (!style) return null;
 
-  const handleCloseDropdown = () => {
-    setAnchorEl(null);
-  };
   return (
     <div className="bg-neutral-500 flex h-8 rounded overflow-visible">
       <button
@@ -253,66 +250,20 @@ export const InstallButton = ({ mod }: { mod: fetchWGModResult }) => {
           "& .MuiList-padding": { paddingY: "4px" },
         }}
       >
-        {installState === "Not Installed" && (
-          <MenuItem
-            onClick={() => {
-              handleCloseDropdown();
-              handleCache();
-            }}
-            disableRipple
-            className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
-          >
-            Add To Your Mods
-          </MenuItem>
-        )}
-        {installState === "Cached" && (
-          <MenuItem
-            onClick={() => {
-              handleCloseDropdown();
-              handleInstall();
-            }}
-            disableRipple
-            className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
-          >
-            Install
-          </MenuItem>
-        )}
-        {installState === "Cached" && (
-          <MenuItem
-            onClick={() => {
-              handleCloseDropdown();
-              handleUncache();
-            }}
-            disableRipple
-            className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
-          >
-            Remove from your mods
-          </MenuItem>
-        )}
-        {installState === "Installed" && (
-          <MenuItem
-            onClick={() => {
-              handleCloseDropdown();
-              handleUninstall();
-            }}
-            disableRipple
-            className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
-          >
-            Uninstall
-          </MenuItem>
-        )}
-        {installState === "Installed" && (
-          <MenuItem
-            onClick={() => {
-              handleCloseDropdown();
+        <MenuItem
+          onClick={() => {
+            handleCloseDropdown();
+            if (installState === "Installed") {
               handleUncacheAndUninstall();
-            }}
-            disableRipple
-            className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
-          >
-            Remove from your mods
-          </MenuItem>
-        )}
+            } else {
+              handleUncache();
+            }
+          }}
+          disableRipple
+          className="hover:bg-neutral-500 h-6 text-white font-oswald font-base text-sm"
+        >
+          Remove from your mods
+        </MenuItem>
       </Menu>
     </div>
   );

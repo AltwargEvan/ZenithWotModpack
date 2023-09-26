@@ -10,7 +10,7 @@ import HomePage, { Category, Categories } from "./routes/home";
 import SettingsPage from "./routes/settings";
 // import ProfilesPage from "./routes/profiles";
 import ModPage from "./routes/modPage/modPage";
-import YourMods from "./routes/yourMods";
+import YourMods from "./routes/yourMods/yourMods";
 
 const rootRoute = new RootRoute({
   component: Root,

@@ -6,7 +6,10 @@ use std::{
 use crate::{
     db::{
         self,
-        queries::{delete_install, fetch_install, fetch_mod, insert_installed_mod},
+        queries::{
+            delete_install, fetch_cached_mods, fetch_install, fetch_installed_mods, fetch_mod,
+            insert_installed_mod,
+        },
     },
     types::{InstallConfig, Mod},
     utils::{self, file::copy_dir_all},
@@ -17,22 +20,38 @@ use super::config::detect_game_version;
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_install_state(mod_id: i32, app_handle: AppHandle) -> String {
-    let cached = db::queries::fetch_mod(mod_id, &app_handle);
-    if cached.is_err() {
-        return "Not Installed".into();
-    }
-    let installed = db::queries::fetch_installed_mods(mod_id, &app_handle);
+pub async fn get_cached_mods(app_handle: AppHandle) -> Result<Vec<Mod>, String> {
+    fetch_cached_mods(&app_handle)
+}
+#[tauri::command]
+#[specta::specta]
+pub async fn get_installed_mods(app_handle: AppHandle) -> Result<Vec<InstallConfig>, String> {
+    fetch_installed_mods(&app_handle)
+}
 
-    match installed {
+#[tauri::command]
+#[specta::specta]
+pub async fn get_install_state(
+    mod_id: i32,
+    app_handle: AppHandle,
+) -> (String, Option<Mod>, Option<Vec<InstallConfig>>) {
+    let cached = match db::queries::fetch_mod(mod_id, &app_handle) {
+        Ok(res) => res,
+        Err(err) => {
+            println!("{}", err);
+            return ("Not Installed".into(), None, None);
+        }
+    };
+
+    match db::queries::fetch_installed_configs_for_mod(mod_id, &app_handle) {
         Ok(res) => {
             if res.len() > 0 {
-                return "Installed".into();
+                return ("Installed".into(), Some(cached), Some(res));
             }
         }
         Err(err) => println!("Failed to fetch install data {}", err),
-    }
-    return "Cached".into();
+    };
+    return ("Cached".into(), Some(cached), None);
 }
 
 #[tauri::command]

@@ -63,10 +63,10 @@ export function ModPageInner({ mod }: { mod: fetchWGModResult }) {
         {mod.screenshots.length > 0 && (
           <Carousel
             autoPlay={false}
-            indicators
+            indicators={mod.screenshots.length > 1}
             swipe
             cycleNavigation
-            navButtonsAlwaysVisible
+            navButtonsAlwaysVisible={mod.screenshots.length > 1}
             fullHeightHover
             animation="slide"
             duration={400}

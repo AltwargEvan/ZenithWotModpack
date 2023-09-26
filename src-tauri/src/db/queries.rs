@@ -29,7 +29,69 @@ pub fn fetch_mod(mod_id: i32, app_handle: &AppHandle) -> Result<Mod, String> {
         .map_err(|e| e.to_string())
 }
 
-pub fn fetch_installed_mods(
+pub fn fetch_cached_mods(app_handle: &AppHandle) -> Result<Vec<Mod>, String> {
+    let sql = "--sql
+        SELECT * FROM mods
+    ";
+    let mut result = Vec::new();
+
+    app_handle.db(|conn| {
+        let mut stmt = conn.prepare(sql).map_err(|e| e.to_string())?;
+        let iter = stmt
+            .query_map([], |row| {
+                Ok(Mod {
+                    id: row.get("id")?,
+                    wg_mods_id: row.get("wg_mods_id")?,
+                    name: row.get("name")?,
+                    mod_version: row.get("mod_version")?,
+                    game_version: row.get("game_version")?,
+                    thumbnail_url: row.get("thumbnail_url")?,
+                })
+            })
+            .map_err(|e| e.to_string())?;
+
+        for item in iter {
+            match item {
+                Ok(item) => result.push(item),
+                Err(err) => println!("Failed to unwrap item: {}", err.to_string()),
+            }
+        }
+        Ok(result)
+    })
+}
+
+pub fn fetch_installed_mods(app_handle: &AppHandle) -> Result<Vec<InstallConfig>, String> {
+    let sql = "--sql
+        SELECT * FROM installed_mods
+    ";
+    let mut result = Vec::new();
+
+    app_handle.db(|conn| {
+        let mut stmt = conn.prepare(sql).map_err(|e| e.to_string())?;
+        let iter = stmt
+            .query_map([], |row| {
+                Ok(InstallConfig {
+                    name: row.get("name")?,
+                    mod_id: row.get("mod_id")?,
+                    mods_path: row.get("mods_path")?,
+                    res_path: row.get("res_path")?,
+                    configs_path: row.get("configs_path")?,
+                    game_directory: row.get("game_directory")?,
+                })
+            })
+            .map_err(|e| e.to_string())?;
+
+        for item in iter {
+            match item {
+                Ok(item) => result.push(item),
+                Err(err) => println!("Failed to unwrap item: {}", err.to_string()),
+            }
+        }
+        Ok(result)
+    })
+}
+
+pub fn fetch_installed_configs_for_mod(
     mod_id: i32,
     app_handle: &AppHandle,
 ) -> Result<Vec<InstallConfig>, String> {
