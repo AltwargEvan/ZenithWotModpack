@@ -1,7 +1,5 @@
-import { useLayout } from "../../stores/rootLayoutStore";
-
 import { StreamerData, useIsStreaming, useStreamers } from "@/api";
-import { InstallButton } from "./installButton";
+import { InstallButton } from "../routes/streamers/installButton";
 
 const StreamerItem = ({ streamer }: { streamer: StreamerData }) => {
   const { data: isStreaming } = useIsStreaming(streamer.name);
@@ -42,9 +40,7 @@ const StreamerItem = ({ streamer }: { streamer: StreamerData }) => {
 };
 
 const StreamersPage = () => {
-  useLayout("Streamers");
   const { data } = useStreamers();
-  console.log(data);
   return (
     <div className="px-3">
       <div

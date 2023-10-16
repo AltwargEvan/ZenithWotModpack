@@ -4,7 +4,7 @@ import { useState } from "react";
 // import { ThreeDotsVertical } from "@/assets/ThreeDotsVertical";
 import { LoadingSpinner } from "@/assets/LoadingSpinner";
 import { useConfig } from "@/stores/configStore";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "react-router-dom";
 
 export const InstallButton = ({ modIds }: { modIds: Array<number> }) => {
   const allModsResult = useMods();
@@ -75,7 +75,7 @@ export const InstallButton = ({ modIds }: { modIds: Array<number> }) => {
       <button
         className="flex justify-center items-center min-w-[8rem] max-w-[8rem] rounded bg-neutral-50 text-black hover:bg-neutral-200"
         onClick={() => {
-          if (installed) navigate({ to: "/yourMods" });
+          if (installed) navigate("/yourMods");
           else handleCacheAndInstall();
         }}
       >

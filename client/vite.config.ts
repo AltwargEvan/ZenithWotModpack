@@ -1,9 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
+import pages from "vite-plugin-pages";
+
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react(), tsconfigPaths()],
+  plugins: [react(), tsconfigPaths(), pages({ dirs: "./src/pages" })],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //

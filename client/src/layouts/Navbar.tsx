@@ -1,34 +1,24 @@
-import {
-  ToPathOption,
-  useNavigate,
-  useRouterState,
-} from "@tanstack/react-router";
 import { Logo } from "../assets/Logo";
 import { HomeIcon, Profiles, Settings } from "../assets/PagesIcons";
 import { twMerge } from "tailwind-merge";
 import { TwitchIcon } from "@/assets/twitchIcon";
+import { NavLink } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const NavItem = ({
   text,
   Icon,
   to,
 }: {
-  to: ToPathOption;
+  to: string;
   text: string;
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
 }) => {
-  const navigate = useNavigate();
-  const {
-    location: { pathname },
-  } = useRouterState();
-  function onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-    e.preventDefault();
-    navigate({ to: to });
-  }
-  const active = to === "/" ? pathname === "/" : pathname.startsWith(to);
+  const location = useLocation();
+  const active = to === location.pathname;
   return (
-    <div
-      onClick={onClick}
+    <NavLink
+      to={to}
       className={twMerge(
         "grid py-2.5",
         active
@@ -45,43 +35,39 @@ const NavItem = ({
       <span className="font-medium align-middle hover:cursor-pointer text-sm">
         {text}
       </span>
-    </div>
+    </NavLink>
   );
 };
 
 const Navbar = () => {
   return (
-    <>
-      <div
-        className="bg-zinc-900  hover:w-40 transition-all ease-out duration-150 w-[4.5rem] flex flex-col justify-between overflow-hidden fixed z-40 border-neutral-700 border-r select-none"
-        style={{ height: "calc(100% - 2.25rem - 2px)" }}
-      >
-        <div>
-          <div
-            className="grid pt-5 pb-3"
-            style={{
-              gridTemplateColumns: "4.5rem 35.5rem",
-            }}
-          >
-            <div className="flex justify-center  items-center">
-              <Logo className="h-7 fill-red-500 w-7" />
-            </div>
-            <div className=" font-bold text-xl tracking-wider text-neutral-50">
-              <span>Zenith</span>
-            </div>
+    <div
+      className="bg-zinc-900  hover:w-40 transition-all ease-out duration-150 w-[4.5rem] flex flex-col justify-between overflow-hidden fixed z-40 border-neutral-700 border-r select-none"
+      style={{ height: "calc(100% - 2.25rem - 2px)" }}
+    >
+      <div>
+        <div
+          className="grid pt-5 pb-3"
+          style={{
+            gridTemplateColumns: "4.5rem 35.5rem",
+          }}
+        >
+          <div className="flex justify-center  items-center">
+            <Logo className="h-7 fill-red-500 w-7" />
           </div>
+          <div className=" font-bold text-xl tracking-wider text-neutral-50">
+            <span>Zenith</span>
+          </div>
+        </div>
 
-          <NavItem to="/" Icon={HomeIcon} text="Home" />
-          <NavItem to="/yourMods" Icon={Profiles} text="Your Mods" />
-          <NavItem to="/streamers" Icon={TwitchIcon} text="Streamers" />
-        </div>
-        <div className="pb-3">
-          <NavItem to="/settings" Icon={Settings} text="Settings" />
-        </div>
+        <NavItem to="/" Icon={HomeIcon} text="Home" />
+        <NavItem to="/yourMods" Icon={Profiles} text="Your Mods" />
+        <NavItem to="/streamers" Icon={TwitchIcon} text="Streamers" />
       </div>
-      {/* filler div */}
-      <div className="w-16 invisible"></div>
-    </>
+      <div className="pb-3">
+        <NavItem to="/settings" Icon={Settings} text="Settings" />
+      </div>
+    </div>
   );
 };
 

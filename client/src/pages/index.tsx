@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useMods } from "../api/client/useMods";
-import { useLayout } from "../stores/rootLayoutStore";
 import { TabButton } from "../components/TabButton";
 import { BoxesIcon } from "../assets/BoxesIcon";
 import { Wrench } from "../assets/Wrench";
 import { Crosshair } from "../assets/Crosshair";
 import { Star } from "../assets/Star";
-import { Link, useSearch } from "@tanstack/react-router";
+import { NavLink, useSearchParams } from "react-router-dom";
+import PageHeader from "@/layouts/PageHeader";
 
 export const Categories = [
   "All Mods",
@@ -72,12 +72,7 @@ const ModItem = ({
   mod: NonNullable<ReturnType<typeof useMods>[number]["data"]>;
 }) => {
   return (
-    <Link
-      to={`/mod/$id`}
-      params={{
-        id: mod.internal.id.toString(),
-      }}
-    >
+    <NavLink to={`/mod/${mod.id}`}>
       <div className="p-1 hover:cursor-pointer h-54 relative rounded-xl overflow-visible bg-neutral-700 hover:ring-1 ring-offset-2 ring-offset-transparent ring-neutral-400 hover:scale-105 transition-all group">
         <div
           style={{
@@ -108,18 +103,19 @@ const ModItem = ({
           </div>
         </div>
       </div>
-    </Link>
+    </NavLink>
   );
 };
 
 const HomePage = () => {
-  useLayout("Home");
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get("category");
+  searchParams;
 
-  const searchParams = useSearch() as any;
   // set category on load
   useEffect(() => {
-    if (Categories.includes(searchParams["category"]))
-      setActiveTab(searchParams["category"]);
+    if (Categories.includes(category as Category))
+      setActiveTab(category as Category);
   }, []);
 
   const [activeTab, setActiveTab] = useState<Tab>("All Mods");
@@ -135,33 +131,38 @@ const HomePage = () => {
     );
 
   return (
-    <div>
-      <div className="flex pb-3 justify-between items-center pr-3">
-        <HomeTabs setActiveTab={setActiveTab} activeTab={activeTab} />
-        <input
-          type="text"
-          className="px-4  py-1 rounded-2xl text-neutral-800 w-[15rem] text-sm"
-          placeholder="Search Mods..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+    <>
+      <PageHeader title="Home" />
+      <div>
+        <div className="flex pb-3 justify-between items-center pr-3">
+          <HomeTabs setActiveTab={setActiveTab} activeTab={activeTab} />
+          <input
+            type="text"
+            className="px-4  py-1 rounded-2xl text-neutral-800 w-[15rem] text-sm"
+            placeholder="Search Mods..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        {mods.length === 0 && <div>Failed To Fetch Mod List</div>}
+        <div
+          style={{
+            maxHeight: "calc(100vh - 138px)",
+          }}
+          className="grid grid-cols-4 gap-4 pt-2 px-3 pb-6 xl:grid-cols-4 2xl:grid-cols-5 w-full overflow-y-auto"
+        >
+          {mods
+            .filter(
+              (item) =>
+                item &&
+                JSON.stringify(item)
+                  .toLowerCase()
+                  .includes(search.toLowerCase())
+            )
+            .map((mod) => mod && <ModItem mod={mod} key={mod.internal.id} />)}
+        </div>
       </div>
-      {mods.length === 0 && <div>Failed To Fetch Mod List</div>}
-      <div
-        style={{
-          maxHeight: "calc(100vh - 138px)",
-        }}
-        className="grid grid-cols-4 gap-4 pt-2 px-3 pb-6 xl:grid-cols-4 2xl:grid-cols-5 w-full overflow-y-auto"
-      >
-        {mods
-          .filter(
-            (item) =>
-              item &&
-              JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
-          )
-          .map((mod) => mod && <ModItem mod={mod} key={mod.internal.id} />)}
-      </div>
-    </div>
+    </>
   );
 };
 
