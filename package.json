@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "pnpm dev --parellel"
+    "dev": "concurrently --kill-others \"cd ./client && pnpm dev\" \"cd ./api && pnpm dev\""
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.1"
+  }
 }
