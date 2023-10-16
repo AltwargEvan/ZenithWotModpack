@@ -7,6 +7,14 @@ import { Crosshair } from "../assets/Crosshair";
 import { Star } from "../assets/Star";
 import { NavLink, useSearchParams } from "react-router-dom";
 import PageHeader from "@/layouts/PageHeader";
+import { Auth } from "@supabase/auth-ui-react";
+import Authenticator from "@/services/supabase/authenticator";
+import supabase, {
+  useSession,
+  useUser,
+} from "@/services/supabase/supabaseContext";
+import { Button } from "@/components/ui/Button";
+import { supabaseClient } from "@/services/supabase/supabaseClient";
 
 export const Categories = [
   "All Mods",
@@ -166,4 +174,13 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+// export default HomePage;
+
+export default function Home() {
+  const session = useSession();
+  async function handleSignout() {
+    await supabaseClient.auth.signOut();
+  }
+  if (!session) return <Authenticator />;
+  return <Button onClick={handleSignout}>Logout</Button>;
+}

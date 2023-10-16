@@ -3212,6 +3212,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "tauri-plugin-oauth"
+version = "0.0.0"
+source = "git+https://github.com/FabianLars/tauri-plugin-oauth?branch=main#26e381159922338f992b3870fc82273fa9320b5b"
+dependencies = [
+ "httparse",
+ "log",
+ "serde",
+ "tauri",
+ "url",
+]
+
+[[package]]
 name = "tauri-runtime"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4319,6 +4331,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-log",
+ "tauri-plugin-oauth",
  "tauri-specta",
  "zip-extensions",
 ]

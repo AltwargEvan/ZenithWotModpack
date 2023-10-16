@@ -43,6 +43,7 @@ fn main() {
                 .targets([LogTarget::LogDir, LogTarget::Stdout, LogTarget::Webview])
                 .build(),
         )
+        .plugin(tauri_plugin_oauth::init())
         .manage(AppState {
             db: Default::default(),
         })

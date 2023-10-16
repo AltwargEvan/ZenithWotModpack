@@ -1,6 +1,6 @@
 import React from "react";
 import { open } from "@tauri-apps/api/dialog";
-import Button from "./Button";
+import Button from "./ui/Button";
 import { twMerge } from "tailwind-merge";
 const FileDirInput = ({
   value,
