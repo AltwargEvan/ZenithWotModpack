@@ -1,43 +1,10 @@
 import routes from "~react-pages";
 import { BrowserRouter, useRoutes } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { StyledEngineProvider } from "@mui/material";
-import { queryClient } from "./utils/QueryClient";
+import { queryClient } from "@/utils/QueryClient";
 import { ReactNode } from "react";
-import TitleBar from "./layouts/Titlebar";
-import Navbar from "./layouts/Navbar";
-import { useRootLayoutStore } from "./stores/rootLayoutStore";
-
-const RootLayout = ({ children }: { children: ReactNode }) => {
-  const InitialSetupComplete = true;
-  const { title, backgroundUrl } = useRootLayoutStore();
-
-  // if (InitialSetupComplete) return children;
-
-  return (
-    <div className="border-neutral-600 border h-screen w-screen font-oswald">
-      <TitleBar />
-      <Navbar />
-      <div
-        className=" border-t fixed  grow flex w-full  bprder-r-px border-neutral-600 "
-        style={{
-          height: "calc(100% - 2.25rem - 1px)",
-          width: "calc(100% - 4rem - 1px)",
-          left: "4rem",
-          top: "2.25rem",
-        }}
-      >
-        <div>
-          <div className="h-12 pb-4 px-3">
-            <span className="text-3xl font-bold">{title}</span>
-          </div>
-
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-};
+import TitleBar from "@/layouts/Titlebar";
+import Navbar from "@/layouts/Navbar";
 
 const AppOuterLayout = ({ children }: { children: ReactNode }) => {
   return (
@@ -71,36 +38,28 @@ const InitialSetup = () => {
   return <div>TODO</div>;
 };
 
-const AppProviders = ({ children }: { children: ReactNode }) => {
+const AppInner = () => {
+  const Routes = () => useRoutes(routes);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <StyledEngineProvider injectFirst>{children}</StyledEngineProvider>
-    </QueryClientProvider>
+    <BrowserRouter>
+      <AppInnerLayout>
+        <Routes />
+      </AppInnerLayout>
+    </BrowserRouter>
   );
 };
 
 const App = () => {
-  const Routes = () => useRoutes(routes);
-
   const UserBootstrapComplete = true;
 
-  if (!UserBootstrapComplete)
-    return (
-      <AppOuterLayout>
-        <InitialSetup />
-      </AppOuterLayout>
-    );
-
   return (
-    <AppOuterLayout>
-      <AppProviders>
-        <BrowserRouter>
-          <AppInnerLayout>
-            <Routes />
-          </AppInnerLayout>
-        </BrowserRouter>
-      </AppProviders>
-    </AppOuterLayout>
+    <QueryClientProvider client={queryClient}>
+      <AppOuterLayout>
+        {!UserBootstrapComplete && <InitialSetup />}
+        {UserBootstrapComplete && <AppInner />}
+      </AppOuterLayout>
+    </QueryClientProvider>
   );
 };
 
