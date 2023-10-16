@@ -1,11 +1,11 @@
-import { defineConfig } from "vite";
+import path from "path";
 import react from "@vitejs/plugin-react";
-import tsconfigPaths from "vite-tsconfig-paths";
 import pages from "vite-plugin-pages";
+import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react(), tsconfigPaths(), pages({ dirs: "./src/pages" })],
+  plugins: [react(), pages({ dirs: "./src/pages" })],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
   //
@@ -19,4 +19,9 @@ export default defineConfig(async () => ({
   // 3. to make use of `TAURI_DEBUG` and other env variables
   // https://tauri.studio/v1/api/config#buildconfig.beforedevcommand
   envPrefix: ["VITE_", "TAURI_"],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 }));
