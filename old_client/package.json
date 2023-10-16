@@ -1,5 +1,5 @@
 {
-  "name": "zenith_wot_modpack",
+  "name": "@zenith/client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -18,6 +18,7 @@
     "@tanstack/react-query": "^4.32.6",
     "@tanstack/react-router": "beta",
     "@tauri-apps/api": "^1.4.0",
+    "@zenith/client": "workspace:*",
     "axios": "^1.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

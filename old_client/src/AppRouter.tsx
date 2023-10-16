@@ -11,10 +11,10 @@ import SettingsPage from "./routes/settings";
 import ModPage from "./routes/modPage/modPage";
 import YourMods from "./routes/yourMods/yourMods";
 import StreamersPage from "./routes/streamers/streamers";
+
 const rootRoute = new RootRoute({
   component: Root,
 });
-
 const homeRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/",
