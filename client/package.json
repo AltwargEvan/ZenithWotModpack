@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "vite": "vite",
+    "dev": "tauri dev",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri",
     "format": "rustfmt src-tauri/src/**/*.rs"
   },
   "dependencies": {
@@ -40,6 +40,5 @@
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
     "vite": "^4.4.4"
-  },
-  "packageManager": "yarn@3.6.2"
+  }
 }

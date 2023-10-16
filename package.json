@@ -1,0 +1,11 @@
+{
+  "name": "zenith",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "pnpm dev --parellel"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
