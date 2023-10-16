@@ -6,7 +6,7 @@ const t = initTRPC.create();
 const publicProcedure = t.procedure;
 const router = t.router;
 
-const helloRouter = router({
+const usersRouter = router({
   greeting: publicProcedure
     .input(z.object({ name: z.string() }).nullish())
     .query(({ input }) => {
@@ -15,5 +15,5 @@ const helloRouter = router({
 });
 
 export const appRouter = router({
-  hello: helloRouter,
+  users: usersRouter,
 });

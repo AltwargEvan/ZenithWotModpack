@@ -5,8 +5,8 @@ export default {
     extend: {
       // fonts are linked from google in index.html
       fontFamily: {
-        oswald: ["Oswald", "sans-serif"],
-        cinzel: ["Cinzel Decorative", "cursive"],
+        oswald: ["var(--font-oswald)"],
+        cinzel: ["var(--font-cinzel)"],
       },
       colors: {
         neutral: {
