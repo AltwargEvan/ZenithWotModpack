@@ -1,18 +1,32 @@
 <html>
   <style>
+    html {
+      background-color: black;
+      height: 100vh;
+      width: 100vw;
+      font-family: sans-serif;
+    }
     body {
-      background-color: gray;
-      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    h1 {
+      color: white;
+    }
+
+    span {
+      color: lightgray;
+    }
+    div {
+      text-align: center;
+      justify-content: center;
     }
   </style>
-  <script type="text/javascript">
-    function closeWindow() {
-      open(location, "_self").close();
-    }
-  </script>
   <body>
     <div>
-      <button onclick="closeWindow()">Return to App</button>
+      <h1>Sign In Complete</h1>
+      <span>Please return to app</span>
     </div>
   </body>
 </html>
