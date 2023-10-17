@@ -1,8 +1,23 @@
-import { fetch } from "@tauri-apps/api/http";
+import type { Database } from "@zenith/supabase/types";
 import { z } from "zod";
-import { fetchDbMods } from "./useMods";
+import { Prettify } from "./Prettify";
 
-export const wgModsAPIResultType = z.object({
+export type Tables<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Row"];
+export type Enums<T extends keyof Database["public"]["Enums"]> =
+  Database["public"]["Enums"][T];
+
+type InstallConfig = Tables<"installConfigs">;
+type ModJoined = Prettify<
+  Tables<"mods"> & {
+    installConfigs: InstallConfig[];
+  }
+>;
+export type SupaMergedMod = Array<ModJoined>;
+export type MergedMod = Prettify<wargamingMod & ModJoined>;
+export type GetModsReturnType = Array<MergedMod>;
+
+export const wargamingMod = z.object({
   author_name: z.unknown(),
   change_log: z.array(
     z.object({
@@ -51,25 +66,4 @@ export const wgModsAPIResultType = z.object({
     })
   ),
 });
-
-export default async function fetchWGMod(
-  mod: Awaited<ReturnType<typeof fetchDbMods>>[number]
-) {
-  try {
-    const url = `https://wgmods.net/api/mods/${mod.wgModsId}/`;
-    const res = await fetch(url, {
-      method: "GET",
-      headers: {
-        "X-Requested-With": "XMLHttpRequest",
-      },
-    });
-    const parsedRes = wgModsAPIResultType.parse(res.data);
-    return { ...parsedRes, internal: { ...mod } };
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-export type fetchWGModResult = NonNullable<
-  Awaited<ReturnType<typeof fetchWGMod>>
->;
+export type wargamingMod = z.infer<typeof wargamingMod>;

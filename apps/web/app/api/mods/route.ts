@@ -1,30 +1,17 @@
-import fetchWargamingMod, { wargamingMod } from "@/utils/wargamingMod";
+import fetchWargamingMod from "@/utils/wargamingMod";
 import { createClient } from "@supabase/supabase-js";
-import {
-  Prettify,
-  Tables,
-  supabaseAnonKey,
-  supabaseUrl,
-} from "@zenith/supabase";
+import { supabaseAnonKey, supabaseUrl } from "@zenith/supabase";
 import { Database } from "@zenith/supabase/types";
+import { MergedMod, SupaMergedMod } from "@zenith/utils/apitypes";
 import { NextResponse } from "next/server";
 
 const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
-type InstallConfig = Tables<"installConfigs">;
-type ModJoined = Prettify<
-  Tables<"mods"> & {
-    installConfigs: InstallConfig[];
-  }
->;
-type SupaReturnType = Array<ModJoined>;
-type MergedMod = Prettify<wargamingMod & ModJoined>;
-export type GetModsReturnType = Array<MergedMod>;
 
-export async function GET(request: Request) {
+export async function GET() {
   const { data, error } = await supabase
     .from("mods")
     .select(`*, installConfigs (*)`)
-    .returns<SupaReturnType>();
+    .returns<SupaMergedMod>();
 
   if (error) return new Response(error.message, { status: 400 });
 
