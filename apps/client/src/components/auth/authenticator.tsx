@@ -4,7 +4,7 @@ import { shell } from "@tauri-apps/api";
 import { useEffect, useState } from "react";
 import { supabaseClient } from "./supabaseClient";
 import responseHTML from "./response.html?raw";
-import { Button } from "@zenith/ui";
+// import { Button } from "@zenith/ui";
 
 function getLocalHostUrl(port: number) {
   return `http://localhost:${port}`;
@@ -93,7 +93,7 @@ const Authenticator = () => {
 
   return (
     <div>
-      <Button onClick={onProviderLogin("discord")}>Discord</Button>
+      <button onClick={onProviderLogin("discord")}>Discord</button>
     </div>
   );
 };

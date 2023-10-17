@@ -11,7 +11,8 @@ import { useSession } from "@/components/auth/supabaseContext";
 import { supabaseClient } from "@/components/auth/supabaseClient";
 import { useMods } from "@/api";
 import { MergedMod } from "@zenith/utils/apitypes";
-import { Button } from "@zenith/ui";
+// import { Button } from "@zenith/ui";
+
 export const Categories = [
   "All Mods",
   "Tools",
@@ -164,5 +165,5 @@ export default function Home() {
     await supabaseClient.auth.signOut();
   }
   if (!session) return <Authenticator />;
-  return <Button onClick={handleSignout}>Logout</Button>;
+  return <button onClick={handleSignout}>Logout</button>;
 }

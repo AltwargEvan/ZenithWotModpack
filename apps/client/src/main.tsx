@@ -7,8 +7,9 @@ import { ReactNode } from "react";
 import TitleBar from "@/layouts/Titlebar";
 import Navbar from "@/layouts/Navbar";
 import useSupabaseAuth from "./components/auth/supabaseContext";
-import "./styles/global.css";
 import { queryClient } from "./api/queryClient";
+import "./index.css";
+import "@zenith/ui/styles/global.css";
 
 const AppOuterLayout = ({ children }: { children: ReactNode }) => {
   return (
