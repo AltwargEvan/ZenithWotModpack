@@ -14,11 +14,7 @@ import { Github, Twitch } from "lucide-react";
 export function SignInPage() {
   return (
     <div className="grid justify-center items-center h-full w-full">
-<<<<<<< HEAD
       <Card className="w-[400px]">
-=======
-      <Card>
->>>>>>> 198093ed6a3a6b64c0542992bc85ce6efc00fc1a
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Create an account</CardTitle>
           <CardDescription>
@@ -56,7 +52,9 @@ export function SignInPage() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button className="w-full">Create account</Button>
+          <Button className="w-full" variant="muted">
+            Create account
+          </Button>
         </CardFooter>
       </Card>
     </div>
