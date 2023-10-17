@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useMods } from "../api/client/useMods";
 import { TabButton } from "../components/TabButton";
 import { BoxesIcon } from "../assets/BoxesIcon";
 import { Wrench } from "../assets/Wrench";
@@ -9,9 +8,10 @@ import { NavLink, useSearchParams } from "react-router-dom";
 import PageHeader from "@/layouts/PageHeader";
 import Authenticator from "@/components/auth/authenticator";
 import { useSession } from "@/components/auth/supabaseContext";
-import { Button } from "@/components/ui/Button";
 import { supabaseClient } from "@/components/auth/supabaseClient";
-
+import { useMods } from "@/api";
+import { MergedMod } from "@zenith/utils/apitypes";
+import { Button } from "@zenith/ui";
 export const Categories = [
   "All Mods",
   "Tools",
@@ -70,11 +70,7 @@ const HomeTabs = ({
   );
 };
 
-const ModItem = ({
-  mod,
-}: {
-  mod: NonNullable<ReturnType<typeof useMods>[number]["data"]>;
-}) => {
+const ModItem = ({ mod }: { mod: MergedMod }) => {
   return (
     <NavLink to={`/mod/${mod.id}`}>
       <div className="p-1 hover:cursor-pointer h-54 relative rounded-xl overflow-visible bg-neutral-700 hover:ring-1 ring-offset-2 ring-offset-transparent ring-neutral-400 hover:scale-105 transition-all group">
@@ -86,7 +82,7 @@ const ModItem = ({
         />
         <div className="p-1">
           <div className="h-6 overflow-hidden text-ellipsis  break-all">
-            {mod.internal.name}
+            {mod.name}
           </div>
           <div
             className="font-light text-xs h-4 overflow-hidden text-ellipsis break-all"
@@ -125,14 +121,7 @@ const HomePage = () => {
   const [activeTab, setActiveTab] = useState<Tab>("All Mods");
   const [search, setSearch] = useState<string>("");
 
-  const results = useMods();
-  const mods = results
-    .map((res) => res.data)
-    .filter(
-      (item) =>
-        activeTab === "All Mods" ||
-        item?.internal.category.toLowerCase().includes(activeTab.toLowerCase())
-    );
+  const { data: mods } = useMods();
 
   return (
     <>
@@ -148,22 +137,19 @@ const HomePage = () => {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        {mods.length === 0 && <div>Failed To Fetch Mod List</div>}
+        {mods?.length === 0 && <div>Failed To Fetch Mod List</div>}
         <div
           style={{
             maxHeight: "calc(100vh - 138px)",
           }}
           className="grid grid-cols-4 gap-4 pt-2 px-3 pb-6 xl:grid-cols-4 2xl:grid-cols-5 w-full overflow-y-auto"
         >
-          {mods
-            .filter(
-              (item) =>
-                item &&
-                JSON.stringify(item)
-                  .toLowerCase()
-                  .includes(search.toLowerCase())
-            )
-            .map((mod) => mod && <ModItem mod={mod} key={mod.internal.id} />)}
+          {mods &&
+            mods
+              .filter((mod) =>
+                JSON.stringify(mod).toLowerCase().includes(search.toLowerCase())
+              )
+              .map((mod) => mod && <ModItem mod={mod} key={mod.id} />)}
         </div>
       </div>
     </>

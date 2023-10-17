@@ -2,9 +2,9 @@ import { invoke } from "@tauri-apps/api";
 import { listen } from "@tauri-apps/api/event";
 import { shell } from "@tauri-apps/api";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/Button";
 import { supabaseClient } from "./supabaseClient";
 import responseHTML from "./response.html?raw";
+import { Button } from "@zenith/ui";
 
 function getLocalHostUrl(port: number) {
   return `http://localhost:${port}`;
