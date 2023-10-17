@@ -6,8 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode } from "react";
 import TitleBar from "@/layouts/Titlebar";
 import Navbar from "@/layouts/Navbar";
-import "./globals.css";
 import useSupabaseAuth from "./components/auth/supabaseContext";
+import "@zenith/ui/styles/global.css";
 
 const AppOuterLayout = ({ children }: { children: ReactNode }) => {
   return (
