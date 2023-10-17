@@ -16,9 +16,9 @@ export function SignInPage() {
     <div className="grid justify-center items-center h-full w-full">
       <Card className="w-[400px]">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">Create an account</CardTitle>
+          <CardTitle className="text-2xl">Sign In</CardTitle>
           <CardDescription>
-            Enter your email below to create your account
+            Sign in to save your configs in the cloud and share with friends
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -45,10 +45,6 @@ export function SignInPage() {
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" placeholder="m@example.com" />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" />
           </div>
         </CardContent>
         <CardFooter>
