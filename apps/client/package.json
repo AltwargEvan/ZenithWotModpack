@@ -21,6 +21,7 @@
     "@supabase/supabase-js": "^2.38.1",
     "@tanstack/react-query": "^4.36.1",
     "@zenith/client": "workspace:*",
+    "@zenith/ui": "workspace:^",
     "@zenith/utils": "workspace:^",
     "axios": "^1.5.0",
     "class-variance-authority": "^0.7.0",
