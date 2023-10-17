@@ -7,10 +7,10 @@ import { Crosshair } from "../assets/Crosshair";
 import { Star } from "../assets/Star";
 import { NavLink, useSearchParams } from "react-router-dom";
 import PageHeader from "@/layouts/PageHeader";
-import Authenticator from "@/services/supabase/authenticator";
-import { useSession } from "@/services/supabase/supabaseContext";
+import Authenticator from "@/components/auth/authenticator";
+import { useSession } from "@/components/auth/supabaseContext";
 import { Button } from "@/components/ui/Button";
-import { supabaseClient } from "@/services/supabase/supabaseClient";
+import { supabaseClient } from "@/components/auth/supabaseClient";
 
 export const Categories = [
   "All Mods",

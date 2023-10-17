@@ -1,6 +1,6 @@
 import type { Database } from "@zenith/supabase/types";
 import { z } from "zod";
-import { Prettify } from "./Prettify";
+import { Prettify } from "./tsmagic";
 
 export type Tables<T extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][T]["Row"];

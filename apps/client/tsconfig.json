@@ -26,6 +26,10 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
+  "include": [
+    "src",
+    "../../packages/utils/stringToHslColor.ts",
+    "../../packages/utils/cleanFilename.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

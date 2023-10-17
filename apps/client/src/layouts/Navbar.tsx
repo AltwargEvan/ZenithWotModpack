@@ -5,7 +5,7 @@ import { TwitchIcon } from "@/assets/twitchIcon";
 import { NavLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
-import { useUser } from "@/services/supabase/supabaseContext";
+import { useUser } from "@/components/auth/supabaseContext";
 
 const NavItem = ({
   text,
