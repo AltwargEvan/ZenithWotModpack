@@ -1,2 +1,2 @@
 export * from "./rust";
-export * from "./client";
+export * from "./api";
