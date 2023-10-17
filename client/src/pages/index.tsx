@@ -7,12 +7,8 @@ import { Crosshair } from "../assets/Crosshair";
 import { Star } from "../assets/Star";
 import { NavLink, useSearchParams } from "react-router-dom";
 import PageHeader from "@/layouts/PageHeader";
-import { Auth } from "@supabase/auth-ui-react";
 import Authenticator from "@/services/supabase/authenticator";
-import supabase, {
-  useSession,
-  useUser,
-} from "@/services/supabase/supabaseContext";
+import { useSession } from "@/services/supabase/supabaseContext";
 import { Button } from "@/components/ui/Button";
 import { supabaseClient } from "@/services/supabase/supabaseClient";
 

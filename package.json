@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "concurrently --kill-others \"cd ./client && pnpm dev\" \"cd ./api && pnpm dev\""
+    "dev": "concurrently --kill-others \"cd ./client && pnpm dev\" \"cd ./web && pnpm dev\""
   },
   "keywords": [],
   "author": "",

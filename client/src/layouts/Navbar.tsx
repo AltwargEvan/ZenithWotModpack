@@ -4,6 +4,8 @@ import { twMerge } from "tailwind-merge";
 import { TwitchIcon } from "@/assets/twitchIcon";
 import { NavLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
+import { useUser } from "@/services/supabase/supabaseContext";
 
 const NavItem = ({
   text,
@@ -39,6 +41,31 @@ const NavItem = ({
   );
 };
 
+const ProfileNavItem = () => {
+  const user = useUser();
+  let name = user?.full_name || "Sign In";
+  if (name.length > 9) name = name.slice(0, 9) + "...";
+  return (
+    <div
+      className="grid py-2.5"
+      style={{
+        gridTemplateColumns: "4.5rem 35.5rem",
+      }}
+    >
+      <div className="flex justify-center  items-center hover:cursor-pointer">
+        <Avatar>
+          <AvatarImage src={user?.avatar_url} />
+          <AvatarFallback>
+            <Profiles className="h-5 w-5" />
+          </AvatarFallback>
+        </Avatar>
+      </div>
+      <span className="font-medium  hover:cursor-pointer text-sm justify-center flex flex-col pb-1">
+        {name}
+      </span>
+    </div>
+  );
+};
 const Navbar = () => {
   return (
     <div
@@ -66,6 +93,7 @@ const Navbar = () => {
       </div>
       <div className="pb-3">
         <NavItem to="/settings" Icon={Settings} text="Settings" />
+        <ProfileNavItem />
       </div>
     </div>
   );
