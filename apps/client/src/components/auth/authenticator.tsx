@@ -16,7 +16,7 @@ const Authenticator = () => {
   const [port, setPort] = useState<number | null>(null);
 
   useEffect(() => {
-    console.log("Refresh", port);
+    // console.log("Refresh", port);
     if (port) return;
 
     const unlisten = listen("oauth://url", (data) => {

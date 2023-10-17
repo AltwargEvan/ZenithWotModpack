@@ -1,12 +1,10 @@
 import { Logo } from "../assets/Logo";
-import { HomeIcon, Profiles, Settings } from "../assets/PagesIcons";
 import { twMerge } from "tailwind-merge";
-import { TwitchIcon } from "@/assets/twitchIcon";
 import { NavLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useUser } from "@/components/auth/supabaseContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@zenith/ui";
-
+import { LucideIcon, User, Settings, Twitch, Home } from "lucide-react";
 const NavItem = ({
   text,
   Icon,
@@ -14,7 +12,7 @@ const NavItem = ({
 }: {
   to: string;
   text: string;
-  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  Icon: LucideIcon;
 }) => {
   const location = useLocation();
   const active = to === location.pathname;
@@ -56,7 +54,7 @@ const ProfileNavItem = () => {
         <Avatar>
           <AvatarImage src={user?.avatar_url} />
           <AvatarFallback>
-            <Profiles className="h-5 w-5" />
+            <User className="h-5 w-5" />
           </AvatarFallback>
         </Avatar>
       </div>
@@ -66,6 +64,7 @@ const ProfileNavItem = () => {
     </div>
   );
 };
+
 const Navbar = () => {
   return (
     <div
@@ -87,13 +86,13 @@ const Navbar = () => {
           </div>
         </div>
 
-        <NavItem to="/" Icon={HomeIcon} text="Home" />
-        <NavItem to="/yourMods" Icon={Profiles} text="Your Mods" />
-        <NavItem to="/streamers" Icon={TwitchIcon} text="Streamers" />
+        <NavItem to="/" Icon={Home} text="Home" />
+        <NavItem to="/yourMods" Icon={User} text="Your Mods" />
+        <NavItem to="/streamers" Icon={Twitch} text="Streamers" />
       </div>
       <div className="pb-3">
         <NavItem to="/settings" Icon={Settings} text="Settings" />
-        <ProfileNavItem />
+        <NavItem to="/signIn" Icon={User} text="Sign In" />
       </div>
     </div>
   );
