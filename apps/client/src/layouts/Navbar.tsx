@@ -3,7 +3,6 @@ import { twMerge } from "tailwind-merge";
 import { NavLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useUser } from "@/components/auth/supabaseContext";
-import { Avatar, AvatarFallback, AvatarImage } from "@zenith/ui";
 import { LucideIcon, User, Settings, Twitch, Home } from "lucide-react";
 const NavItem = ({
   text,
@@ -51,12 +50,12 @@ const ProfileNavItem = () => {
       }}
     >
       <div className="flex justify-center  items-center hover:cursor-pointer">
-        <Avatar>
+        {/* <Avatar>
           <AvatarImage src={user?.avatar_url} />
           <AvatarFallback>
             <User className="h-5 w-5" />
           </AvatarFallback>
-        </Avatar>
+        </Avatar> */}
       </div>
       <span className="font-medium  hover:cursor-pointer text-sm justify-center flex flex-col pb-1">
         {name}

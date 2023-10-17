@@ -1,14 +1,14 @@
+import { Button } from "@/components/ui/Button";
 import {
-  Button,
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-  Input,
-  Label,
-} from "@zenith/ui";
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Github, Twitch } from "lucide-react";
 
 export function SignInPage() {
@@ -52,7 +52,7 @@ export function SignInPage() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button className="w-full" variant="muted">
+          <Button className="w-full" variant="destructive">
             Create account
           </Button>
         </CardFooter>

@@ -23,13 +23,8 @@
     "baseUrl": "",
     "paths": {
       "@/*": ["./src/*"]
-      // "react": ["./node_modules/@types/react"]
     }
   },
-  "include": [
-    "src",
-    "../../packages/utils/stringToHslColor.ts",
-    "../../packages/utils/cleanFilename.ts"
-  ],
+  "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

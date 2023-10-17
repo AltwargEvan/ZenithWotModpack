@@ -1,22 +1,13 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import routes from "~react-pages";
-import {
-  BrowserRouter,
-  Outlet,
-  Route,
-  RouterProvider,
-  createBrowserRouter,
-  isRouteErrorResponse,
-  useRouteError,
-  useRoutes,
-} from "react-router-dom";
+import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import TitleBar from "@/layouts/Titlebar";
 import Navbar from "@/layouts/Navbar";
 import useSupabaseAuth from "./components/auth/supabaseContext";
 import { queryClient } from "./api/queryClient";
-import "@zenith/ui/styles/global.css";
+import "./globals.css";
 localStorage.setItem("theme", "dark");
 
 const AppOuter = () => {
