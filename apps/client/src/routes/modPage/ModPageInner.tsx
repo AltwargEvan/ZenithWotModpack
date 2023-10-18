@@ -60,29 +60,6 @@ export function ModPageInner({ mod }: { mod: fetchWGModResult }) {
             ),
           }}
         ></div>
-        {mod.screenshots.length > 0 && (
-          <Carousel
-            autoPlay={false}
-            indicators={mod.screenshots.length > 1}
-            swipe
-            cycleNavigation
-            navButtonsAlwaysVisible={mod.screenshots.length > 1}
-            fullHeightHover
-            animation="slide"
-            duration={400}
-          >
-            {mod.screenshots.map((ss) => (
-              <Paper
-                className="flex justify-center bg-neutral-900 w-full"
-                key={ss.id}
-              >
-                <div className=" max-w-4xl lg:py-4">
-                  <img src={ss.source} className="h-96" />
-                </div>
-              </Paper>
-            ))}
-          </Carousel>
-        )}
       </div>
     </div>
   );

@@ -61,7 +61,6 @@ const ProfileNavItem = () => {
   const user = useUser();
   if (!user) return <NavItem to="/signIn" Icon={User} text="Sign In" />;
   const name = user.full_name;
-  console.log(name);
 
   return (
     <DropdownMenu>
@@ -101,7 +100,6 @@ const ProfileNavItem = () => {
 };
 
 const Navbar = () => {
-  const navigate = useNavigate();
   return (
     <div
       className="bg-zinc-900  hover:w-40 transition-all ease-out duration-150 w-[4.5rem] flex flex-col justify-between overflow-hidden fixed z-40 border-neutral-700 border-r select-none"

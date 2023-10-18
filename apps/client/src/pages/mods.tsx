@@ -26,7 +26,7 @@ export type ModCategory = (typeof ModCategories)[number];
 
 const ModItem = ({ mod }: { mod: MergedMod }) => {
   return (
-    <NavLink to={`/mod/${mod.id}`} className="group">
+    <NavLink to={`/mod?id=${mod.id}`} className="group">
       <Card className="overflow-hidden h-54" color="blue">
         <CardHeader className="p-1 h-36 w-full">
           <div className="h-36 overflow-hidden rounded-sm  w-full">

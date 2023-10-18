@@ -12,7 +12,7 @@ import TitleBar from "@/layouts/Titlebar";
 import Navbar from "@/layouts/Navbar";
 import useSupabaseAuth from "./lib/supabase/supabaseContext";
 import { queryClient } from "./api/queryClient";
-import "./globals.css";
+import "./styles/globals.css";
 localStorage.setItem("theme", "dark");
 
 const AppOuter = () => {

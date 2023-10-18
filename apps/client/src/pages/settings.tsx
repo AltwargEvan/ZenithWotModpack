@@ -5,8 +5,7 @@ import PageHeader from "@/layouts/PageHeader";
 import { Label } from "@radix-ui/react-label";
 import { useSearchParams } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
-import { useSession, useUser } from "@/lib/supabase/supabaseContext";
-import { Button } from "@/components/ui/Button";
+import { useSession } from "@/lib/supabase/supabaseContext";
 import Authenticator from "@/lib/supabase/Authenticator";
 
 const SettingsPage = () => {
