@@ -40,7 +40,7 @@ const NavItem = ({
       }}
     >
       <div className="flex justify-center  items-center hover:cursor-pointer">
-        <Icon className="h-7 w-7" />
+        <Icon className="h-6 w-6" />
       </div>
       <span className="font-medium align-middle hover:cursor-pointer text-sm">
         {text}
@@ -57,15 +57,15 @@ const ProfileNavItem = () => {
 
   return (
     <DropdownMenu>
-      <div
-        className="py-2.5 grid text-neutral-500 fill-neutral-500 hover:text-neutral-400 hover:fill-neutral-400"
-        style={{
-          gridTemplateColumns: "4.5rem 5.5rem",
-        }}
-      >
-        <DropdownMenuTrigger asChild>
-          <div className="flex justify-center  items-center hover:cursor-pointer">
-            <Avatar className="flex justify-center  items-center hover:cursor-pointer h-7 w-7">
+      <DropdownMenuTrigger asChild>
+        <div
+          className="py-2.5 grid text-neutral-500 fill-neutral-500 hover:cursor-pointer hover:text-neutral-400 hover:fill-neutral-400"
+          style={{
+            gridTemplateColumns: "4.5rem 5.5rem",
+          }}
+        >
+          <div className="flex justify-center  items-center">
+            <Avatar className="flex justify-center  items-center  h-7 w-7">
               <AvatarImage
                 src={user?.avatar_url}
                 className="h-7 w-7 rounded-full"
@@ -75,16 +75,12 @@ const ProfileNavItem = () => {
               </AvatarFallback>
             </Avatar>
           </div>
-        </DropdownMenuTrigger>
-        <span className="font-medium align-middle text-sm text-white pt-0.5">
-          {name}
-        </span>
-      </div>
-      <DropdownMenuContent
-        side="top"
-        className="absolute w-36 ml-10"
-        sideOffset={90}
-      >
+          <span className="font-medium align-middle text-sm text-white pt-0.5">
+            {name}
+          </span>
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent side="top" className="w-36 ml-14">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <Link to="/account">

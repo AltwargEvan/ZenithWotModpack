@@ -63,7 +63,6 @@ export const useOAuthServer = () => {
     email: string
   ) => {
     event.preventDefault();
-    setLoading(true);
     const { error } = await supabaseClient.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: getLocalHostUrl(port!) },
@@ -74,7 +73,6 @@ export const useOAuthServer = () => {
     } else {
       alert("Check your email for the login link!");
     }
-    setLoading(false);
   };
 
   const onProviderLogin = (provider: "discord" | "twitch") => async () => {

@@ -1,6 +1,5 @@
 import { appWindow } from "@tauri-apps/api/window";
-import { MinimizeWindow, MaximizeWindow, CloseWindow } from "../assets/Window";
-
+import { X, Square, Minus } from "lucide-react";
 const TitleBar = () => {
   return (
     <>
@@ -13,21 +12,21 @@ const TitleBar = () => {
           id="titlebar-minimize"
           onClick={() => appWindow.minimize()}
         >
-          <MinimizeWindow className="fill-neutral-100 h-9 " />
+          <Minus className="h-9" strokeWidth={1} />
         </div>
         <div
           className="inline-flex justify-center align-middle w-9 h-9 hover:bg-neutral-800"
           id="titlebar-minimize"
           onClick={() => appWindow.toggleMaximize()}
         >
-          <MaximizeWindow className=" fill-neutral-100 h-9 scale-75" />
+          <Square className=" h-9 scale-75" strokeWidth={1} />
         </div>
         <div
           className="inline-flex justify-center align-middle w-9 h-9 hover:bg-neutral-800"
           id="titlebar-minimize"
           onClick={() => appWindow.close()}
         >
-          <CloseWindow className=" fill-neutral-100 h-9" />
+          <X className="h-9" strokeWidth={1} />
         </div>
       </div>
       {/* Filler div to make sure rest of content goes under nav */}
