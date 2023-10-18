@@ -6,11 +6,10 @@ import { Crosshair } from "../assets/Crosshair";
 import { Star } from "../assets/Star";
 import { NavLink, useSearchParams } from "react-router-dom";
 import PageHeader from "@/layouts/PageHeader";
-import Authenticator from "@/components/auth/authenticator";
-import { useSession } from "@/components/auth/supabaseContext";
-import { supabaseClient } from "@/components/auth/supabaseClient";
+import { useSession } from "@/lib/supabase/supabaseContext";
 import { useMods } from "@/api";
 import { MergedMod } from "@zenith/utils/apitypes";
+import { supabaseClient } from "@/lib/supabase/supabaseClient";
 // import { Button } from "@zenith/ui";
 
 export const Categories = [
@@ -164,6 +163,5 @@ export default function Home() {
   async function handleSignout() {
     await supabaseClient.auth.signOut();
   }
-  if (!session) return <Authenticator />;
   return <button onClick={handleSignout}>Logout</button>;
 }

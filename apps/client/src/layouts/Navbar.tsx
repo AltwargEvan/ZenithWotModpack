@@ -2,8 +2,9 @@ import { Logo } from "../assets/Logo";
 import { twMerge } from "tailwind-merge";
 import { NavLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { useUser } from "@/components/auth/supabaseContext";
-import { LucideIcon, User, Settings, Twitch, Home } from "lucide-react";
+import { useUser } from "@/lib/supabase/supabaseContext";
+import { LucideIcon, User, Settings, Twitch, Home, Boxes } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 const NavItem = ({
   text,
   Icon,
@@ -19,7 +20,7 @@ const NavItem = ({
     <NavLink
       to={to}
       className={twMerge(
-        "grid py-2.5",
+        "grid py-2.5 items-center",
         active
           ? "text-neutral-50 fill-neutral-50"
           : "text-neutral-500 fill-neutral-500 hover:text-neutral-400 hover:fill-neutral-400"
@@ -29,7 +30,7 @@ const NavItem = ({
       }}
     >
       <div className="flex justify-center  items-center hover:cursor-pointer">
-        <Icon className="h-5 w-5 group" />
+        <Icon className="h-7 w-7 group" />
       </div>
       <span className="font-medium align-middle hover:cursor-pointer text-sm">
         {text}
@@ -40,7 +41,8 @@ const NavItem = ({
 
 const ProfileNavItem = () => {
   const user = useUser();
-  let name = user?.full_name || "Sign In";
+  if (!user) return <NavItem to="/signIn" Icon={User} text="Sign In" />;
+  let name = user.full_name;
   if (name.length > 9) name = name.slice(0, 9) + "...";
   return (
     <div
@@ -50,12 +52,15 @@ const ProfileNavItem = () => {
       }}
     >
       <div className="flex justify-center  items-center hover:cursor-pointer">
-        {/* <Avatar>
-          <AvatarImage src={user?.avatar_url} />
+        <Avatar>
+          <AvatarImage
+            src={user?.avatar_url}
+            className="h-7 w-7 rounded-full overflow-hidden"
+          />
           <AvatarFallback>
-            <User className="h-5 w-5" />
+            <User className="h-7 w-7" />
           </AvatarFallback>
-        </Avatar> */}
+        </Avatar>
       </div>
       <span className="font-medium  hover:cursor-pointer text-sm justify-center flex flex-col pb-1">
         {name}
@@ -78,7 +83,7 @@ const Navbar = () => {
           }}
         >
           <div className="flex justify-center  items-center">
-            <Logo className="h-7 fill-red-500 w-7" />
+            <Logo className="h-8 fill-red-500 w-8" />
           </div>
           <div className=" font-bold text-xl tracking-wider text-neutral-50">
             <span>Zenith</span>
@@ -86,12 +91,12 @@ const Navbar = () => {
         </div>
 
         <NavItem to="/" Icon={Home} text="Home" />
-        <NavItem to="/yourMods" Icon={User} text="Your Mods" />
+        <NavItem to="/yourMods" Icon={Boxes} text="Your Mods" />
         <NavItem to="/streamers" Icon={Twitch} text="Streamers" />
       </div>
       <div className="pb-3">
         <NavItem to="/settings" Icon={Settings} text="Settings" />
-        <NavItem to="/signIn" Icon={User} text="Sign In" />
+        <ProfileNavItem />
       </div>
     </div>
   );

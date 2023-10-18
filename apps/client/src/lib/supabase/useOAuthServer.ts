@@ -1,22 +1,25 @@
-import { invoke } from "@tauri-apps/api";
+import { invoke, shell } from "@tauri-apps/api";
 import { listen } from "@tauri-apps/api/event";
-import { shell } from "@tauri-apps/api";
 import { useEffect, useState } from "react";
 import { supabaseClient } from "./supabaseClient";
-import responseHTML from "./response.html?raw";
-// import { Button } from "@zenith/ui";
+import OAuthResponsePage from "./OAuthResponsePage.html?raw";
+import { useSession } from "./supabaseContext";
+import { useNavigate } from "react-router";
 
 function getLocalHostUrl(port: number) {
   return `http://localhost:${port}`;
 }
 
-const Authenticator = () => {
+export const useOAuthServer = () => {
+  const session = useSession();
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [port, setPort] = useState<number | null>(null);
 
   useEffect(() => {
-    // console.log("Refresh", port);
+    if (session) navigate("/");
     if (port) return;
 
     const unlisten = listen("oauth://url", (data) => {
@@ -26,7 +29,6 @@ const Authenticator = () => {
       const url = new URL(data.payload as string);
       const code = new URLSearchParams(url.search).get("code");
 
-      console.log("here", data.payload, code);
       if (code) {
         supabaseClient.auth.exchangeCodeForSession(code).then(({ error }) => {
           if (error) {
@@ -42,7 +44,7 @@ const Authenticator = () => {
     let _port: number | null = null;
     invoke("plugin:oauth|start", {
       config: {
-        response: responseHTML,
+        response: OAuthResponsePage,
       },
     }).then(async (port) => {
       setPort(port as number);
@@ -72,13 +74,11 @@ const Authenticator = () => {
     setLoading(false);
   };
 
-  const onProviderLogin = (provider: "discord") => async () => {
+  const onProviderLogin = (provider: "discord" | "twitch") => async () => {
     setLoading(true);
-    console.log("Port:", getLocalHostUrl(port!));
     const { data, error } = await supabaseClient.auth.signInWithOAuth({
       options: {
         skipBrowserRedirect: true,
-        scopes: "identify",
         redirectTo: getLocalHostUrl(port!),
       },
       provider: provider,
@@ -91,10 +91,9 @@ const Authenticator = () => {
     }
   };
 
-  return (
-    <div>
-      <button onClick={onProviderLogin("discord")}>Discord</button>
-    </div>
-  );
+  return {
+    onProviderLogin,
+    loading,
+    handleLogin,
+  };
 };
-export default Authenticator;

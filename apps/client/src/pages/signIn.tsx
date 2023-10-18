@@ -1,3 +1,4 @@
+import { Discord } from "@/assets/Discord";
 import { Button } from "@/components/ui/Button";
 import {
   Card,
@@ -9,9 +10,16 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Github, Twitch } from "lucide-react";
+import { useSession } from "@/lib/supabase/supabaseContext";
+import { useOAuthServer } from "@/lib/supabase/useOAuthServer";
+import { Twitch } from "lucide-react";
+import { useEffect } from "react";
+
+import { useNavigate } from "react-router";
 
 export function SignInPage() {
+  const { loading, onProviderLogin, handleLogin } = useOAuthServer();
+
   return (
     <div className="grid justify-center items-center h-full w-full">
       <Card className="w-[400px]">
@@ -23,11 +31,11 @@ export function SignInPage() {
         </CardHeader>
         <CardContent className="grid gap-4">
           <div className="grid grid-cols-2 gap-6">
-            <Button variant="outline">
-              <Github className="mr-2 h-4 w-4" />
+            <Button variant="outline" onClick={onProviderLogin("discord")}>
+              <Discord className="mr-2 h-4 w-4 fill-white" />
               Discord
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={onProviderLogin("twitch")}>
               <Twitch className="mr-2 h-4 w-4" />
               Twitch
             </Button>
@@ -48,9 +56,7 @@ export function SignInPage() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button className="w-full" variant="destructive">
-            Create account
-          </Button>
+          <Button className="w-full">Create account</Button>
         </CardFooter>
       </Card>
     </div>

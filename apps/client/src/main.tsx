@@ -5,7 +5,7 @@ import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import TitleBar from "@/layouts/Titlebar";
 import Navbar from "@/layouts/Navbar";
-import useSupabaseAuth from "./components/auth/supabaseContext";
+import useSupabaseAuth from "./lib/supabase/supabaseContext";
 import { queryClient } from "./api/queryClient";
 import "./globals.css";
 localStorage.setItem("theme", "dark");

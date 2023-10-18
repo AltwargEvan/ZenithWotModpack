@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { AuthSession } from "@supabase/supabase-js";
-import { create, createStore, useStore } from "zustand";
-import { supabaseClient } from "./supabaseClient";
-import { useNavigate } from "react-router";
+import { createStore, useStore } from "zustand";
+import { supabaseClient } from "@/lib/supabase/supabaseClient";
 
 type DiscordUser = {
   avatar_url: string;
@@ -18,7 +17,26 @@ type DiscordUser = {
   provider_id: string;
   sub: string;
 };
-type User = DiscordUser;
+type TwitchUser = {
+  avatar_url: string;
+  custom_claims: {
+    broadcaster_type: string;
+    description: string;
+    offline_image_url: string;
+    type: string;
+  };
+  email: string;
+  email_verified: boolean;
+  full_name: string;
+  iss: string;
+  nickname: string;
+  picture: string;
+  provider_id: string;
+  slug: string;
+  sub: string;
+};
+
+type User = DiscordUser | TwitchUser;
 
 type AuthStore = {
   session: AuthSession | null;
@@ -43,12 +61,16 @@ export default function useSupabaseAuth() {
     const {
       data: { subscription },
     } = supabaseClient.auth.onAuthStateChange((_event, session) => {
-      console.log("auth change", session);
       AuthStore.setState({ session });
       switch (session?.user.app_metadata.provider) {
         case "discord":
           AuthStore.setState({
             user: session.user.user_metadata as DiscordUser,
+          });
+          break;
+        case "twitch":
+          AuthStore.setState({
+            user: session.user.user_metadata as TwitchUser,
           });
           break;
         default:
