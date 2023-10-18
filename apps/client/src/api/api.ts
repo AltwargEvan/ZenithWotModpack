@@ -8,7 +8,8 @@ export const useMods = () => {
       const res = await fetch(
         "https://zenith-wot-modpack-iics8hwqo-altwargevan.vercel.app/api/mods"
       );
-      return res.data as GetModsReturnType;
+      // @ts-ignore
+      return res.data.mods as GetModsReturnType;
     },
     queryKey: ["mods"],
   });

@@ -1,6 +1,6 @@
 import { Logo } from "../assets/Logo";
 import { twMerge } from "tailwind-merge";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useUser } from "@/lib/supabase/supabaseContext";
 import {
@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { handleSignout } from "@/lib/supabase/supabaseClient";
+import { Discord } from "@/assets/Discord";
 const NavItem = ({
   text,
   Icon,
@@ -100,6 +101,7 @@ const ProfileNavItem = () => {
 };
 
 const Navbar = () => {
+  const navigate = useNavigate();
   return (
     <div
       className="bg-zinc-900  hover:w-40 transition-all ease-out duration-150 w-[4.5rem] flex flex-col justify-between overflow-hidden fixed z-40 border-neutral-700 border-r select-none"
@@ -123,6 +125,21 @@ const Navbar = () => {
         <NavItem to="/mods" Icon={Package} text="Mods" />
         <NavItem to="/yourMods" Icon={Blocks} text="Your Mods" />
         <NavItem to="/streamers" Icon={Twitch} text="Streamers" />
+        <a
+          href="https://discord.gg/UA4t9KXyBK"
+          target="_blank"
+          style={{
+            gridTemplateColumns: "4.5rem 5.5rem",
+          }}
+          className="grid py-2 items-center text-neutral-500 fill-neutral-500 hover:text-neutral-400 hover:fill-neutral-400"
+        >
+          <div className="flex justify-center  items-center hover:cursor-pointer">
+            <Discord className="h-6 w-6" />
+          </div>
+          <span className="font-medium align-middle hover:cursor-pointer text-sm">
+            Join Our Discord
+          </span>
+        </a>
       </div>
       <div className="pb-3">
         <NavItem to="/settings?tab=general" Icon={Settings} text="Settings" />

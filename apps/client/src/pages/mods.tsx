@@ -5,6 +5,8 @@ import { useMods } from "@/api";
 import { MergedMod } from "@zenith/utils/apitypes";
 import { Crosshair, Package2, Ruler, Wrench } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 
 export const ModCategories = [
   "Tools",
@@ -14,6 +16,18 @@ export const ModCategories = [
 export type ModCategory = (typeof ModCategories)[number];
 
 const ModItem = ({ mod }: { mod: MergedMod }) => {
+  return (
+    <NavLink to={`/mod/${mod.id}`} className="group">
+      <Card className="overflow-hidden" color="blue">
+        <div className="h-36 overflow-hidden rounded-sm">
+          <img
+            className="object-cover object-center scale-105 group-hover:scale-[1.15] transition-all duration-100 cursor-pointer"
+            src={mod.cover}
+          />
+        </div>
+      </Card>
+    </NavLink>
+  );
   return (
     <NavLink to={`/mod/${mod.id}`}>
       <div className="p-1 hover:cursor-pointer h-54 relative rounded-xl overflow-visible bg-neutral-700 hover:ring-1 ring-offset-2 ring-offset-transparent ring-neutral-400 hover:scale-105 transition-all group">
@@ -53,8 +67,7 @@ const ModItem = ({ mod }: { mod: MergedMod }) => {
 const ModsPage = () => {
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(searchParams.get("category") || "All");
-  const { data: mods } = useMods();
-
+  const { data: mods, isLoading } = useMods();
   return (
     <>
       <PageHeader title="Mods" subtext="Browse and install official mods." />
@@ -78,21 +91,18 @@ const ModsPage = () => {
           </TabsTrigger>
         </TabsList>
       </Tabs>
-
-      {/* <div
-        style={{
-          maxHeight: "calc(100vh - 138px)",
-        }}
-        className="grid grid-cols-4 gap-4 pt-2 px-3 pb-6 xl:grid-cols-4 2xl:grid-cols-5 w-full overflow-y-auto"
-      >
-        {mods &&
-          mods
-            .filter(
-              (mod) => true
-              // JSON.stringify(mod).toLowerCase().includes(search.toLowerCase())
-            )
-            .map((mod) => mod && <ModItem mod={mod} key={mod.id} />)}
-      </div> */}
+      {mods && (
+        <ScrollArea>
+          <div className="grid grid-cols-4 gap-4 pt-2 px-3 pb-6 xl:grid-cols-4 2xl:grid-cols-5 w-full">
+            {mods
+              .filter(
+                (mod) => true
+                // JSON.stringify(mod).toLowerCase().includes(search.toLowerCase())
+              )
+              .map((mod) => mod && <ModItem mod={mod} key={mod.id} />)}
+          </div>
+        </ScrollArea>
+      )}
     </>
   );
 };
