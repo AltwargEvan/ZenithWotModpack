@@ -41,12 +41,12 @@ const AppInner = () => {
       className="border-t fixed grow flex w-full  bprder-r-px border-neutral-600 "
       style={{
         height: "calc(100% - 2.25rem - 1px)",
-        width: "calc(100% - 4.5rem - 1px)",
-        left: "5rem",
+        width: "calc(100% - 4.5rem)",
+        left: "4.5rem",
         top: "2.25rem",
       }}
     >
-      <div className="flex xl:px-24 p-3 w-full flex-col">
+      <div className="flex xl:px-24 px-4 pb-4  w-full flex-col">
         <Suspense>
           <Outlet />
         </Suspense>

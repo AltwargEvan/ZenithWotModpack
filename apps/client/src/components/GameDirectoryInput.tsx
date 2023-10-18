@@ -3,14 +3,34 @@ import { useConfig } from "@/stores/configStore";
 // import { FormControl, MenuItem, Select } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { open } from "@tauri-apps/api/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Label } from "@radix-ui/react-label";
 
-export const GameDirectoryInput = ({
-  setError,
-}: {
-  setError: React.Dispatch<React.SetStateAction<string | undefined>>;
-}) => {
-  return "todo";
+export const GameDirectoryInput = () => {
   // const gameDirectory = useConfig((ctx) => ctx.game_directory);
+  const gameDirectory = "game dir";
+
+  return (
+    <>
+      <Select>
+        <SelectTrigger className="">
+          <SelectValue placeholder="Theme" defaultValue={gameDirectory} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="light">Detected Dir 1</SelectItem>
+          <SelectItem value="dark">Detected Dir 2</SelectItem>
+          <SelectItem value="system">Detected Dir 3</SelectItem>
+          <SelectItem value="brosse">Browse...</SelectItem>
+        </SelectContent>
+      </Select>
+    </>
+  );
   // const setGameDirectory = useConfig((ctx) => ctx.setGameDirectory);
 
   // const { data: detectedGameDirectories } = useQuery({

@@ -3,8 +3,6 @@ import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import { supabaseClient } from "./supabaseClient";
 import OAuthResponsePage from "./OAuthResponsePage.html?raw";
-import { useSession } from "./supabaseContext";
-import { useNavigate } from "react-router";
 
 function getLocalHostUrl(port: number) {
   return `http://localhost:${port}`;
@@ -12,15 +10,11 @@ function getLocalHostUrl(port: number) {
 
 // this pretty much
 // https://github.com/JeaneC/tauri-oauth-supabase/blob/main/src/Auth.tsx
-export const useOAuthServer = () => {
-  const session = useSession();
-  const navigate = useNavigate();
-
+export const useAuthServer = () => {
   const [loading, setLoading] = useState(false);
   const [port, setPort] = useState<number | null>(null);
 
   useEffect(() => {
-    if (session) navigate("/");
     if (port) return;
 
     const unlisten = listen("oauth://url", (data) => {

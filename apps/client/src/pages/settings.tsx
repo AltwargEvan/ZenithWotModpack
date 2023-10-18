@@ -1,57 +1,58 @@
-import { Button } from "@/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { GameDirectoryInput } from "@/components/GameDirectoryInput";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/layouts/PageHeader";
 import { Label } from "@radix-ui/react-label";
 import { useSearchParams } from "react-router-dom";
+import { Switch } from "@/components/ui/switch";
+import { useSession, useUser } from "@/lib/supabase/supabaseContext";
+import { Button } from "@/components/ui/Button";
+import Authenticator from "@/lib/supabase/Authenticator";
 
 const SettingsPage = () => {
+  const session = useSession();
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get("tab") || "general";
   return (
     <>
       <PageHeader title="Settings" subtext="Manage your account settings." />
-      <Tabs defaultValue={defaultTab} className="w-full pt-2">
+      <Tabs defaultValue={defaultTab} className="pt-2">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="account">My Account</TabsTrigger>
+          <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
         <TabsContent value="general">
           <h3 className="text-xl font-medium">General</h3>
           <Separator className="mb-2" />
-
-          <Label className="pt-4 text-base">New password</Label>
+          <div className="grid space-y-4">
+            <div>
+              <Label className="pl-1 text-sm">Game Directory</Label>
+              <GameDirectoryInput />
+            </div>
+            <div className="flex space-x-2 justify-start align-middle">
+              <Switch />
+              <Label className="pl-1 pt-0.5 text-sm">
+                Automatically Download Mod Updates On Launch
+              </Label>
+            </div>
+          </div>
         </TabsContent>
         <TabsContent value="account">
-          <Card>
-            <CardHeader>
-              <CardTitle>Password</CardTitle>
-              <CardDescription>
-                Change your password here. After saving, you'll be logged out.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="space-y-1">
-                <Label htmlFor="current">Current password</Label>
-                <Input id="current" type="password" />
+          <h3 className="text-xl font-medium">Account</h3>
+          <Separator className="mb-2" />
+          {session && (
+            <>
+              <div className="grid space-y-4">
+                <div className="flex space-x-2 justify-start align-middle">
+                  <Switch />
+                  <Label className="pl-1 text-sm">
+                    Allow other users to view my profile
+                  </Label>
+                </div>
               </div>
-              <div className="space-y-1">
-                <Input id="new" type="password" />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button>Save password</Button>
-            </CardFooter>
-          </Card>
+            </>
+          )}
+          {!session && <Authenticator className="w-full" />}
         </TabsContent>
       </Tabs>
     </>
