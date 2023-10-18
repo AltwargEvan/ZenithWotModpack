@@ -1,21 +1,18 @@
 import { useState } from "react";
 import { NavLink, useSearchParams } from "react-router-dom";
 import PageHeader from "@/layouts/PageHeader";
-import { useMods } from "@/api";
 import { MergedMod } from "@zenith/utils/apitypes";
 import { Crosshair, Package2, Ruler, Wrench } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@radix-ui/react-dropdown-menu";
-import { Input } from "@/components/ui/input";
+import { useMods } from "@/api/supabase/mods";
 
 export const ModCategories = [
   "Tools",

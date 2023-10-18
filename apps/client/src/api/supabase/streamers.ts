@@ -1,40 +1,26 @@
 import { supabaseClient } from "@/lib/supabase/supabaseClient";
 import { useQuery } from "@tanstack/react-query";
+import type { StreamerProfiles } from "@zenith/utils/apitypes";
 import { Body, fetch } from "@tauri-apps/api/http";
-import type {
-  GetModsReturnType,
-  StreamerProfiles,
-  Tables,
-} from "@zenith/utils/apitypes";
 
-export const useMods = () => {
-  return useQuery({
-    queryFn: async () => {
-      const res = await fetch(
-        "https://zenith-wot-modpack-iics8hwqo-altwargevan.vercel.app/api/mods"
-      );
-      // @ts-ignore
-      return res.data.mods as GetModsReturnType;
-    },
-    queryKey: ["mods"],
-  });
+const fetchStreamers = async () => {
+  const { data, error } = await supabaseClient
+    .from("streamers")
+    .select(`*, profiles (*, configsInProfile (*, installConfigs (*)))`)
+    .returns<StreamerProfiles[]>();
+  if (error) throw error;
+  console.log(data);
+  return data;
 };
 
 export function useStreamers() {
   return useQuery({
-    queryFn: async () => {
-      const { data, error } = await supabaseClient
-        .from("streamers")
-        .select(`*, profiles (*)`)
-        .returns<StreamerProfiles[]>();
-      if (error) throw error;
-      console.log(data);
-      return data;
-    },
+    queryFn: fetchStreamers,
     queryKey: ["streamers"],
   });
 }
-export async function getIsStreaming(username: String) {
+
+async function getIsStreaming(username: String) {
   const url = "https://gql.twitch.tv/gql";
   const query = `query {\n  user(login: \"${username}\") {\n    stream {\n      id\n    }\n  }\n}`;
 

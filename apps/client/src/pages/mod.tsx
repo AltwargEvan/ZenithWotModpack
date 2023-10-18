@@ -1,10 +1,36 @@
-import { useMods } from "@/api";
+import { useMods } from "@/api/supabase/mods";
 import { Button } from "@/components/ui/Button";
 import { CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import PageHeader from "@/layouts/PageHeader";
+import { observer } from "mobx-react-lite";
+import { MoreVertical } from "lucide-react";
 import Carousel from "react-material-ui-carousel";
 import { Navigate, useSearchParams } from "react-router-dom";
+import { useModManager } from "@/lib/modManager/modManagerContext";
+
+const Action = observer(({ modId }: { modId: number }) => {
+  const manager = useModManager();
+  const buttonVariant = manager.modIsInstalled(modId) ? "secondary" : "default";
+  const buttonText = manager.modIsInstalled(modId) ? "Installed" : "Install";
+  return (
+    <div className="flex">
+      <Button
+        variant={buttonVariant}
+        className="rounded-r-none rounded-l-sm"
+        onClick={() => manager.addMod(modId)}
+      >
+        {buttonText}
+      </Button>
+      <Button
+        variant={buttonVariant}
+        className="rounded-l-none rounded-r-sm px-0 w-min border-l border-neutral-900"
+      >
+        <MoreVertical size={20} />
+      </Button>
+    </div>
+  );
+});
 
 const ModPage = () => {
   const { data: mods } = useMods();
@@ -25,7 +51,7 @@ const ModPage = () => {
       <PageHeader
         title={mod.name}
         subtext={`Created by ${mod.owner.spa_username}`}
-        action={<Button>Install Button goes here</Button>}
+        action={<Action modId={mod.id} />}
       />
       <ScrollArea className=" pt-2 pb-2 h-full">
         <CardTitle className="text-xl pb-1">Description</CardTitle>

@@ -11,8 +11,9 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import TitleBar from "@/layouts/Titlebar";
 import Navbar from "@/layouts/Navbar";
 import useSupabaseAuth from "./lib/supabase/supabaseContext";
-import { queryClient } from "./api/queryClient";
+import { queryClient } from "./lib/utils/queryClient";
 import "./styles/globals.css";
+import { ModManagerContextProvider } from "./lib/modManager/modManagerContext";
 localStorage.setItem("theme", "dark");
 
 const AppOuter = () => {
@@ -20,11 +21,13 @@ const AppOuter = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="border-neutral-600 border h-screen w-screen font-oswald bg-gradient-to-bl from-neutral-900/90 to-neutral-950 text-white">
-        <TitleBar />
-        <Navbar />
-        <Outlet />
-      </div>
+      <ModManagerContextProvider>
+        <div className="border-neutral-600 border h-screen w-screen font-oswald bg-gradient-to-bl from-neutral-900/90 to-neutral-950 text-white">
+          <TitleBar />
+          <Navbar />
+          <Outlet />
+        </div>
+      </ModManagerContextProvider>
     </QueryClientProvider>
   );
 };

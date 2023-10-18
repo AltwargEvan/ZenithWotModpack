@@ -16,10 +16,15 @@ type ModJoined = Prettify<
 export type SupaMergedMod = Array<ModJoined>;
 export type MergedMod = Prettify<wargamingMod & ModJoined>;
 export type GetModsReturnType = Array<MergedMod>;
-
+type configsInProfile = Tables<"configsInProfile"> & {
+  installConfigs: InstallConfig;
+};
 type Streamer = Tables<"streamers">;
 type Profile = Tables<"profiles">;
-export type StreamerProfiles = Prettify<Streamer & { profile: Profile }>;
+
+export type StreamerProfiles = Prettify<
+  Streamer & { profile: Profile; configsInProfile: configsInProfile[] }
+>;
 export const wargamingMod = z.object({
   author_name: z.unknown(),
   change_log: z.array(

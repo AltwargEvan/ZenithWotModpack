@@ -2,7 +2,7 @@ import { Config, getGameVersion, setGameDirectory } from "@/api";
 import { useStore, createStore } from "zustand";
 import { ReactNode, createContext, useContext, useRef } from "react";
 import { NonNullableFields } from "@zenith/utils/tsmagic";
-import { queryClient } from "@/api/queryClient";
+import { queryClient } from "@/lib/utils/queryClient";
 
 interface ConfigProps extends NonNullableFields<Config> {
   gameVersion: string | null;

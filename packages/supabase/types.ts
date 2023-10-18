@@ -9,6 +9,46 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      configsInProfile: {
+        Row: {
+          id: number
+          installConfigId: number | null
+          profileId: string | null
+          userId: string | null
+        }
+        Insert: {
+          id?: number
+          installConfigId?: number | null
+          profileId?: string | null
+          userId?: string | null
+        }
+        Update: {
+          id?: number
+          installConfigId?: number | null
+          profileId?: string | null
+          userId?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "configsInProfile_installConfigId_fkey"
+            columns: ["installConfigId"]
+            referencedRelation: "installConfigs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "configsInProfile_profileId_fkey"
+            columns: ["profileId"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "configsInProfile_userId_fkey"
+            columns: ["userId"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       installConfigs: {
         Row: {
           configsPath: string | null
@@ -71,17 +111,14 @@ export interface Database {
         Row: {
           id: string
           profileispublic: boolean
-          wgmodids: number[] | null
         }
         Insert: {
           id?: string
           profileispublic?: boolean
-          wgmodids?: number[] | null
         }
         Update: {
           id?: string
           profileispublic?: boolean
-          wgmodids?: number[] | null
         }
         Relationships: [
           {

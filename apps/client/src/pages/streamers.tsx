@@ -1,9 +1,9 @@
-import { useIsStreaming, useStreamers } from "@/api";
 import { Tables } from "@zenith/utils/apitypes";
 import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/layouts/PageHeader";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { stringToHslColor } from "@/lib/utils/stringToHslColor";
+import { useIsStreaming, useStreamers } from "@/api/supabase/streamers";
 
 const StreamerItem = ({ streamer }: { streamer: Tables<"streamers"> }) => {
   const { data: isStreaming } = useIsStreaming(streamer.twitchUsername);
