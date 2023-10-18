@@ -1,4 +1,4 @@
-import { Logo } from "../assets/Logo";
+import { Logo } from "../assets/Zenith";
 import { twMerge } from "tailwind-merge";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";

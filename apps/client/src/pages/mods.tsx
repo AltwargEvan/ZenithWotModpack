@@ -94,7 +94,7 @@ const ModsPage = () => {
         </TabsList>
       </Tabs>
       {mods && (
-        <ScrollArea className="px-1 pt-2 pb-2 h-full">
+        <ScrollArea className=" pt-2 pb-2 h-full">
           <div className="grid grid-cols-4 gap-4  xl:grid-cols-4 2xl:grid-cols-5 w-full">
             {mods.map((mod) => mod && <ModItem mod={mod} key={mod.id} />)}
           </div>

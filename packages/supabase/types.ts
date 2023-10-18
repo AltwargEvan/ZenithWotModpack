@@ -99,7 +99,7 @@ export interface Database {
           bannerUrl: string | null
           id: number
           profileId: string | null
-          twitchUsername: string | null
+          twitchUsername: string
         }
         Insert: {
           avatarUrl?: string | null
@@ -107,7 +107,7 @@ export interface Database {
           bannerUrl?: string | null
           id?: number
           profileId?: string | null
-          twitchUsername?: string | null
+          twitchUsername: string
         }
         Update: {
           avatarUrl?: string | null
@@ -115,7 +115,7 @@ export interface Database {
           bannerUrl?: string | null
           id?: number
           profileId?: string | null
-          twitchUsername?: string | null
+          twitchUsername?: string
         }
         Relationships: [
           {
