@@ -10,12 +10,13 @@ function getLocalHostUrl(port: number) {
   return `http://localhost:${port}`;
 }
 
+// this pretty much
+// https://github.com/JeaneC/tauri-oauth-supabase/blob/main/src/Auth.tsx
 export const useOAuthServer = () => {
   const session = useSession();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
   const [port, setPort] = useState<number | null>(null);
 
   useEffect(() => {
@@ -57,10 +58,12 @@ export const useOAuthServer = () => {
     };
   }, [port]);
 
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    email: string
+  ) => {
     event.preventDefault();
     setLoading(true);
-
     const { error } = await supabaseClient.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: getLocalHostUrl(port!) },

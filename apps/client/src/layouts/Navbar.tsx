@@ -122,7 +122,7 @@ const Navbar = () => {
         <NavItem to="/streamers" Icon={Twitch} text="Streamers" />
       </div>
       <div className="pb-3">
-        <NavItem to="/settings" Icon={Settings} text="Settings" />
+        <NavItem to="/settings?tab=account" Icon={Settings} text="Settings" />
         <ProfileNavItem />
       </div>
     </div>

@@ -10,15 +10,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useSession } from "@/lib/supabase/supabaseContext";
 import { useOAuthServer } from "@/lib/supabase/useOAuthServer";
 import { Twitch } from "lucide-react";
-import { useEffect } from "react";
-
-import { useNavigate } from "react-router";
+import { useState } from "react";
 
 export function SignInPage() {
   const { loading, onProviderLogin, handleLogin } = useOAuthServer();
+  const [email, setEmail] = useState("");
 
   return (
     <div className="grid justify-center items-center h-full w-full">
@@ -52,11 +50,26 @@ export function SignInPage() {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="m@example.com" />
+            <Input
+              id="email"
+              type="email"
+              placeholder="example@email.com"
+              value={email}
+              onChange={(e) => {
+                e.preventDefault();
+                setEmail(e.target.value);
+              }}
+            />
           </div>
         </CardContent>
         <CardFooter>
-          <Button className="w-full">Create account</Button>
+          <Button
+            className="w-full"
+            onClick={(e) => handleLogin(e, email)}
+            type="submit"
+          >
+            {loading ? "Loading..." : "Send magic link"}
+          </Button>
         </CardFooter>
       </Card>
     </div>
