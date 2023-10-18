@@ -25,7 +25,7 @@ const NavItem = ({
   Icon: LucideIcon;
 }) => {
   const location = useLocation();
-  const active = to === location.pathname;
+  const active = to.startsWith(location.pathname);
   return (
     <NavLink
       to={to}
@@ -113,7 +113,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        <NavItem to="/" Icon={Home} text="Home" />
+        <NavItem to="/mods" Icon={Home} text="Home" />
         <NavItem to="/yourMods" Icon={Boxes} text="Your Mods" />
         <NavItem to="/streamers" Icon={Twitch} text="Streamers" />
       </div>

@@ -1,7 +1,12 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import routes from "~react-pages";
-import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+import {
+  Navigate,
+  Outlet,
+  RouterProvider,
+  createBrowserRouter,
+} from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import TitleBar from "@/layouts/Titlebar";
 import Navbar from "@/layouts/Navbar";
@@ -60,6 +65,11 @@ const router = createBrowserRouter([
         children: [
           ...routes,
           {
+            element: <Navigate to="mods" replace={true} />,
+            path: "/",
+          },
+          {
+            // error handling route
             element: <div>This page doesn't exist!</div>,
             path: "*",
           },

@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import Carousel from "react-material-ui-carousel";
 import { Paper } from "@mui/material";
 import { fetchWGModResult } from "@/api/client/fetchWargamingMods";
-import { Category } from "../../pages";
+import { Category } from "../../pages/mods";
 import { InstallButton } from "./installButton";
 
 export function ModPageInner({ mod }: { mod: fetchWGModResult }) {
