@@ -3,7 +3,14 @@ import { twMerge } from "tailwind-merge";
 import { Link, NavLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useUser } from "@/lib/supabase/supabaseContext";
-import { LucideIcon, User, Settings, Twitch, Home, Boxes } from "lucide-react";
+import {
+  LucideIcon,
+  User,
+  Settings,
+  Twitch,
+  Package,
+  Blocks,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 
 import {
@@ -113,8 +120,8 @@ const Navbar = () => {
           </div>
         </div>
 
-        <NavItem to="/mods" Icon={Home} text="Home" />
-        <NavItem to="/yourMods" Icon={Boxes} text="Your Mods" />
+        <NavItem to="/mods" Icon={Package} text="Mods" />
+        <NavItem to="/yourMods" Icon={Blocks} text="Your Mods" />
         <NavItem to="/streamers" Icon={Twitch} text="Streamers" />
       </div>
       <div className="pb-3">
