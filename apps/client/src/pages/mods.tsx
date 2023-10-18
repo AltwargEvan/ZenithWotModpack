@@ -57,21 +57,24 @@ const ModsPage = () => {
 
   return (
     <>
-      <PageHeader title="Mods" />
-      <Tabs value={tab} onValueChange={(v) => setTab(v)}>
+      <PageHeader title="Mods" subtext="Browse and install official mods." />
+      <Tabs value={tab} onValueChange={(v) => setTab(v)} className="pt-2">
         <TabsList className="w-full grid-cols-4 grid h-12">
           <TabsTrigger value="All">
-            <Package2 className="h-6 pr-2" />
+            <Package2 className="pr-2" size={28} />
             All Mods
           </TabsTrigger>
           <TabsTrigger value="Tools">
-            Tools <Wrench />
+            <Wrench className="pr-2" size={28} />
+            Tools
           </TabsTrigger>
           <TabsTrigger value="Reticle">
-            Reticle <Crosshair />
+            <Crosshair className="pr-2" size={28} />
+            Reticle
           </TabsTrigger>
           <TabsTrigger value="Mark of Excellence">
-            Mark of Excellence <Ruler />
+            <Ruler className="pr-2" size={28} />
+            Mark of Excellence
           </TabsTrigger>
         </TabsList>
       </Tabs>
