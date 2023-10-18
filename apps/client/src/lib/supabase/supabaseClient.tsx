@@ -12,3 +12,7 @@ export const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
     flowType: "pkce",
   },
 });
+
+export async function handleSignout() {
+  await supabaseClient.auth.signOut();
+}

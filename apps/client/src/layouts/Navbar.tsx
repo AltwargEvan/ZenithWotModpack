@@ -1,10 +1,20 @@
 import { Logo } from "../assets/Logo";
 import { twMerge } from "tailwind-merge";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useUser } from "@/lib/supabase/supabaseContext";
 import { LucideIcon, User, Settings, Twitch, Home, Boxes } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { handleSignout } from "@/lib/supabase/supabaseClient";
 const NavItem = ({
   text,
   Icon,
@@ -26,11 +36,11 @@ const NavItem = ({
           : "text-neutral-500 fill-neutral-500 hover:text-neutral-400 hover:fill-neutral-400"
       )}
       style={{
-        gridTemplateColumns: "4.5rem 35.5rem",
+        gridTemplateColumns: "4.5rem 5.5rem",
       }}
     >
       <div className="flex justify-center  items-center hover:cursor-pointer">
-        <Icon className="h-7 w-7 group" />
+        <Icon className="h-7 w-7" />
       </div>
       <span className="font-medium align-middle hover:cursor-pointer text-sm">
         {text}
@@ -42,30 +52,47 @@ const NavItem = ({
 const ProfileNavItem = () => {
   const user = useUser();
   if (!user) return <NavItem to="/signIn" Icon={User} text="Sign In" />;
-  let name = user.full_name;
-  if (name.length > 9) name = name.slice(0, 9) + "...";
+  const name = user.full_name;
+  console.log(name);
+
   return (
-    <div
-      className="grid py-2.5"
-      style={{
-        gridTemplateColumns: "4.5rem 35.5rem",
-      }}
-    >
-      <div className="flex justify-center  items-center hover:cursor-pointer">
-        <Avatar>
-          <AvatarImage
-            src={user?.avatar_url}
-            className="h-7 w-7 rounded-full overflow-hidden"
-          />
-          <AvatarFallback>
-            <User className="h-7 w-7" />
-          </AvatarFallback>
-        </Avatar>
+    <DropdownMenu>
+      <div
+        className="py-2.5 grid text-neutral-500 fill-neutral-500 hover:text-neutral-400 hover:fill-neutral-400"
+        style={{
+          gridTemplateColumns: "4.5rem 5.5rem",
+        }}
+      >
+        <DropdownMenuTrigger asChild>
+          <div className="flex justify-center  items-center hover:cursor-pointer">
+            <Avatar className="flex justify-center  items-center hover:cursor-pointer h-7 w-7">
+              <AvatarImage
+                src={user?.avatar_url}
+                className="h-7 w-7 rounded-full"
+              />
+              <AvatarFallback>
+                <User className="h-7 w-7" />
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        </DropdownMenuTrigger>
+        <span className="font-medium align-middle text-sm text-white pt-0.5">
+          {name}
+        </span>
       </div>
-      <span className="font-medium  hover:cursor-pointer text-sm justify-center flex flex-col pb-1">
-        {name}
-      </span>
-    </div>
+      <DropdownMenuContent
+        side="top"
+        className="absolute w-36 ml-10"
+        sideOffset={90}
+      >
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <Link to="/account">
+          <DropdownMenuItem>Account Settings</DropdownMenuItem>
+        </Link>
+        <DropdownMenuItem onClick={handleSignout}>Sign Out</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

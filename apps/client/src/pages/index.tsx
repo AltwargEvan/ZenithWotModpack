@@ -158,10 +158,4 @@ const HomePage = () => {
 
 // export default HomePage;
 
-export default function Home() {
-  const session = useSession();
-  async function handleSignout() {
-    await supabaseClient.auth.signOut();
-  }
-  return <button onClick={handleSignout}>Logout</button>;
-}
+export default function Home() {}
