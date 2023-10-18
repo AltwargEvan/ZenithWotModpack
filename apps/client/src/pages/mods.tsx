@@ -1,74 +1,17 @@
-import { useEffect, useState } from "react";
-import { TabButton } from "../components/TabButton";
-import { Wrench } from "../assets/Wrench";
-import { Crosshair } from "../assets/Crosshair";
-import { Star } from "../assets/Star";
+import { useState } from "react";
 import { NavLink, useSearchParams } from "react-router-dom";
 import PageHeader from "@/layouts/PageHeader";
-import { useSession } from "@/lib/supabase/supabaseContext";
 import { useMods } from "@/api";
 import { MergedMod } from "@zenith/utils/apitypes";
-import { supabaseClient } from "@/lib/supabase/supabaseClient";
-import { Boxes } from "lucide-react";
-// import { Button } from "@zenith/ui";
+import { Crosshair, Package2, Ruler, Wrench } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export const Categories = [
-  "All Mods",
+export const ModCategories = [
   "Tools",
   "Reticle",
   "Mark of Excellence",
-  "Currently Installed",
 ] as const;
-export type Category = (typeof Categories)[number];
-type Tab = Category;
-
-const HomeTabs = ({
-  activeTab,
-  setActiveTab,
-}: {
-  activeTab: Tab;
-  setActiveTab: React.Dispatch<Tab>;
-}) => {
-  return (
-    <div className="flex space-x-2 select-none px-3">
-      <TabButton
-        selected={activeTab === "All Mods"}
-        onClick={() => setActiveTab("All Mods")}
-      >
-        <Boxes />
-        <span className="font-medium text-sm">All Mods</span>
-      </TabButton>
-      <TabButton
-        selected={activeTab === "Tools"}
-        onClick={() => setActiveTab("Tools")}
-      >
-        <Wrench />
-        <span className="font-medium text-sm">Tools</span>
-      </TabButton>
-      <TabButton
-        selected={activeTab === "Reticle"}
-        onClick={() => setActiveTab("Reticle")}
-      >
-        <Crosshair className="fill-white" />
-        <span className="font-medium text-sm">Reticle</span>
-      </TabButton>
-      <TabButton
-        selected={activeTab === "Mark of Excellence"}
-        onClick={() => setActiveTab("Mark of Excellence")}
-      >
-        <Star />
-        <span className="font-medium text-sm">Mark of Excellence</span>
-      </TabButton>
-      {/* <TabButton
-          selected={activeTab === "Currently Installed"}
-          onClick={() => setActiveTab("Currently Installed")}
-        >
-          <SDCard />
-          <span className="font-medium text-sm">Currently Installed</span>
-        </TabButton> */}
-    </div>
-  );
-};
+export type ModCategory = (typeof ModCategories)[number];
 
 const ModItem = ({ mod }: { mod: MergedMod }) => {
   return (
@@ -107,55 +50,48 @@ const ModItem = ({ mod }: { mod: MergedMod }) => {
   );
 };
 
-const HomePage = () => {
+const ModsPage = () => {
   const [searchParams] = useSearchParams();
-  const category = searchParams.get("category");
-  searchParams;
-
-  // set category on load
-  useEffect(() => {
-    if (Categories.includes(category as Category))
-      setActiveTab(category as Category);
-  }, []);
-
-  const [activeTab, setActiveTab] = useState<Tab>("All Mods");
-  const [search, setSearch] = useState<string>("");
-
+  const [tab, setTab] = useState(searchParams.get("category") || "All");
   const { data: mods } = useMods();
 
   return (
     <>
-      <PageHeader title="Home" />
-      <div>
-        <div className="flex pb-3 justify-between items-center pr-3">
-          <HomeTabs setActiveTab={setActiveTab} activeTab={activeTab} />
-          <input
-            type="text"
-            className="px-4  py-1 rounded-2xl text-neutral-800 w-[15rem] text-sm"
-            placeholder="Search Mods..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        {mods?.length === 0 && <div>Failed To Fetch Mod List</div>}
-        <div
-          style={{
-            maxHeight: "calc(100vh - 138px)",
-          }}
-          className="grid grid-cols-4 gap-4 pt-2 px-3 pb-6 xl:grid-cols-4 2xl:grid-cols-5 w-full overflow-y-auto"
-        >
-          {mods &&
-            mods
-              .filter((mod) =>
-                JSON.stringify(mod).toLowerCase().includes(search.toLowerCase())
-              )
-              .map((mod) => mod && <ModItem mod={mod} key={mod.id} />)}
-        </div>
-      </div>
+      <PageHeader title="Mods" />
+      <Tabs value={tab} onValueChange={(v) => setTab(v)}>
+        <TabsList className="w-full grid-cols-4 grid h-12">
+          <TabsTrigger value="All">
+            <Package2 className="h-6 pr-2" />
+            All Mods
+          </TabsTrigger>
+          <TabsTrigger value="Tools">
+            Tools <Wrench />
+          </TabsTrigger>
+          <TabsTrigger value="Reticle">
+            Reticle <Crosshair />
+          </TabsTrigger>
+          <TabsTrigger value="Mark of Excellence">
+            Mark of Excellence <Ruler />
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {/* <div
+        style={{
+          maxHeight: "calc(100vh - 138px)",
+        }}
+        className="grid grid-cols-4 gap-4 pt-2 px-3 pb-6 xl:grid-cols-4 2xl:grid-cols-5 w-full overflow-y-auto"
+      >
+        {mods &&
+          mods
+            .filter(
+              (mod) => true
+              // JSON.stringify(mod).toLowerCase().includes(search.toLowerCase())
+            )
+            .map((mod) => mod && <ModItem mod={mod} key={mod.id} />)}
+      </div> */}
     </>
   );
 };
 
-// export default HomePage;
-
-export default function Home() {}
+export default ModsPage;
