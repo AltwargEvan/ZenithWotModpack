@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { TabButton } from "../components/TabButton";
-import { BoxesIcon } from "../assets/BoxesIcon";
 import { Wrench } from "../assets/Wrench";
 import { Crosshair } from "../assets/Crosshair";
 import { Star } from "../assets/Star";
@@ -10,6 +9,7 @@ import { useSession } from "@/lib/supabase/supabaseContext";
 import { useMods } from "@/api";
 import { MergedMod } from "@zenith/utils/apitypes";
 import { supabaseClient } from "@/lib/supabase/supabaseClient";
+import { Boxes } from "lucide-react";
 // import { Button } from "@zenith/ui";
 
 export const Categories = [
@@ -35,7 +35,7 @@ const HomeTabs = ({
         selected={activeTab === "All Mods"}
         onClick={() => setActiveTab("All Mods")}
       >
-        <BoxesIcon />
+        <Boxes />
         <span className="font-medium text-sm">All Mods</span>
       </TabButton>
       <TabButton

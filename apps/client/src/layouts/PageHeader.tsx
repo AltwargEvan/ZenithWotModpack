@@ -1,14 +1,19 @@
+import { Separator } from "@/components/ui/separator";
 const PageHeader = ({
   title,
-  backgroundImage,
+  subtext,
 }: {
-  title: string;
-  backgroundImage?: string;
+  title?: string;
+  subtext?: string;
 }) => {
   return (
-    <div className="h-12 w-full px-3 pb-2">
-      <span className="text-3xl font-bold">{title}</span>
-    </div>
+    <>
+      <div className="h-[5.25rem] w-full pt-4 space-y-1">
+        <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
+        <p className="text-muted-foreground">{subtext}</p>
+      </div>
+      <Separator />
+    </>
   );
 };
 

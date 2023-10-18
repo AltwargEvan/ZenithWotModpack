@@ -90,7 +90,7 @@ const ProfileNavItem = () => {
       <DropdownMenuContent side="top" className="w-36 ml-14">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <Link to="/account">
+        <Link to="/settings?tab=account">
           <DropdownMenuItem>Account Settings</DropdownMenuItem>
         </Link>
         <DropdownMenuItem onClick={handleSignout}>Sign Out</DropdownMenuItem>
@@ -125,7 +125,7 @@ const Navbar = () => {
         <NavItem to="/streamers" Icon={Twitch} text="Streamers" />
       </div>
       <div className="pb-3">
-        <NavItem to="/settings?tab=account" Icon={Settings} text="Settings" />
+        <NavItem to="/settings?tab=general" Icon={Settings} text="Settings" />
         <ProfileNavItem />
       </div>
     </div>
