@@ -6,7 +6,16 @@ import { MergedMod } from "@zenith/utils/apitypes";
 import { Crosshair, Package2, Ruler, Wrench } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@radix-ui/react-dropdown-menu";
+import { Input } from "@/components/ui/input";
 
 export const ModCategories = [
   "Tools",
@@ -18,48 +27,23 @@ export type ModCategory = (typeof ModCategories)[number];
 const ModItem = ({ mod }: { mod: MergedMod }) => {
   return (
     <NavLink to={`/mod/${mod.id}`} className="group">
-      <Card className="overflow-hidden" color="blue">
-        <div className="h-36 overflow-hidden rounded-sm">
-          <img
-            className="object-cover object-center scale-105 group-hover:scale-[1.15] transition-all duration-100 cursor-pointer"
-            src={mod.cover}
-          />
-        </div>
-      </Card>
-    </NavLink>
-  );
-  return (
-    <NavLink to={`/mod/${mod.id}`}>
-      <div className="p-1 hover:cursor-pointer h-54 relative rounded-xl overflow-visible bg-neutral-700 hover:ring-1 ring-offset-2 ring-offset-transparent ring-neutral-400 hover:scale-105 transition-all group">
-        <div
-          style={{
-            backgroundImage: `url(${mod.cover})`,
-          }}
-          className="h-36 bg-blue-500 w-full bg-contain shadow-lg bg-center overflow-hidden rounded-lg"
-        />
-        <div className="p-1">
-          <div className="h-6 overflow-hidden text-ellipsis  break-all">
-            {mod.name}
+      <Card className="overflow-hidden h-54" color="blue">
+        <CardHeader className="p-1 h-36 w-full">
+          <div className="h-36 overflow-hidden rounded-sm  w-full">
+            <img
+              className="h-36  w-full object-cover object-center scale-105 group-hover:scale-[1.15] transition-all duration-100 cursor-pointer"
+              src={mod.cover}
+            />
           </div>
-          <div
-            className="font-light text-xs h-4 overflow-hidden text-ellipsis break-all"
-            style={{
-              maxWidth: "85%",
-            }}
-          >
+        </CardHeader>
+        <CardFooter className="p-1 grid text-left">
+          <Label className="flex h-6 overflow-hidden">{mod.name}</Label>
+
+          <CardDescription className="flex h-6 overflow-hidden">
             Created By {mod.owner.spa_username}
-          </div>
-          <div
-            className="font-light text-xs h-4 overflow-hidden text-ellipsis break-all"
-            style={{
-              maxWidth: "85%",
-            }}
-          >
-            Version {mod.versions[0].version} for{" "}
-            {mod.versions[0].game_version.version}
-          </div>
-        </div>
-      </div>
+          </CardDescription>
+        </CardFooter>
+      </Card>
     </NavLink>
   );
 };
@@ -67,12 +51,22 @@ const ModItem = ({ mod }: { mod: MergedMod }) => {
 const ModsPage = () => {
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(searchParams.get("category") || "All");
-  const { data: mods, isLoading } = useMods();
+  const [search, setSearch] = useState("");
+  const { data, isLoading } = useMods();
+
+  const mods = data?.filter((mod) => {
+    if (!JSON.stringify(mod).toLowerCase().includes(search.toLowerCase()))
+      return false;
+    if (tab === "All") return true;
+    if (!mod.categories?.includes(tab as ModCategory)) return false;
+    return true;
+  });
+
   return (
     <>
       <PageHeader title="Mods" subtext="Browse and install official mods." />
       <Tabs value={tab} onValueChange={(v) => setTab(v)} className="pt-2">
-        <TabsList className="w-full grid-cols-4 grid h-12">
+        <TabsList className="w-full grid-cols-5 grid h-12">
           <TabsTrigger value="All">
             <Package2 className="pr-2" size={28} />
             All Mods
@@ -89,17 +83,20 @@ const ModsPage = () => {
             <Ruler className="pr-2" size={28} />
             Mark of Excellence
           </TabsTrigger>
+          <div className="pl-2">
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm   placeholder:text-muted-foreground"
+              placeholder="Search..."
+            />
+          </div>
         </TabsList>
       </Tabs>
       {mods && (
-        <ScrollArea>
-          <div className="grid grid-cols-4 gap-4 pt-2 px-3 pb-6 xl:grid-cols-4 2xl:grid-cols-5 w-full">
-            {mods
-              .filter(
-                (mod) => true
-                // JSON.stringify(mod).toLowerCase().includes(search.toLowerCase())
-              )
-              .map((mod) => mod && <ModItem mod={mod} key={mod.id} />)}
+        <ScrollArea className="px-1 pt-2 pb-2 h-full">
+          <div className="grid grid-cols-4 gap-4  xl:grid-cols-4 2xl:grid-cols-5 w-full">
+            {mods.map((mod) => mod && <ModItem mod={mod} key={mod.id} />)}
           </div>
         </ScrollArea>
       )}
