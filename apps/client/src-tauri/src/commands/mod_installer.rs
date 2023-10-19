@@ -11,7 +11,7 @@ use crate::{
             insert_installed_mod,
         },
     },
-    types::{InstallConfig, Mod},
+    types::{CachedMod, InstallConfig},
     utils::{self, file::copy_dir_all},
 };
 use tauri::AppHandle;
@@ -20,7 +20,7 @@ use super::config::detect_game_version;
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_cached_mods(app_handle: AppHandle) -> Result<Vec<Mod>, String> {
+pub async fn get_cached_mods(app_handle: AppHandle) -> Result<Vec<CachedMod>, String> {
     fetch_cached_mods(&app_handle)
 }
 #[tauri::command]
@@ -34,7 +34,7 @@ pub async fn get_installed_mods(app_handle: AppHandle) -> Result<Vec<InstallConf
 pub async fn get_install_state(
     mod_id: i32,
     app_handle: AppHandle,
-) -> (String, Option<Mod>, Option<Vec<InstallConfig>>) {
+) -> (String, Option<CachedMod>, Option<Vec<InstallConfig>>) {
     let cached = match db::queries::fetch_mod(mod_id, &app_handle) {
         Ok(res) => res,
         Err(err) => {
@@ -72,7 +72,7 @@ pub async fn get_install_state(
 /// Compares the version of cached mod and requested mod.
 /// When the version differs, download the provided version and update the cache
 pub async fn cache_mod(
-    mod_data: Mod,
+    mod_data: CachedMod,
     download_url: String,
     app_handle: AppHandle,
 ) -> Result<(), String> {
@@ -112,7 +112,7 @@ pub async fn cache_mod(
 
 #[tauri::command]
 #[specta::specta]
-pub async fn uncache_mod(mod_data: Mod, app_handle: AppHandle) -> Result<(), String> {
+pub async fn uncache_mod(mod_data: CachedMod, app_handle: AppHandle) -> Result<(), String> {
     // delete directory in cache
     let cache_dir = app_handle
         .path_resolver()
@@ -131,7 +131,7 @@ pub async fn uncache_mod(mod_data: Mod, app_handle: AppHandle) -> Result<(), Str
 #[tauri::command]
 #[specta::specta]
 pub async fn install_mod(
-    mod_data: Mod,
+    mod_data: CachedMod,
     install_config: InstallConfig,
     app_handle: AppHandle,
 ) -> Result<(), String> {

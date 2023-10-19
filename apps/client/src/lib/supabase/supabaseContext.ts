@@ -42,7 +42,7 @@ type AuthStore = {
   session: AuthSession | null;
   user: User | null;
 };
-const AuthStore = createStore<AuthStore>()((_set) => ({
+export const AuthStore = createStore<AuthStore>()((_set) => ({
   session: null,
   user: null,
   signOut: () => supabaseClient.auth.signOut(),

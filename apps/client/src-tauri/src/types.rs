@@ -7,17 +7,15 @@ pub struct Config {
 }
 
 #[derive(Serialize, Deserialize, Type)]
-pub struct Mod {
+pub struct CachedMod {
     pub id: i32,
-    pub wg_mods_id: i32,
     pub name: String,
     pub mod_version: String,
     pub game_version: String,
-    pub thumbnail_url: String,
 }
 
-impl Mod {
-    pub fn is_equal(&self, other: Mod) -> bool {
+impl CachedMod {
+    pub fn is_equal(&self, other: CachedMod) -> bool {
         self.id == other.id
             && self.game_version == other.game_version
             && self.mod_version == other.mod_version
@@ -27,11 +25,17 @@ impl Mod {
 #[derive(Serialize, Deserialize, Type)]
 pub struct InstallConfig {
     /// Primary key
-    pub name: String,
+    pub id: i32,
     pub mod_id: i32,
+    pub name: String,
     pub mods_path: Option<String>,
     pub res_path: Option<String>,
     pub configs_path: Option<String>,
     pub game_directory: String,
 }
 
+#[derive(Serialize, Deserialize, Type)]
+pub struct InstalledConfig {
+    pub config_id: i32,
+    pub game_directory: String,
+}
