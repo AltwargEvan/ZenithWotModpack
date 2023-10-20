@@ -15,11 +15,9 @@ import { queryClient } from "./lib/utils/queryClient";
 import "./styles/globals.css";
 import { ModManagerContextProvider } from "./lib/modManager/modManagerContext";
 import { SettingsManagerContextProvider } from "./lib/settingsManager/settingsManagerContext";
-import {
-  Settings,
-  SettingsManager,
-} from "./lib/settingsManager/settingsManager";
+import { Settings } from "./lib/settingsManager/settingsManager";
 import { InnerAppProviders } from "./lib/AppProviders";
+import { Toaster } from "./components/ui/toaster";
 localStorage.setItem("theme", "dark");
 
 const AppOuter = () => {
@@ -27,6 +25,7 @@ const AppOuter = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Toaster />
       <div className="border-neutral-600 border h-screen w-screen font-oswald bg-gradient-to-bl from-neutral-900/90 to-neutral-950 text-white">
         <TitleBar />
         <Navbar />

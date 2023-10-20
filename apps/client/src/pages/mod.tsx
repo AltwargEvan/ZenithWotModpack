@@ -11,9 +11,11 @@ import { MoreVertical } from "lucide-react";
 import Carousel from "react-material-ui-carousel";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { observer } from "mobx-react-lite";
+import { useToast } from "@/components/ui/use-toast";
 
 const Action = observer(({ mod }: { mod: MergedMod }) => {
   const manager = useModManager();
+  const { toast } = useToast();
   const isInstalledLocally = mod.installConfigs.some((cfg) =>
     manager.installConfigsLocal.has(cfg.id)
   );
@@ -40,7 +42,12 @@ const Action = observer(({ mod }: { mod: MergedMod }) => {
     if (!isInstalledLocally) {
       switch (mod.installConfigs.length) {
         case 0:
-          // TODO - toast mod has no install configs
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description:
+              "Failed to Install Mod. No install configs provided. Please contact the developer.",
+          });
           break;
         case 1:
           manager.addMod(
@@ -74,6 +81,7 @@ const Action = observer(({ mod }: { mod: MergedMod }) => {
     </div>
   );
 });
+
 const ModPage = () => {
   const { data: mods } = useMods();
   const [searchParams] = useSearchParams();
