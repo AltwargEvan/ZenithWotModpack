@@ -22,8 +22,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
-import { open } from "@tauri-apps/api/dialog";
-import { computed, set } from "mobx";
 
 const Action = observer(({ mod }: { mod: UberMergedMod }) => {
   const manager = useModManager();
@@ -49,9 +47,8 @@ const Action = observer(({ mod }: { mod: UberMergedMod }) => {
   const handleOpenFileLocation = () => {
     mod.installedConfigs.forEach((cfg) => {
       if (cfg.mods_path) {
-        openFileExplorer(
-          `${settings.gameDirectory}/mods/${settings.gameVersion}/${mod.name}-${cfg.id}`
-        );
+        const location = `${settings.gameDirectory}\\mods\\${settings.gameVersion}\\${mod.name} - ${cfg.name}`;
+        openFileExplorer(location);
       }
       // TODO - open res mods files
       // TODO - open config files
@@ -59,20 +56,13 @@ const Action = observer(({ mod }: { mod: UberMergedMod }) => {
   };
 
   return (
-    <div className="flex">
-      <Button
-        variant="secondary"
-        className="rounded-r-none rounded-l-sm w-20"
-        onClick={handleUninstall}
-      >
+    <div className="flex overflow-hidden rounded-md">
+      <Button className="rounded-none w-20" onClick={handleUninstall}>
         Uninstall
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="secondary"
-            className="rounded-l-none rounded-r-sm px-0 border-l border-neutral-900 w-5"
-          >
+          <Button className="rounded-none  px-0 border-l border-neutral-900 w-5">
             <MoreVertical size={20} />
           </Button>
         </DropdownMenuTrigger>
@@ -80,16 +70,11 @@ const Action = observer(({ mod }: { mod: UberMergedMod }) => {
           <DropdownMenuLabel>Options</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            {mod.installConfigs.length > 1 && (
-              <DropdownMenuItem onClick={handleModifyInstall}>
-                Modify Install
-              </DropdownMenuItem>
-            )}
+            <DropdownMenuItem onClick={handleModifyInstall}>
+              Modify Install
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleOpenFileLocation}>
               Open File Location
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleUninstall}>
-              Uninstall
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
@@ -101,7 +86,7 @@ const Action = observer(({ mod }: { mod: UberMergedMod }) => {
 const ModItem = ({ mod }: { mod: UberMergedMod }) => {
   return (
     <div
-      className=" rounded bg-neutral-700  hover:bg-neutral-600 relative overflow-hidden my-3"
+      className="rounded bg-neutral-700  hover:bg-neutral-600 relative overflow-hidden my-3"
       style={{
         backgroundImage: `url(${mod.cover})`,
         backgroundPosition: "center",
@@ -109,14 +94,10 @@ const ModItem = ({ mod }: { mod: UberMergedMod }) => {
         backgroundSize: "cover",
       }}
     >
-      <div className="p-4 flex justify-between backdrop-blur">
-        <div className="flex h-full">
-          <div className="flex">
-            <Link to={`/mod?id=${mod.id}`}>
-              <span className="font-medium text-lg">{mod.name}</span>
-            </Link>
-          </div>
-        </div>
+      <div className="p-4 flex justify-between backdrop-blur h-full">
+        <Link to={`/mod?id=${mod.id}`} className="font-medium text-lg pt-1">
+          {mod.name}
+        </Link>
         <div className="flex h-full items-center justify-center">
           <Action mod={mod} />
         </div>
@@ -152,24 +133,28 @@ const getMergedModData = (
   return data;
 };
 
-const YourMods = () => {
-  const session = useSession();
+const ModsList = observer(() => {
   const { data: mods } = useMods();
   const manager = useModManager();
   const data = getMergedModData(mods, manager);
 
-  // [modId, data]
+  return (
+    <>
+      {data.map((mod) => (
+        <ModItem mod={mod} key={mod.id} />
+      ))}
+    </>
+  );
+});
 
+const Page = () => {
   return (
     <>
       <PageHeader title="Your Mods" subtext="Manage your mods" />
       <ScrollArea className="grid w-full overflow-y-auto gap-4">
-        {data.map((mod) => (
-          <ModItem mod={mod} key={mod.id} />
-        ))}
+        <ModsList />
       </ScrollArea>
     </>
   );
 };
-
-export default YourMods;
+export default Page;

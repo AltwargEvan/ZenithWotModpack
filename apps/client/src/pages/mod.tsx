@@ -54,10 +54,10 @@ const Action = observer(({ mod }: { mod: MergedMod }) => {
     !operationInProgress && !isInstalledLocally ? "default" : "secondary";
 
   return (
-    <Button variant={variant} onClick={handleClick}>
+    <Button variant={variant} onClick={handleClick} className="w-24">
       {operationInProgress && "Loading..."}
-      {isInstalledLocally && "Installed"}
-      {!isInstalledLocally && "Install"}
+      {!operationInProgress && isInstalledLocally && "Installed"}
+      {!operationInProgress && !isInstalledLocally && "Install"}
     </Button>
   );
 });
