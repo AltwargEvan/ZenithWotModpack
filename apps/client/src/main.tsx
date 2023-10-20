@@ -13,8 +13,6 @@ import Navbar from "@/layouts/Navbar";
 import useSupabaseAuth from "./lib/supabase/supabaseContext";
 import { queryClient } from "./lib/utils/queryClient";
 import "./styles/globals.css";
-import { ModManagerContextProvider } from "./lib/modManager/modManagerContext";
-import { SettingsManagerContextProvider } from "./lib/settingsManager/settingsManagerContext";
 import { Settings } from "./lib/settingsManager/settingsManager";
 import { InnerAppProviders } from "./lib/AppProviders";
 import { Toaster } from "./components/ui/toaster";
