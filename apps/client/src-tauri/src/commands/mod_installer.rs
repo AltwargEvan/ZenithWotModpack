@@ -239,6 +239,7 @@ pub async fn install_mod(
 #[tauri::command]
 #[specta::specta]
 pub fn uninstall_mod(
+    mod_data: CachedMod,
     install_config: LocalInstallConfig,
     app_handle: AppHandle,
 ) -> Result<(), String> {
@@ -246,8 +247,8 @@ pub fn uninstall_mod(
     let game_dir = Path::new(install_config.game_directory.as_str());
 
     let mods_dir = game_dir.join(format!(
-        "mods\\{game_version}\\{0}\\{1}",
-        install_config.mod_id, install_config.id
+        "mods\\{game_version}\\{0} - {1}",
+        mod_data.name, install_config.name
     ));
 
     // res mods have to be copied directly in or else shit breaks.
@@ -268,7 +269,7 @@ pub fn uninstall_mod(
     // update db
     let sql = format!(
         "--sql
-            DELETE FROM installed_mods WHERE id = '{0}'
+            DELETE FROM installed_configs WHERE id = '{0}'
         ",
         install_config.id
     );

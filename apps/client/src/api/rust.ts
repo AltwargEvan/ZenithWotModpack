@@ -30,8 +30,8 @@ export function installMod(modData: CachedMod, installConfig: LocalInstallConfig
     return invoke()<null>("install_mod", { modData,installConfig,downloadUrl })
 }
 
-export function uninstallMod(installConfig: LocalInstallConfig) {
-    return invoke()<null>("uninstall_mod", { installConfig })
+export function uninstallMod(modData: CachedMod, installConfig: LocalInstallConfig) {
+    return invoke()<null>("uninstall_mod", { modData,installConfig })
 }
 
 export type CachedMod = { id: number; name: string; mod_version: string; game_version: string }

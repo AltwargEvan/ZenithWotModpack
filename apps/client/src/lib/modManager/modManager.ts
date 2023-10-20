@@ -88,14 +88,17 @@ export class ModManager {
     this.unlockMod(mod.id);
   }
 
-  async removeMod(modId: number, installConfigId: number) {
-    if (this.lockedModIds.has(modId)) return;
-    this.lockMod(modId);
+  async removeMod(mod: CachedMod, installConfigId: number) {
+    if (this.lockedModIds.has(mod.id)) return;
+    this.lockMod(mod.id);
 
     const updateProfilePromise = new Promise((resolve, reject) => {
       const session = AuthStore.getState().session;
       if (!session) resolve(true);
       // TODO - if user is logged in, update database
+      runInAction(() => {
+        this.installConfigsCloud.delete(installConfigId);
+      });
       resolve(true);
     });
 
@@ -107,7 +110,7 @@ export class ModManager {
           throw new Error(
             "Local install Config not found in client cache layer"
           );
-        await uninstallMod(localInstallConfig);
+        await uninstallMod(mod, localInstallConfig);
         runInAction(() => {
           this.installConfigsLocal.delete(installConfigId);
         });
@@ -119,6 +122,6 @@ export class ModManager {
     });
 
     await Promise.allSettled([updateProfilePromise, uninstallLocallyPromise]);
-    this.unlockMod(modId);
+    this.unlockMod(mod.id);
   }
 }
