@@ -1,6 +1,7 @@
 import type { Database } from "@zenith/supabase/types";
 import { z } from "zod";
 import { Prettify } from "./tsmagic";
+import { CachedMod } from "@/api/rust";
 
 export type Tables<T extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][T]["Row"];
@@ -75,3 +76,11 @@ export const wargamingMod = z.object({
   ),
 });
 export type wargamingMod = z.infer<typeof wargamingMod>;
+export function toCachedMod(mod: MergedMod): CachedMod {
+  return {
+    id: mod.id,
+    name: mod.name,
+    mod_version: mod.versions[0].version,
+    game_version: mod.versions[0].game_version.version,
+  };
+}

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/Button";
 import { Separator } from "@/components/ui/separator";
 import { ReactNode } from "react";
 const PageHeader = ({
@@ -5,18 +6,18 @@ const PageHeader = ({
   subtext,
   action,
 }: {
-  title?: string;
+  title?: ReactNode;
   subtext?: ReactNode;
   action?: ReactNode;
 }) => {
   return (
     <>
-      <div className="h-[5.25rem] w-full pt-4 space-y-1">
+      <div className="h-[5.4rem] w-full pt-4 space-y-1">
         <div className="flex justify-between">
           <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
           {action}
         </div>
-        <p className="text-muted-foreground">{subtext}</p>
+        <div className="text-muted-foreground h-7">{subtext}</div>
       </div>
       <Separator />
     </>

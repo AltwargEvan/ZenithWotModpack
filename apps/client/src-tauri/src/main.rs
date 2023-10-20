@@ -4,7 +4,8 @@ use db::state::AppState;
 use tauri_plugin_log::LogTarget;
 mod commands;
 use commands::config::{detect_game_directories, get_config, set_game_directory};
-use commands::mod_installer::{get_install_state, install_mod, uninstall_mod};
+use commands::misc::open_file_explorer;
+use commands::mod_installer::{get_install_state, install_mods, uninstall_mod};
 use commands::unzip_file_command::unzip_file;
 mod db;
 mod types;
@@ -22,8 +23,9 @@ fn main() {
             set_game_directory,
             detect_game_directories,
             get_install_state,
-            install_mod,
+            install_mods,
             uninstall_mod,
+            open_file_explorer
         ],
         "../src/api/rust.ts",
     )
@@ -49,12 +51,13 @@ fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            open_file_explorer,
             get_config,
             set_game_directory,
             unzip_file,
             detect_game_directories,
             get_install_state,
-            install_mod,
+            install_mods,
             uninstall_mod,
         ])
         .run(tauri::generate_context!())
@@ -69,8 +72,9 @@ fn export_bindings() {
             set_game_directory,
             detect_game_directories,
             get_install_state,
-            install_mod,
+            install_mods,
             uninstall_mod,
+            open_file_explorer
         ],
         "../src/api/rust.ts",
     )

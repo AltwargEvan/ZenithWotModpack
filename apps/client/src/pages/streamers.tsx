@@ -60,12 +60,7 @@ const StreamersPage = () => {
         title="Streamers"
         subtext="Download the up to date mods that your favorite streamer is using."
       />
-      <ScrollArea
-        style={{
-          maxHeight: "calc(100vh - 138px)",
-        }}
-        className="grid w-full overflow-y-auto gap-4"
-      >
+      <ScrollArea className="grid w-full overflow-y-auto gap-4">
         {isLoading &&
           [1, 2, 3, 4, 5].map((_, i) => (
             <Skeleton className="h-20 rounded  my-2 mr-3" key={i} />

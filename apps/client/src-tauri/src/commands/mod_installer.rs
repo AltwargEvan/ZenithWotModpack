@@ -168,72 +168,72 @@ pub async fn remove_mod_from_cache(
 
 #[tauri::command]
 #[specta::specta]
-pub async fn install_mod(
+pub async fn install_mods(
     mod_data: CachedMod,
-    install_config: LocalInstallConfig,
+    install_configs: Vec<LocalInstallConfig>,
     download_url: String,
     app_handle: AppHandle,
 ) -> Result<(), String> {
     validate_or_add_mod_to_cache(&mod_data, download_url, false, &app_handle).await?;
 
-    let game_version = detect_game_version(&install_config.game_directory, &app_handle)?;
-    let game_dir = Path::new(install_config.game_directory.as_str());
-    let mods_dir = game_dir.join(format!(
-        "mods\\{game_version}\\{0} - {1}",
-        mod_data.name, install_config.name
-    ));
+    for install_config in install_configs {
+        let game_version = detect_game_version(&install_config.game_directory, &app_handle)?;
+        let game_dir = Path::new(install_config.game_directory.as_str());
+        let mods_dir = game_dir.join(format!(
+            "mods\\{game_version}\\{0} - {1}",
+            mod_data.name, install_config.name
+        )); // res mods have to be copied directly in or else shit breaks.
+            // TODO - resolve res mods conflicts
+        let res_mods_dir = game_dir.join(format!("res_mods\\{game_version}"));
+        let config_dir = game_dir.join("mods\\configs");
 
-    // res mods have to be copied directly in or else shit breaks.
-    // TODO - resolve res mods conflicts
-    let res_mods_dir = game_dir.join(format!("res_mods\\{game_version}"));
-    let config_dir = game_dir.join("mods\\configs");
+        let cache_dir = app_handle
+            .path_resolver()
+            .app_cache_dir()
+            .expect("The app cache directory should exist.")
+            .join(format!("mods\\{}", mod_data.id));
 
-    let cache_dir = app_handle
-        .path_resolver()
-        .app_cache_dir()
-        .expect("The app cache directory should exist.")
-        .join(format!("mods\\{}", mod_data.id));
+        // Copy designed files from config to correct folder
+        if let Some(mods_path) = &install_config.mods_path {
+            let src = match !mods_path.is_empty() {
+                true => cache_dir.clone(),
+                false => cache_dir.join(mods_path),
+            };
 
-    // Copy designed files from config to correct folder
-    if let Some(mods_path) = &install_config.mods_path {
-        let src = match !mods_path.is_empty() {
-            true => cache_dir.clone(),
-            false => cache_dir.join(mods_path),
-        };
+            println!("Mods src: {}", &src.to_str().unwrap());
 
-        println!("Mods src: {}", &src.to_str().unwrap());
+            copy_dir_wotmods(src, mods_dir).map_err(|e| e.to_string())?;
+        }
+        if let Some(configs_path) = &install_config.configs_path {
+            let src = cache_dir.join(configs_path);
+            copy_dir_all(src, config_dir).map_err(|e| e.to_string())?;
+        }
+        if let Some(res_path) = &install_config.res_path {
+            let src = cache_dir.join(res_path);
+            copy_dir_all(src, res_mods_dir).map_err(|e| e.to_string())?;
+        }
 
-        copy_dir_wotmods(src, mods_dir).map_err(|e| e.to_string())?;
-    }
-    if let Some(configs_path) = &install_config.configs_path {
-        let src = cache_dir.join(configs_path);
-        copy_dir_all(src, config_dir).map_err(|e| e.to_string())?;
-    }
-    if let Some(res_path) = &install_config.res_path {
-        let src = cache_dir.join(res_path);
-        copy_dir_all(src, res_mods_dir).map_err(|e| e.to_string())?;
-    }
-
-    // update local database
-    let sql = "--sql
+        // update local database
+        let sql = "--sql
         INSERT OR REPLACE INTO installed_configs (id, mod_id, name, mods_path, res_path, configs_path, game_directory)
         VALUES (:id, :mod_id, :name, :mods_path, :res_path, :configs_path, :game_directory)
     ";
 
-    let params = named_params! {
-        ":id": install_config.id,
-        ":mod_id": install_config.mod_id,
-        ":name": install_config.name,
-        ":mods_path": install_config.mods_path,
-        ":res_path": install_config.res_path,
-        ":configs_path": install_config.configs_path,
-        ":game_directory": install_config.game_directory
-    };
+        let params = named_params! {
+            ":id": install_config.id,
+            ":mod_id": install_config.mod_id,
+            ":name": install_config.name,
+            ":mods_path": install_config.mods_path,
+            ":res_path": install_config.res_path,
+            ":configs_path": install_config.configs_path,
+            ":game_directory": install_config.game_directory
+        };
 
-    app_handle.db(|conn| {
-        conn.execute(sql, params).map_err(|e| e.to_string())?;
-        Ok(())
-    })
+        app_handle.db(|conn| {
+            return conn.execute(sql, params).map_err(|e| e.to_string());
+        })?;
+    }
+    Ok(())
 }
 
 #[tauri::command]

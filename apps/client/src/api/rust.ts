@@ -26,12 +26,16 @@ export function getInstallState(modId: number) {
     return invoke()<[string, CachedMod | null, LocalInstallConfig[] | null]>("get_install_state", { modId })
 }
 
-export function installMod(modData: CachedMod, installConfig: LocalInstallConfig, downloadUrl: string) {
-    return invoke()<null>("install_mod", { modData,installConfig,downloadUrl })
+export function installMods(modData: CachedMod, installConfigs: LocalInstallConfig[], downloadUrl: string) {
+    return invoke()<null>("install_mods", { modData,installConfigs,downloadUrl })
 }
 
 export function uninstallMod(modData: CachedMod, installConfig: LocalInstallConfig) {
     return invoke()<null>("uninstall_mod", { modData,installConfig })
+}
+
+export function openFileExplorer(filepath: string) {
+    return invoke()<null>("open_file_explorer", { filepath })
 }
 
 export type CachedMod = { id: number; name: string; mod_version: string; game_version: string }

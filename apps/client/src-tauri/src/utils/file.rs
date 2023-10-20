@@ -51,12 +51,10 @@ pub fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<
 
 pub fn copy_dir_wotmods(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> {
     fs::create_dir_all(&dst)?;
-    println!("Created dir all");
 
     for entry in fs::read_dir(src)? {
         let entry = entry?;
         let ty = entry.file_type()?;
-        println!("Reading Entry: {}", &entry.file_name().to_str().unwrap());
 
         if ty.is_dir() {
             copy_dir_wotmods(entry.path(), dst.as_ref())?;

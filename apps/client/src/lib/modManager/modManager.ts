@@ -4,12 +4,10 @@ import { AuthStore } from "../supabase/supabaseContext";
 import {
   CachedMod,
   LocalInstallConfig,
-  installMod,
+  installMods,
   uninstallMod,
 } from "@/api/rust";
 import { SettingsManager } from "../settingsManager/settingsManager";
-
-const NotYetImplemented = new Error("Not Yet Implemented");
 
 export class ModManager {
   installConfigsLocal: ObservableMap<number, LocalInstallConfig>;
@@ -30,16 +28,9 @@ export class ModManager {
   unlockMod = (modId: number) =>
     runInAction(() => this.lockedModIds.delete(modId));
 
-  async addModMultipleConfigs(
+  async addInstallConfigs(
     mod: CachedMod,
-    installConfigs: CloudInstallConfig[]
-  ) {
-    throw NotYetImplemented;
-  }
-
-  async addMod(
-    mod: CachedMod,
-    installConfig: CloudInstallConfig,
+    installConfigs: CloudInstallConfig[],
     downloadUrl: string
   ) {
     // prevent mods already being modified from being installed twice or some weird shit
@@ -51,7 +42,9 @@ export class ModManager {
         if (!session) resolve(true);
         // TODO - if user is logged in, update database
         runInAction(() =>
-          this.installConfigsCloud.set(installConfig.id, installConfig)
+          installConfigs.forEach((cfg) =>
+            this.installConfigsCloud.set(cfg.id, cfg)
+          )
         );
         resolve(true);
       } catch (e) {
@@ -62,20 +55,22 @@ export class ModManager {
 
     const installLocallyPromise = new Promise(async (resolve, reject) => {
       try {
-        const localInstallConfig: LocalInstallConfig = {
-          id: installConfig.id,
-          mod_id: installConfig.modId,
-          name: installConfig.name,
-          mods_path: installConfig.modsPath,
-          res_path: installConfig.resModsPath,
-          configs_path: installConfig.configsPath,
-          game_directory: this.settingsManager.gameDirectory,
-        };
-        await installMod(mod, localInstallConfig, downloadUrl);
+        const localInstallConfigs = installConfigs.map((cfg) => {
+          const data: LocalInstallConfig = {
+            id: cfg.id,
+            mod_id: cfg.modId,
+            name: cfg.name,
+            mods_path: cfg.modsPath,
+            res_path: cfg.resModsPath,
+            configs_path: cfg.configsPath,
+            game_directory: this.settingsManager.gameDirectory,
+          };
+          return data;
+        });
+        await installMods(mod, localInstallConfigs, downloadUrl);
         runInAction(() =>
-          this.installConfigsLocal.set(
-            localInstallConfig.id,
-            localInstallConfig
+          localInstallConfigs.forEach((cfg) =>
+            this.installConfigsLocal.set(cfg.id, cfg)
           )
         );
         resolve(true);
@@ -84,11 +79,12 @@ export class ModManager {
         reject(e);
       }
     });
+
     await Promise.allSettled([updateProfilePromise, installLocallyPromise]);
     this.unlockMod(mod.id);
   }
 
-  async removeMod(mod: CachedMod, installConfigId: number) {
+  async removeInstallConfigs(mod: CachedMod, installConfigIds: number[]) {
     if (this.lockedModIds.has(mod.id)) return;
     this.lockMod(mod.id);
 
@@ -97,31 +93,32 @@ export class ModManager {
       if (!session) resolve(true);
       // TODO - if user is logged in, update database
       runInAction(() => {
-        this.installConfigsCloud.delete(installConfigId);
+        installConfigIds.forEach((id) => this.installConfigsCloud.delete(id));
       });
       resolve(true);
     });
 
-    const uninstallLocallyPromise = new Promise(async (resolve, reject) => {
-      try {
-        const localInstallConfig =
-          this.installConfigsLocal.get(installConfigId);
-        if (!localInstallConfig)
-          throw new Error(
-            "Local install Config not found in client cache layer"
-          );
-        await uninstallMod(mod, localInstallConfig);
-        runInAction(() => {
-          this.installConfigsLocal.delete(installConfigId);
-        });
-        resolve(true);
-      } catch (e) {
-        console.error("Failed to uninstall mod", e);
-        reject(e);
-      }
+    const uninstallLocallyPromises = installConfigIds.map((id) => {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const localInstallConfig = this.installConfigsLocal.get(id);
+          if (!localInstallConfig)
+            throw new Error(
+              "Local install Config not found in client cache layer"
+            );
+          await uninstallMod(mod, localInstallConfig);
+          runInAction(() => {
+            this.installConfigsLocal.delete(id);
+          });
+          resolve(true);
+        } catch (e) {
+          console.error("Failed to uninstall mod", e);
+          reject(e);
+        }
+      });
     });
 
-    await Promise.allSettled([updateProfilePromise, uninstallLocallyPromise]);
+    await Promise.all([updateProfilePromise, ...uninstallLocallyPromises]);
     this.unlockMod(mod.id);
   }
 }
