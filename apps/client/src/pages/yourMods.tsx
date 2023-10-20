@@ -116,7 +116,7 @@ const getMergedModData = (
   let data = new Array<UberMergedMod>();
 
   if (mods)
-    for (const config of manager.installConfigsLocal.values()) {
+    for (const config of manager.installConfigs.values()) {
       const associatedMod = mods.find((x) => x.id === config.mod_id);
       if (!associatedMod) console.error("No associated mod found for ");
       else {

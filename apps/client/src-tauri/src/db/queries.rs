@@ -33,9 +33,9 @@ pub fn fetch_cached_mods(app_handle: &AppHandle) -> Result<Vec<CachedMod>, Strin
     })
 }
 
-pub fn fetch_installed_mods(app_handle: &AppHandle) -> Result<Vec<LocalInstallConfig>, String> {
+pub fn fetch_installed_configs(app_handle: &AppHandle) -> Result<Vec<LocalInstallConfig>, String> {
     let sql = "--sql
-        SELECT * FROM installed_mods
+        SELECT * FROM installed_configs
     ";
     let mut result = Vec::new();
 

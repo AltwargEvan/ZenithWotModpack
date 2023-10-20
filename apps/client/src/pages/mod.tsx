@@ -19,11 +19,9 @@ const Action = observer(({ mod }: { mod: MergedMod }) => {
   const { toast } = useToast();
 
   const isInstalledLocally = mod.installConfigs.some((cfg) =>
-    manager.installConfigsLocal.has(cfg.id)
+    manager.installConfigs.has(cfg.id)
   );
-  const isAddedCloud = mod.installConfigs.some((cfg) =>
-    manager.installConfigsCloud.has(cfg.id)
-  );
+
   const operationInProgress = manager.lockedModIds.has(mod.id);
 
   function handleClick() {

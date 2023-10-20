@@ -5,7 +5,7 @@ use tauri_plugin_log::LogTarget;
 mod commands;
 use commands::config::{detect_game_directories, get_config, set_game_directory};
 use commands::misc::open_file_explorer;
-use commands::mod_installer::{get_install_state, install_mods, uninstall_mod};
+use commands::mod_installer::{get_installed_configs, install_mods, uninstall_mod};
 use commands::unzip_file_command::unzip_file;
 mod db;
 mod types;
@@ -22,7 +22,7 @@ fn main() {
             get_config,
             set_game_directory,
             detect_game_directories,
-            get_install_state,
+            get_installed_configs,
             install_mods,
             uninstall_mod,
             open_file_explorer
@@ -56,7 +56,7 @@ fn main() {
             set_game_directory,
             unzip_file,
             detect_game_directories,
-            get_install_state,
+            get_installed_configs,
             install_mods,
             uninstall_mod,
         ])
@@ -71,7 +71,7 @@ fn export_bindings() {
             get_config,
             set_game_directory,
             detect_game_directories,
-            get_install_state,
+            get_installed_configs,
             install_mods,
             uninstall_mod,
             open_file_explorer

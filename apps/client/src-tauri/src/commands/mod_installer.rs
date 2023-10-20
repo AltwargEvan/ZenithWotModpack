@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::{
-    db::state::ServiceAccess,
+    db::{queries::fetch_installed_configs, state::ServiceAccess},
     types::{CachedMod, LocalInstallConfig},
     utils::{
         self,
@@ -18,41 +18,8 @@ use super::config::detect_game_version;
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_install_state(
-    mod_id: i32,
-    app_handle: AppHandle,
-) -> (String, Option<CachedMod>, Option<Vec<LocalInstallConfig>>) {
-    todo!();
-    // let cached = match db::queries::fetch_mod(mod_id, &app_handle) {
-    //     Ok(res) => res,
-    //     Err(err) => {
-    //         println!("{}", err);
-    //         return ("Not Installed".into(), None, None);
-    //     }
-    // };
-
-    // let game_directory = match db::queries::fetch_config(&app_handle) {
-    //     Ok(res) => match res.game_directory {
-    //         Some(gd) => gd,
-    //         None => {
-    //             println!("No game directory found in config");
-    //             return ("Not Installed".into(), None, None);
-    //         }
-    //     },
-    //     Err(_) => {
-    //         println!("Failed to fetch config");
-    //         return ("Not Installed".into(), None, None);
-    //     }
-    // };
-    // match db::queries::fetch_installed_configs_for_mod(mod_id, game_directory, &app_handle) {
-    //     Ok(res) => {
-    //         if res.len() > 0 {
-    //             return ("Installed".into(), Some(cached), Some(res));
-    //         }
-    //     }
-    //     Err(err) => println!("Failed to fetch install data {}", err),
-    // };
-    // return ("Cached".into(), Some(cached), None);
+pub fn get_installed_configs(app_handle: AppHandle) -> Result<Vec<LocalInstallConfig>, String> {
+    fetch_installed_configs(&app_handle)
 }
 
 /// Compares the version of cached mod and requested mod.

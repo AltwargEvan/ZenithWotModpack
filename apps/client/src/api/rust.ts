@@ -22,8 +22,8 @@ export function detectGameDirectories() {
     return invoke()<string[]>("detect_game_directories")
 }
 
-export function getInstallState(modId: number) {
-    return invoke()<[string, CachedMod | null, LocalInstallConfig[] | null]>("get_install_state", { modId })
+export function getInstalledConfigs() {
+    return invoke()<LocalInstallConfig[]>("get_installed_configs")
 }
 
 export function installMods(modData: CachedMod, installConfigs: LocalInstallConfig[], downloadUrl: string) {

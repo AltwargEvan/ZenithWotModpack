@@ -10,17 +10,19 @@ import {
 import { SettingsManager } from "../settingsManager/settingsManager";
 
 export class ModManager {
-  installConfigsLocal: ObservableMap<number, LocalInstallConfig>;
-  installConfigsCloud: ObservableMap<number, CloudInstallConfig>;
+  installConfigs: ObservableMap<number, LocalInstallConfig>;
   lockedModIds: ObservableSet<number> = new ObservableSet();
   settingsManager: SettingsManager;
 
-  constructor(settingsManager: SettingsManager) {
+  constructor(
+    initialLocalInstallConfigs: LocalInstallConfig[],
+    settingsManager: SettingsManager
+  ) {
     this.settingsManager = settingsManager;
-    // TODO - if user is logged in fetch cloud configs that are installed
-    this.installConfigsCloud = new ObservableMap();
-    // TODO - fetch local configs that are installed
-    this.installConfigsLocal = new ObservableMap();
+    this.installConfigs = new ObservableMap();
+    initialLocalInstallConfigs.forEach((cfg) =>
+      this.installConfigs.set(cfg.id, cfg)
+    );
     // TODO - resolve the diff between cloud and local configs and update the cloud accordingly (Ex. user on a diff machine)
   }
 
@@ -41,11 +43,6 @@ export class ModManager {
         const session = AuthStore.getState().session;
         if (!session) resolve(true);
         // TODO - if user is logged in, update database
-        runInAction(() =>
-          installConfigs.forEach((cfg) =>
-            this.installConfigsCloud.set(cfg.id, cfg)
-          )
-        );
         resolve(true);
       } catch (e) {
         console.error(e);
@@ -70,7 +67,7 @@ export class ModManager {
         await installMods(mod, localInstallConfigs, downloadUrl);
         runInAction(() =>
           localInstallConfigs.forEach((cfg) =>
-            this.installConfigsLocal.set(cfg.id, cfg)
+            this.installConfigs.set(cfg.id, cfg)
           )
         );
         resolve(true);
@@ -92,23 +89,20 @@ export class ModManager {
       const session = AuthStore.getState().session;
       if (!session) resolve(true);
       // TODO - if user is logged in, update database
-      runInAction(() => {
-        installConfigIds.forEach((id) => this.installConfigsCloud.delete(id));
-      });
       resolve(true);
     });
 
     const uninstallLocallyPromises = installConfigIds.map((id) => {
       return new Promise(async (resolve, reject) => {
         try {
-          const localInstallConfig = this.installConfigsLocal.get(id);
+          const localInstallConfig = this.installConfigs.get(id);
           if (!localInstallConfig)
             throw new Error(
               "Local install Config not found in client cache layer"
             );
           await uninstallMod(mod, localInstallConfig);
           runInAction(() => {
-            this.installConfigsLocal.delete(id);
+            this.installConfigs.delete(id);
           });
           resolve(true);
         } catch (e) {

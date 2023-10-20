@@ -7,7 +7,7 @@ import {
   RouterProvider,
   createBrowserRouter,
 } from "react-router-dom";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import TitleBar from "@/layouts/Titlebar";
 import Navbar from "@/layouts/Navbar";
 import useSupabaseAuth from "./lib/supabase/supabaseContext";
@@ -16,6 +16,7 @@ import "./styles/globals.css";
 import { Settings } from "./lib/settingsManager/settingsManager";
 import { InnerAppProviders } from "./lib/AppProviders";
 import { Toaster } from "./components/ui/toaster";
+import { getConfig, getInstalledConfigs } from "./api/rust";
 localStorage.setItem("theme", "dark");
 
 const AppOuter = () => {
@@ -26,7 +27,6 @@ const AppOuter = () => {
       <Toaster />
       <div className="border-neutral-600 border h-screen w-screen font-oswald bg-gradient-to-bl from-neutral-900/90 to-neutral-950 text-white">
         <TitleBar />
-        <Navbar />
         <Outlet />
       </div>
     </QueryClientProvider>
@@ -37,18 +37,41 @@ const InitialSetup = () => {
 };
 
 const AppInner = () => {
-  const UserBootstrapComplete = true;
+  const {
+    data: config,
+    error: configError,
+    isLoading: configIsLoading,
+  } = useQuery({
+    queryFn: getConfig,
+    queryKey: ["config"],
+  });
+  const {
+    data: installedConfigs,
+    error: installedConfigsError,
+    isLoading: installedConfigsIsLoading,
+  } = useQuery({
+    queryFn: getInstalledConfigs,
+    queryKey: ["installedConfigs"],
+  });
 
-  if (!UserBootstrapComplete) return <InitialSetup />;
+  if (configIsLoading || installedConfigsIsLoading) return "Loading...";
 
   // TODO - implement initial bootstrap
+  // const UserBootstrapComplete = !!config?.game_directory;
+  // if (!UserBootstrapComplete) return <InitialSetup />;
+
   const userSettings: Settings = {
     gameDirectory: "C:\\Games\\World_of_Tanks_NA",
     automaticModUpdatesOnLaunchEnabled: false,
   };
-
+  if (!installedConfigs) return <div>Failed to fetch user configs</div>;
   return (
-    <InnerAppProviders userSettings={userSettings}>
+    <InnerAppProviders
+      userSettings={userSettings}
+      installConfigs={installedConfigs}
+    >
+      <Navbar />
+
       <div
         className="border-t fixed grow flex w-full  bprder-r-px border-neutral-600 "
         style={{
