@@ -7,17 +7,17 @@ export type Tables<T extends keyof Database["public"]["Tables"]> =
 export type Enums<T extends keyof Database["public"]["Enums"]> =
   Database["public"]["Enums"][T];
 
-export type InstallConfig = Tables<"installConfigs">;
+export type CloudInstallConfig = Tables<"installConfigs">;
 type ModJoined = Prettify<
   Tables<"mods"> & {
-    installConfigs: InstallConfig[];
+    installConfigs: CloudInstallConfig[];
   }
 >;
 export type SupaMergedMod = Array<ModJoined>;
 export type MergedMod = Prettify<wargamingMod & ModJoined>;
 export type GetModsReturnType = Array<MergedMod>;
 type configsInProfile = Tables<"configsInProfile"> & {
-  installConfigs: InstallConfig;
+  installConfigs: CloudInstallConfig;
 };
 type Streamer = Tables<"streamers">;
 type Profile = Tables<"profiles">;

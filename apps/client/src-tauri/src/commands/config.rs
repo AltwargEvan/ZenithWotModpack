@@ -75,19 +75,10 @@ fn is_game_dir(path: &Path) -> bool {
     return path.join("WorldOfTanks.exe").try_exists().unwrap_or(false);
 }
 
-#[specta::specta]
-#[tauri::command]
-pub async fn get_game_version(app_handle: AppHandle) -> Result<String, String> {
-    detect_game_version(&app_handle)
-}
-
-pub fn detect_game_version(app_handle: &AppHandle) -> Result<String, String> {
-    let config = db::queries::fetch_config(&app_handle)?;
-
-    let game_directory = config
-        .game_directory
-        .ok_or("No game directory specified in user config")?;
-
+pub fn detect_game_version(
+    game_directory: &String,
+    app_handle: &AppHandle,
+) -> Result<String, String> {
     let game_version_data_filepath = Path::new(&game_directory).join("version.xml");
 
     let contents = fs::read_to_string(game_version_data_filepath).map_err(|e| e.to_string())?;

@@ -1,24 +1,67 @@
+import { CachedMod } from "@/api/rust";
 import { useMods } from "@/api/supabase/mods";
 import { Button } from "@/components/ui/Button";
 import { CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import PageHeader from "@/layouts/PageHeader";
-import { observer } from "mobx-react-lite";
+import { useModManager } from "@/lib/modManager/modManagerContext";
+import { MergedMod } from "@zenith/utils/apitypes";
 import { MoreVertical } from "lucide-react";
+
 import Carousel from "react-material-ui-carousel";
 import { Navigate, useSearchParams } from "react-router-dom";
-import { useModManager } from "@/lib/modManager/modManagerContext";
+import { observer } from "mobx-react-lite";
 
-const Action = observer(({ modId }: { modId: number }) => {
+const Action = observer(({ mod }: { mod: MergedMod }) => {
   const manager = useModManager();
-  const buttonVariant = manager.modIsInstalled(modId) ? "secondary" : "default";
-  const buttonText = manager.modIsInstalled(modId) ? "Installed" : "Install";
+  const isInstalledLocally = mod.installConfigs.some((cfg) =>
+    manager.installConfigsLocal.has(cfg.id)
+  );
+  const isAddedCloud = mod.installConfigs.some((cfg) =>
+    manager.installConfigsCloud.has(cfg.id)
+  );
+  const operationInProgress = manager.lockedModIds.has(mod.id);
+  const buttonVariant = isInstalledLocally ? "secondary" : "default";
+  const buttonText = (function () {
+    if (operationInProgress) return "Loading...";
+    if (isInstalledLocally) return "Installed";
+    return "Install";
+  })();
+
+  const cachedMod: CachedMod = {
+    id: mod.id,
+    name: mod.name,
+    mod_version: mod.versions[0].version,
+    game_version: mod.versions[0].game_version.version,
+  };
+
+  const handleClick = () => {
+    if (operationInProgress) return;
+    if (!isInstalledLocally) {
+      switch (mod.installConfigs.length) {
+        case 0:
+          // TODO - toast mod has no install configs
+          break;
+        case 1:
+          manager.addMod(
+            cachedMod,
+            mod.installConfigs[0],
+            mod.versions[0].download_url
+          );
+          break;
+        default:
+          // TODO - install config selector popup
+          break;
+      }
+    }
+  };
+
   return (
     <div className="flex">
       <Button
         variant={buttonVariant}
         className="rounded-r-none rounded-l-sm"
-        onClick={() => manager.addMod(modId)}
+        onClick={handleClick}
       >
         {buttonText}
       </Button>
@@ -31,12 +74,10 @@ const Action = observer(({ modId }: { modId: number }) => {
     </div>
   );
 });
-
 const ModPage = () => {
   const { data: mods } = useMods();
   const [searchParams] = useSearchParams();
   const id = parseInt(searchParams.get("id") || "-1");
-  console.log(id);
   if (id === -1) return <Navigate to="/mods" />;
 
   const mod = mods?.find((mod) => mod.id === id);
@@ -51,7 +92,7 @@ const ModPage = () => {
       <PageHeader
         title={mod.name}
         subtext={`Created by ${mod.owner.spa_username}`}
-        action={<Action modId={mod.id} />}
+        action={<Action mod={mod} />}
       />
       <ScrollArea className=" pt-2 pb-2 h-full">
         <CardTitle className="text-xl pb-1">Description</CardTitle>

@@ -1,16 +1,17 @@
-import { ReactNode, createContext, useContext, useRef, useState } from "react";
+import { ReactNode, createContext, useContext, useState } from "react";
 import { ModManager } from "./modManager";
 
 const ModManagerContext = createContext<ModManager | null>(null);
 
 export const ModManagerContextProvider = ({
+  modManager,
   children,
 }: {
+  modManager: ModManager;
   children: ReactNode;
 }) => {
-  const [value] = useState(new ModManager());
   return (
-    <ModManagerContext.Provider value={value}>
+    <ModManagerContext.Provider value={modManager}>
       {children}
     </ModManagerContext.Provider>
   );

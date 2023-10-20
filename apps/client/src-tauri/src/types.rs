@@ -15,7 +15,7 @@ pub struct CachedMod {
 }
 
 impl CachedMod {
-    pub fn is_equal(&self, other: CachedMod) -> bool {
+    pub fn is_equal(&self, other: &CachedMod) -> bool {
         self.id == other.id
             && self.game_version == other.game_version
             && self.mod_version == other.mod_version
@@ -23,7 +23,7 @@ impl CachedMod {
 }
 
 #[derive(Serialize, Deserialize, Type)]
-pub struct InstallConfig {
+pub struct LocalInstallConfig {
     /// Primary key
     pub id: i32,
     pub mod_id: i32,
@@ -31,11 +31,5 @@ pub struct InstallConfig {
     pub mods_path: Option<String>,
     pub res_path: Option<String>,
     pub configs_path: Option<String>,
-    pub game_directory: String,
-}
-
-#[derive(Serialize, Deserialize, Type)]
-pub struct InstalledConfig {
-    pub config_id: i32,
     pub game_directory: String,
 }

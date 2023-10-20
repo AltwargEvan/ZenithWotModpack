@@ -16,7 +16,6 @@ async function fetchProfile(userId: string | undefined) {
     .eq("id", userId)
     .maybeSingle();
 
-  console.log(data);
   if (error) throw new Error(error.message);
   return data as ReturnType;
 }

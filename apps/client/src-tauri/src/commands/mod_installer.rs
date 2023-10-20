@@ -4,98 +4,110 @@ use std::{
 };
 
 use crate::{
-    db::{
+    db::state::ServiceAccess,
+    types::{CachedMod, LocalInstallConfig},
+    utils::{
         self,
-        queries::{
-            delete_install, fetch_cached_mods, fetch_install, fetch_installed_mods, fetch_mod,
-            insert_installed_mod,
-        },
+        file::{copy_dir_all, copy_dir_wotmods},
     },
-    types::{CachedMod, InstallConfig},
-    utils::{self, file::copy_dir_all},
 };
+use rusqlite::named_params;
 use tauri::AppHandle;
 
 use super::config::detect_game_version;
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_cached_mods(app_handle: AppHandle) -> Result<Vec<CachedMod>, String> {
-    fetch_cached_mods(&app_handle)
-}
-#[tauri::command]
-#[specta::specta]
-pub async fn get_installed_mods(app_handle: AppHandle) -> Result<Vec<InstallConfig>, String> {
-    fetch_installed_mods(&app_handle)
-}
-
-#[tauri::command]
-#[specta::specta]
 pub async fn get_install_state(
     mod_id: i32,
     app_handle: AppHandle,
-) -> (String, Option<CachedMod>, Option<Vec<InstallConfig>>) {
-    let cached = match db::queries::fetch_mod(mod_id, &app_handle) {
-        Ok(res) => res,
-        Err(err) => {
-            println!("{}", err);
-            return ("Not Installed".into(), None, None);
-        }
-    };
+) -> (String, Option<CachedMod>, Option<Vec<LocalInstallConfig>>) {
+    todo!();
+    // let cached = match db::queries::fetch_mod(mod_id, &app_handle) {
+    //     Ok(res) => res,
+    //     Err(err) => {
+    //         println!("{}", err);
+    //         return ("Not Installed".into(), None, None);
+    //     }
+    // };
 
-    let game_directory = match db::queries::fetch_config(&app_handle) {
-        Ok(res) => match res.game_directory {
-            Some(gd) => gd,
-            None => {
-                println!("No game directory found in config");
-                return ("Not Installed".into(), None, None);
-            }
-        },
-        Err(_) => {
-            println!("Failed to fetch config");
-            return ("Not Installed".into(), None, None);
-        }
-    };
-    match db::queries::fetch_installed_configs_for_mod(mod_id, game_directory, &app_handle) {
-        Ok(res) => {
-            if res.len() > 0 {
-                return ("Installed".into(), Some(cached), Some(res));
-            }
-        }
-        Err(err) => println!("Failed to fetch install data {}", err),
-    };
-    return ("Cached".into(), Some(cached), None);
+    // let game_directory = match db::queries::fetch_config(&app_handle) {
+    //     Ok(res) => match res.game_directory {
+    //         Some(gd) => gd,
+    //         None => {
+    //             println!("No game directory found in config");
+    //             return ("Not Installed".into(), None, None);
+    //         }
+    //     },
+    //     Err(_) => {
+    //         println!("Failed to fetch config");
+    //         return ("Not Installed".into(), None, None);
+    //     }
+    // };
+    // match db::queries::fetch_installed_configs_for_mod(mod_id, game_directory, &app_handle) {
+    //     Ok(res) => {
+    //         if res.len() > 0 {
+    //             return ("Installed".into(), Some(cached), Some(res));
+    //         }
+    //     }
+    //     Err(err) => println!("Failed to fetch install data {}", err),
+    // };
+    // return ("Cached".into(), Some(cached), None);
 }
 
-#[tauri::command]
-#[specta::specta]
 /// Compares the version of cached mod and requested mod.
 /// When the version differs, download the provided version and update the cache
-pub async fn cache_mod(
-    mod_data: CachedMod,
+pub async fn validate_or_add_mod_to_cache(
+    mod_data: &CachedMod,
     download_url: String,
-    app_handle: AppHandle,
+    force_redownload: bool,
+    app_handle: &AppHandle,
 ) -> Result<(), String> {
     // check current cache data and see if mod is already cached
-    match db::queries::fetch_mod(mod_data.id, &app_handle) {
-        // if installed, compare versions. if same do nothing
-        Ok(cached_mod) => {
-            if mod_data.is_equal(cached_mod) {
-                return Ok(());
+    if !force_redownload {
+        let fetch_cached_mod_sql = format!(
+            "--sql
+                SELECT * FROM mods_in_cache
+                WHERE id = {0}
+            ",
+            mod_data.id
+        );
+
+        let cached_mod = app_handle.db(|conn| {
+            conn.query_row(&fetch_cached_mod_sql, (), |row| {
+                Ok(CachedMod {
+                    id: row.get("id")?,
+                    name: row.get("name")?,
+                    mod_version: row.get("mod_version")?,
+                    game_version: row.get("game_version")?,
+                })
+            })
+        });
+
+        match cached_mod {
+            Ok(cached_mod) => {
+                // mod already cached - return early
+                if cached_mod.is_equal(mod_data) {
+                    return Ok(());
+                }
             }
+            Err(e) => match e {
+                // mod not found in cache, continue
+                rusqlite::Error::QueryReturnedNoRows => (),
+                // sql errror
+                _ => return Err(e.to_string()),
+            },
         }
-        Err(_) => (),
     }
 
-    // if versions differ:
-    // 1. download latest version from passed download_url
+    // 1. download version from passed download_url
     let cache_dir = app_handle
         .path_resolver()
         .app_cache_dir()
         .expect("The app cache directory should exist.");
 
     fs::create_dir_all(&cache_dir).expect("The app cache directory should be created.");
-    let destination = cache_dir.join(format!("mods\\{}", mod_data.name));
+    let destination = cache_dir.join(format!("mods\\{}", mod_data.id));
 
     // clean directory
     if destination.try_exists().unwrap_or(false) {
@@ -106,59 +118,92 @@ pub async fn cache_mod(
     utils::file::download_file(download_url, destination).await?;
 
     // 2. update db
-    db::queries::update_mod(mod_data, &app_handle)?;
-    Ok(())
+    let update_mod_sql = "--sql
+        INSERT OR REPLACE INTO mods_in_cache (id, game_version, mod_version, name)
+        VALUES (:id, :game_version, :mod_version, :name)
+    ";
+
+    let update_mod_params = named_params! {
+        ":id": mod_data.id,
+        ":game_version": mod_data.game_version,
+        ":mod_version": mod_data.mod_version,
+        ":name": mod_data.name,
+    };
+
+    app_handle.db(|conn| {
+        conn.execute(update_mod_sql, update_mod_params)
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    })
 }
 
 #[tauri::command]
 #[specta::specta]
-pub async fn uncache_mod(mod_data: CachedMod, app_handle: AppHandle) -> Result<(), String> {
+pub async fn remove_mod_from_cache(
+    mod_data: CachedMod,
+    app_handle: AppHandle,
+) -> Result<(), String> {
     // delete directory in cache
     let cache_dir = app_handle
         .path_resolver()
         .app_cache_dir()
         .expect("The app cache directory should exist.");
 
-    let destination = cache_dir.join(format!("mods\\{}", mod_data.name));
+    let destination = cache_dir.join(format!("mods\\{}", mod_data.id));
     if destination.try_exists().unwrap_or(false) {
         let _ = fs::remove_dir_all(&destination);
     }
 
     // update db
-    db::queries::delete_mod(mod_data, &app_handle)
+    let sql = "--sql
+        DELETE FROM mods WHERE id = ?1
+    ";
+
+    app_handle.db(|conn| {
+        conn.execute(sql, [mod_data.id])
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    })
 }
 
 #[tauri::command]
 #[specta::specta]
 pub async fn install_mod(
     mod_data: CachedMod,
-    install_config: InstallConfig,
+    install_config: LocalInstallConfig,
+    download_url: String,
     app_handle: AppHandle,
 ) -> Result<(), String> {
-    if db::queries::fetch_mod(mod_data.id, &app_handle).is_err() {
-        return Err("Requested mod is not stored in cache".into());
-    }
-    let game_version = detect_game_version(&app_handle)?;
-    let game_dir = Path::new(&install_config.game_directory);
+    validate_or_add_mod_to_cache(&mod_data, download_url, false, &app_handle).await?;
+
+    let game_version = detect_game_version(&install_config.game_directory, &app_handle)?;
+    let game_dir = Path::new(install_config.game_directory.as_str());
     let mods_dir = game_dir.join(format!(
-        "mods\\{game_version}\\{0}\\{1}",
+        "mods\\{game_version}\\{0} - {1}",
         mod_data.name, install_config.name
     ));
-    let res_mods_dir = game_dir.join(format!(
-        "res_mods\\{game_version}\\{0}\\{1}",
-        mod_data.name, install_config.name
-    ));
+
+    // res mods have to be copied directly in or else shit breaks.
+    // TODO - resolve res mods conflicts
+    let res_mods_dir = game_dir.join(format!("res_mods\\{game_version}"));
     let config_dir = game_dir.join("mods\\configs");
 
     let cache_dir = app_handle
         .path_resolver()
         .app_cache_dir()
         .expect("The app cache directory should exist.")
-        .join(format!("mods\\{}", mod_data.name));
+        .join(format!("mods\\{}", mod_data.id));
 
+    // Copy designed files from config to correct folder
     if let Some(mods_path) = &install_config.mods_path {
-        let src = cache_dir.join(mods_path);
-        copy_dir_all(src, mods_dir).map_err(|e| e.to_string())?;
+        let src = match !mods_path.is_empty() {
+            true => cache_dir.clone(),
+            false => cache_dir.join(mods_path),
+        };
+
+        println!("Mods src: {}", &src.to_str().unwrap());
+
+        copy_dir_wotmods(src, mods_dir).map_err(|e| e.to_string())?;
     }
     if let Some(configs_path) = &install_config.configs_path {
         let src = cache_dir.join(configs_path);
@@ -168,37 +213,68 @@ pub async fn install_mod(
         let src = cache_dir.join(res_path);
         copy_dir_all(src, res_mods_dir).map_err(|e| e.to_string())?;
     }
-    insert_installed_mod(install_config, &app_handle)?;
-    Ok(())
+
+    // update local database
+    let sql = "--sql
+        INSERT OR REPLACE INTO installed_configs (id, mod_id, name, mods_path, res_path, configs_path, game_directory)
+        VALUES (:id, :mod_id, :name, :mods_path, :res_path, :configs_path, :game_directory)
+    ";
+
+    let params = named_params! {
+        ":id": install_config.id,
+        ":mod_id": install_config.mod_id,
+        ":name": install_config.name,
+        ":mods_path": install_config.mods_path,
+        ":res_path": install_config.res_path,
+        ":configs_path": install_config.configs_path,
+        ":game_directory": install_config.game_directory
+    };
+
+    app_handle.db(|conn| {
+        conn.execute(sql, params).map_err(|e| e.to_string())?;
+        Ok(())
+    })
 }
 
 #[tauri::command]
 #[specta::specta]
-pub async fn uninstall_mod(
-    mod_id: i32,
-    install_config_name: String,
+pub fn uninstall_mod(
+    install_config: LocalInstallConfig,
     app_handle: AppHandle,
 ) -> Result<(), String> {
-    let mod_data = fetch_mod(mod_id, &app_handle)?;
-    let install_config = fetch_install(mod_id, &install_config_name, &app_handle)?;
-    let game_version = detect_game_version(&app_handle)?;
-    let game_dir = Path::new(&install_config.game_directory);
-    let mods_dir = game_dir.join(format!("mods\\{game_version}\\{0}", mod_data.name));
-    let res_mods_dir = game_dir.join(format!(
-        "res_mods\\{game_version}\\{0}\\{1}",
-        mod_data.name, install_config.name
+    let game_version = detect_game_version(&install_config.game_directory, &app_handle)?;
+    let game_dir = Path::new(install_config.game_directory.as_str());
+
+    let mods_dir = game_dir.join(format!(
+        "mods\\{game_version}\\{0}\\{1}",
+        install_config.mod_id, install_config.id
     ));
+
+    // res mods have to be copied directly in or else shit breaks.
+    // TODO - resolve res mods conflicts
+    let res_mods_dir = game_dir.join(format!("res_mods\\{game_version}"));
+    // TODO - config files need specific shit too
+    let config_dir = game_dir.join("mods\\configs");
 
     // remove directories with installed mod
     if mods_dir.try_exists().unwrap_or(false) {
         let _ = fs::remove_dir_all(&mods_dir);
     }
+    // temp solution purely for region changer
     if res_mods_dir.try_exists().unwrap_or(false) {
         let _ = fs::remove_dir_all(&res_mods_dir);
     }
 
     // update db
-    delete_install(install_config_name, &app_handle)?;
+    let sql = format!(
+        "--sql
+            DELETE FROM installed_mods WHERE id = '{0}'
+        ",
+        install_config.id
+    );
 
-    Ok(())
+    app_handle.db(|conn| {
+        conn.execute(&sql, ()).map_err(|e| e.to_string())?;
+        Ok(())
+    })
 }

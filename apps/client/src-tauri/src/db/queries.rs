@@ -1,31 +1,8 @@
-use crate::types::{CachedMod, Config, InstallConfig};
+use crate::types::{CachedMod, Config, LocalInstallConfig};
 use rusqlite::named_params;
 use tauri::AppHandle;
 
 use super::state::ServiceAccess;
-
-pub fn fetch_mod(mod_id: i32, app_handle: &AppHandle) -> Result<CachedMod, String> {
-    let sql = format!(
-        "--sql
-        SELECT * FROM mods
-        WHERE id = {}
-    ",
-        mod_id
-    );
-
-    app_handle
-        .db(|conn| {
-            conn.query_row(&sql, (), |row| {
-                Ok(CachedMod {
-                    id: row.get("id")?,
-                    name: row.get("name")?,
-                    mod_version: row.get("mod_version")?,
-                    game_version: row.get("game_version")?,
-                })
-            })
-        })
-        .map_err(|e| e.to_string())
-}
 
 pub fn fetch_cached_mods(app_handle: &AppHandle) -> Result<Vec<CachedMod>, String> {
     let sql = "--sql
@@ -56,7 +33,7 @@ pub fn fetch_cached_mods(app_handle: &AppHandle) -> Result<Vec<CachedMod>, Strin
     })
 }
 
-pub fn fetch_installed_mods(app_handle: &AppHandle) -> Result<Vec<InstallConfig>, String> {
+pub fn fetch_installed_mods(app_handle: &AppHandle) -> Result<Vec<LocalInstallConfig>, String> {
     let sql = "--sql
         SELECT * FROM installed_mods
     ";
@@ -66,7 +43,7 @@ pub fn fetch_installed_mods(app_handle: &AppHandle) -> Result<Vec<InstallConfig>
         let mut stmt = conn.prepare(sql).map_err(|e| e.to_string())?;
         let iter = stmt
             .query_map([], |row| {
-                Ok(InstallConfig {
+                Ok(LocalInstallConfig {
                     id: row.get("id")?,
                     name: row.get("name")?,
                     mod_id: row.get("mod_id")?,
@@ -92,7 +69,7 @@ pub fn fetch_installed_configs_for_mod(
     mod_id: i32,
     game_directory: String,
     app_handle: &AppHandle,
-) -> Result<Vec<InstallConfig>, String> {
+) -> Result<Vec<LocalInstallConfig>, String> {
     let sql = format!(
         "--sql
         SELECT * FROM installed_mods
@@ -105,7 +82,7 @@ pub fn fetch_installed_configs_for_mod(
         let mut stmt = conn.prepare(&sql).map_err(|e| e.to_string())?;
         let mod_iter = stmt
             .query_map([], |row| {
-                Ok(InstallConfig {
+                Ok(LocalInstallConfig {
                     id: row.get("id")?,
                     mod_id: row.get("mod_id")?,
                     mods_path: row.get("mods_path")?,
@@ -144,7 +121,7 @@ pub fn fetch_config(app_handle: &AppHandle) -> Result<Config, String> {
         .map_err(|err| err.to_string().into())
 }
 
-pub fn update_mod(mod_data: CachedMod, app_handle: &AppHandle) -> Result<(), String> {
+pub fn update_mod(mod_data: &CachedMod, app_handle: &AppHandle) -> Result<(), String> {
     let update_mod_sql = "--sql
         INSERT OR REPLACE INTO mods (id, game_version, mod_version, name, thumbnail_url, wg_mods_id)
         VALUES (:id, :game_version, :mod_version, :name, :thumbnail_url, :wg_mods_id)
@@ -164,67 +141,21 @@ pub fn update_mod(mod_data: CachedMod, app_handle: &AppHandle) -> Result<(), Str
     })
 }
 
-pub fn delete_mod(mod_data: CachedMod, app_handle: &AppHandle) -> Result<(), String> {
-    let sql = "--sql
-        DELETE FROM mods WHERE id = ?1
-    ";
-
-    app_handle.db(|conn| {
-        conn.execute(sql, [mod_data.id])
-            .map_err(|e| e.to_string())?;
-        Ok(())
-    })
-}
-
-pub fn insert_installed_mod(mod_data: InstallConfig, app_handle: &AppHandle) -> Result<(), String> {
-    let sql = "--sql
-        INSERT OR REPLACE INTO installed_mods (mod_id, mods_path, res_path, configs_path, name, game_directory)
-        VALUES (:mod_id, :mods_path, :res_path, :configs_path, :name, :game_directory)
-    ";
-
-    let params = named_params! {
-        ":mod_id": mod_data.mod_id,
-        ":mods_path": mod_data.mods_path,
-        ":res_path": mod_data.res_path,
-        ":configs_path": mod_data.configs_path,
-        ":name": mod_data.name,
-        ":game_directory": mod_data.game_directory
-    };
-
-    app_handle.db(|conn| {
-        conn.execute(sql, params).map_err(|e| e.to_string())?;
-        Ok(())
-    })
-}
-
-pub fn delete_install(install_name: String, app_handle: &AppHandle) -> Result<(), String> {
-    let sql = format!(
-        "--sql
-            DELETE FROM installed_mods WHERE name = '{install_name}'
-        "
-    );
-
-    app_handle.db(|conn| {
-        conn.execute(&sql, ()).map_err(|e| e.to_string())?;
-        Ok(())
-    })
-}
-
 pub fn fetch_install(
     mod_id: i32,
-    install_config_name: &String,
+    install_config_id: &i32,
     app_handle: &AppHandle,
-) -> Result<InstallConfig, String> {
+) -> Result<LocalInstallConfig, String> {
     let sql = format!(
         "--sql
-            SELECT * FROM installed_mods WHERE mod_id = {mod_id} AND name = '{install_config_name}'
+            SELECT * FROM installed_mods WHERE id = {install_config_id}
         "
     );
 
     app_handle
         .db(|conn| {
             conn.query_row(&sql, (), |row| {
-                Ok(InstallConfig {
+                Ok(LocalInstallConfig {
                     id: row.get("id")?,
                     game_directory: row.get("game_directory")?,
                     mod_id: row.get("mod_id")?,

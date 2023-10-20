@@ -14,6 +14,12 @@ import useSupabaseAuth from "./lib/supabase/supabaseContext";
 import { queryClient } from "./lib/utils/queryClient";
 import "./styles/globals.css";
 import { ModManagerContextProvider } from "./lib/modManager/modManagerContext";
+import { SettingsManagerContextProvider } from "./lib/settingsManager/settingsManagerContext";
+import {
+  Settings,
+  SettingsManager,
+} from "./lib/settingsManager/settingsManager";
+import { InnerAppProviders } from "./lib/AppProviders";
 localStorage.setItem("theme", "dark");
 
 const AppOuter = () => {
@@ -21,13 +27,11 @@ const AppOuter = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ModManagerContextProvider>
-        <div className="border-neutral-600 border h-screen w-screen font-oswald bg-gradient-to-bl from-neutral-900/90 to-neutral-950 text-white">
-          <TitleBar />
-          <Navbar />
-          <Outlet />
-        </div>
-      </ModManagerContextProvider>
+      <div className="border-neutral-600 border h-screen w-screen font-oswald bg-gradient-to-bl from-neutral-900/90 to-neutral-950 text-white">
+        <TitleBar />
+        <Navbar />
+        <Outlet />
+      </div>
     </QueryClientProvider>
   );
 };
@@ -39,22 +43,31 @@ const AppInner = () => {
   const UserBootstrapComplete = true;
 
   if (!UserBootstrapComplete) return <InitialSetup />;
+
+  // TODO - implement initial bootstrap
+  const userSettings: Settings = {
+    gameDirectory: "C:\\Games\\World_of_Tanks_NA",
+    automaticModUpdatesOnLaunchEnabled: false,
+  };
+
   return (
-    <div
-      className="border-t fixed grow flex w-full  bprder-r-px border-neutral-600 "
-      style={{
-        height: "calc(100% - 2.25rem - 1px)",
-        width: "calc(100% - 4.5rem)",
-        left: "4.5rem",
-        top: "2.25rem",
-      }}
-    >
-      <div className="flex xl:px-24 px-4 pb-4  w-full flex-col">
-        <Suspense>
-          <Outlet />
-        </Suspense>
+    <InnerAppProviders userSettings={userSettings}>
+      <div
+        className="border-t fixed grow flex w-full  bprder-r-px border-neutral-600 "
+        style={{
+          height: "calc(100% - 2.25rem - 1px)",
+          width: "calc(100% - 4.5rem)",
+          left: "4.5rem",
+          top: "2.25rem",
+        }}
+      >
+        <div className="flex xl:px-24 px-4 pb-4  w-full flex-col">
+          <Suspense>
+            <Outlet />
+          </Suspense>
+        </div>
       </div>
-    </div>
+    </InnerAppProviders>
   );
 };
 

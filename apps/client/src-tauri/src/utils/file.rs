@@ -1,9 +1,13 @@
 use std::{
+    ffi::OsStr,
     fs, io,
     path::{Path, PathBuf},
 };
 
-use tauri::api::http::{ClientBuilder, HttpRequestBuilder, ResponseType};
+use tauri::api::{
+    file,
+    http::{ClientBuilder, HttpRequestBuilder, ResponseType},
+};
 
 pub async fn download_file(target: String, dest: PathBuf) -> Result<(), String> {
     // download to memory
@@ -40,6 +44,30 @@ pub fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<
             copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
         } else {
             fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
+        }
+    }
+    Ok(())
+}
+
+pub fn copy_dir_wotmods(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> {
+    fs::create_dir_all(&dst)?;
+    println!("Created dir all");
+
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let ty = entry.file_type()?;
+        println!("Reading Entry: {}", &entry.file_name().to_str().unwrap());
+
+        if ty.is_dir() {
+            copy_dir_wotmods(entry.path(), dst.as_ref())?;
+        } else {
+            let filename = entry.file_name();
+            let file_extension = Path::new(&filename).extension().and_then(OsStr::to_str);
+            if let Some(file_extension) = file_extension {
+                if file_extension == "wotmod" {
+                    fs::copy(entry.path(), dst.as_ref().join(filename))?;
+                }
+            }
         }
     }
     Ok(())
